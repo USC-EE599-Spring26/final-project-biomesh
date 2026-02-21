@@ -13,12 +13,9 @@ import CareKit
 import CareKitStore
 import SwiftUI
 import UIKit
-
 struct CareView: UIViewControllerRepresentable {
-
     @Environment(\.appDelegate) private var appDelegate
     @Environment(\.careStore) private var careStore
-
     func makeUIViewController(
         context: Context
     ) -> some UIViewController {
@@ -31,7 +28,6 @@ struct CareView: UIViewControllerRepresentable {
         }
         return navigationController
     }
-
     func updateUIViewController(
         _ uiViewController: UIViewControllerType,
         context: Context
@@ -50,14 +46,12 @@ struct CareView: UIViewControllerRepresentable {
             animated: false
         )
     }
-
     func createViewController() -> UIViewController {
         CareViewController(
             store: careStore
         )
     }
 }
-
 struct CareView_Previews: PreviewProvider {
     static var previews: some View {
         CareView()
