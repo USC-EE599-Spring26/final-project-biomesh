@@ -248,27 +248,35 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
         default:
             if let selected = userSelectedCardType(for: task) {
                 switch selected {
+
                 case "simple":
                     return [EventQueryView<SimpleTaskView>(query: query).formattedHostingController()]
+
                 case "instructions":
                     return [EventQueryView<InstructionsTaskView>(query: query).formattedHostingController()]
+
                 case "numericProgress":
                     return [EventQueryView<NumericProgressTaskView>(query: query).formattedHostingController()]
+
                 case "labeledValue":
                     return [EventQueryView<LabeledValueTaskView>(query: query).formattedHostingController()]
+
                 #if os(iOS)
                 case "checklist":
                     return [OCKChecklistTaskViewController(query: query, store: self.store)]
+
                 case "buttonLog":
                     return [OCKButtonLogTaskViewController(query: query, store: self.store)]
                 #else
                 case "checklist", "buttonLog":
                     return []
                 #endif
+
                 default:
                     return nil
                 }
             }
+
             return nil
         }
     }
@@ -278,6 +286,7 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
         guard let match = tags.first(where: { $0.hasPrefix("cardType:") }) else { return nil }
         return String(match.dropFirst("cardType:".count))
     }
+
     private func appendTasks(
         _ tasks: [any OCKAnyTask],
         to listViewController: OCKListViewController,
