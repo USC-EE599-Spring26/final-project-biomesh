@@ -35,16 +35,13 @@ import CareKitUI
 import os.log
 import SwiftUI
 import UIKit
-
 @MainActor
 final class CareViewController: OCKDailyPageViewController, @unchecked Sendable {
-
 	private var isSyncing = false
 	private var isLoading = false
     private var style: Styler {
         CustomStylerKey.defaultValue
     }
-
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.rightBarButtonItem = UIBarButtonItem(
@@ -79,7 +76,6 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
             object: nil
         )
     }
-
     @objc private func updateSynchronizationProgress(
         _ notification: Notification
     ) {
@@ -87,7 +83,6 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
             let progress = receivedInfo[Constants.progressUpdate] as? Int else {
             return
         }
-
 		switch progress {
 		case 100:
 			self.navigationItem.rightBarButtonItem = UIBarButtonItem(
@@ -96,8 +91,6 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
 				action: #selector(self.synchronizeWithRemote)
 			)
 			self.navigationItem.rightBarButtonItem?.tintColor = self.view.tintColor
-
-			// Give sometime for the user to see 100
 			DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
 				guard let self else { return }
 				self.navigationItem.rightBarButtonItem = UIBarButtonItem(
@@ -118,9 +111,7 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
     }
 
     @objc private func synchronizeWithRemote() {
-        guard !isSyncing else {
-            return
-        }
+        guard !isSyncing else {return}
         isSyncing = true
         AppDelegateKey.defaultValue?.store.synchronize { error in
             let errorString = error?.localizedDescription ?? "Successful sync with remote!"
@@ -137,31 +128,18 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
         }
     }
 
-    @objc private func reloadView(_ notification: Notification? = nil) {
-        guard !isLoading else {
-            return
-        }
+    @objc private func reloadView(_ notification: Notification? = nil) {guard !isLoading else {return}
         self.reload()
     }
-
-    /*
-     This will be called each time the selected date changes.
-     Use this as an opportunity to rebuild the content shown to the user.
-     */
     override func dailyPageViewController(
         _ dailyPageViewController: OCKDailyPageViewController,
         prepare listViewController: OCKListViewController,
         for date: Date
     ) {
         self.isLoading = true
-
-        // Always call this method to ensure dates for
-        // queries are correct.
         let date = modifyDateIfNeeded(date)
         let isCurrentDay = isSameDay(as: date)
-
         #if os(iOS)
-        // Only show the tip view on the current date
         if isCurrentDay {
             if Calendar.current.isDate(date, inSameDayAs: Date()) {
                 // Add a non-CareKit view into the list
@@ -176,27 +154,16 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
             }
         }
         #endif
-
         fetchAndDisplayTasks(on: listViewController, for: date)
     }
-
     private func isSameDay(as date: Date) -> Bool {
-        Calendar.current.isDate(
-            date,
-            inSameDayAs: Date()
-        )
+        Calendar.current.isDate(date,inSameDayAs: Date())
     }
-
     private func modifyDateIfNeeded(_ date: Date) -> Date {
-        guard date < .now else {
-            return date
-        }
-        guard !isSameDay(as: date) else {
-            return .now
-        }
+        guard date < .now else {return date}
+        guard !isSameDay(as: date) else {return .now}
         return date.endOfDay
     }
-
     private func fetchAndDisplayTasks(
         on listViewController: OCKListViewController,
         for date: Date
@@ -206,7 +173,6 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
 			appendTasks(tasks, to: listViewController, date: date)
         }
     }
-
     private func fetchTasks(on date: Date) async -> [any OCKAnyTask] {
         var query = OCKTaskQuery(for: date)
         query.excludesTasksWithNoEvents = true
@@ -221,22 +187,18 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
             return []
         }
     }
-
     private func taskViewControllers(
         _ task: any OCKAnyTask,
         on date: Date
     ) -> [UIViewController]? {
-
         var query = OCKEventQuery(for: date)
         query.taskIDs = [task.id]
-
         switch task.id {
         case TaskID.steps:
             let card = EventQueryView<NumericProgressTaskView>(
                 query: query
             )
             .formattedHostingController()
-
             return [card]
 
         case TaskID.ovulationTestResult:
@@ -244,7 +206,6 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
                 query: query
             )
             .formattedHostingController()
-
             return [card]
 
         case TaskID.stretch:
@@ -252,36 +213,24 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
                 query: query
             )
             .formattedHostingController()
-
             return [card]
 
         case TaskID.kegels:
-            /*
-             Since the kegel task is only scheduled every other day, there will be cases
-             where it is not contained in the tasks array returned from the query.
-             */
             let card = EventQueryView<SimpleTaskView>(
                 query: query
             )
             .formattedHostingController()
-
             return [card]
-
         #if os(iOS)
-        // Create a card for the doxylamine task if there are events for it on this day.
-        case TaskID.doxylamine:
 
-            // This is a UIKit based card.
+        case TaskID.doxylamine:
             let card = OCKChecklistTaskViewController(
                 query: query,
                 store: self.store
             )
-
             return [card]
         #endif
-
         case TaskID.nausea:
-
             #if os(iOS)
             /*
              Also create a card (UIKit view) that displays a single event.
@@ -292,18 +241,43 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
                 query: query,
                 store: self.store
             )
-
             return [nauseaCard]
-
             #else
             return []
             #endif
-
         default:
+            if let selected = userSelectedCardType(for: task) {
+                switch selected {
+                case "simple":
+                    return [EventQueryView<SimpleTaskView>(query: query).formattedHostingController()]
+                case "instructions":
+                    return [EventQueryView<InstructionsTaskView>(query: query).formattedHostingController()]
+                case "numericProgress":
+                    return [EventQueryView<NumericProgressTaskView>(query: query).formattedHostingController()]
+                case "labeledValue":
+                    return [EventQueryView<LabeledValueTaskView>(query: query).formattedHostingController()]
+                #if os(iOS)
+                case "checklist":
+                    return [OCKChecklistTaskViewController(query: query, store: self.store)]
+                case "buttonLog":
+                    return [OCKButtonLogTaskViewController(query: query, store: self.store)]
+                #else
+                case "checklist", "buttonLog":
+                    return []
+                #endif
+                default:
+                    return nil
+                }
+            }
             return nil
         }
     }
-
+    private func userSelectedCardType(for task: any OCKAnyTask) -> String? {
+        guard let task = task as? OCKTask else { return nil }
+        guard let tags = task.tags else { return nil }
+        guard let match = tags.first(where: { $0.hasPrefix("cardType:") }) else { return nil }
+        return String(match.dropFirst("cardType:".count))
+    }
     private func appendTasks(
         _ tasks: [any OCKAnyTask],
         to listViewController: OCKListViewController,
@@ -340,4 +314,5 @@ private extension View {
         viewController.view.backgroundColor = .clear
         return viewController
     }
+    
 }

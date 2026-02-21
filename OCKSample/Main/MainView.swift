@@ -22,8 +22,9 @@ struct MainView: View {
 			if let isLoggedIn {
 				if isLoggedIn {
 					if isSyncingWithRemote {
-						MainTabView(loginViewModel: loginViewModel)
-							.navigationBarHidden(true)
+                        MainTabView(loginViewModel: loginViewModel,
+                                    storeCoordinator: storeCoordinator)
+                            .navigationBarHidden(true)
 					} else {
 						CareView()
 							.navigationBarHidden(true)
