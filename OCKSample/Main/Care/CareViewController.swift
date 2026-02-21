@@ -39,9 +39,7 @@ import UIKit
 final class CareViewController: OCKDailyPageViewController, @unchecked Sendable {
 	private var isSyncing = false
 	private var isLoading = false
-    private var style: Styler {
-        CustomStylerKey.defaultValue
-    }
+    private var style: Styler {CustomStylerKey.defaultValue}
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.rightBarButtonItem = UIBarButtonItem(
@@ -52,9 +50,7 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(synchronizeWithRemote),
-            name: Notification.Name(
-                rawValue: Constants.requestSync
-            ),
+            name: Notification.Name(rawValue: Constants.requestSync),
             object: nil
         )
         NotificationCenter.default.addObserver(
@@ -78,11 +74,7 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
     }
     @objc private func updateSynchronizationProgress(
         _ notification: Notification
-    ) {
-        guard let receivedInfo = notification.userInfo as? [String: Any],
-            let progress = receivedInfo[Constants.progressUpdate] as? Int else {
-            return
-        }
+    ) {guard let receivedInfo = notification.userInfo as? [String: Any],let progress = receivedInfo[Constants.progressUpdate] as? Int else {return}
 		switch progress {
 		case 100:
 			self.navigationItem.rightBarButtonItem = UIBarButtonItem(
@@ -118,24 +110,18 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
             Logger.feed.info("\(errorString)")
             DispatchQueue.main.async { [weak self] in
 				guard let self else { return }
-                if error != nil {
-                    self.navigationItem.rightBarButtonItem?.tintColor = .red
-                } else {
+                if error != nil {self.navigationItem.rightBarButtonItem?.tintColor = .red} else {
                     self.navigationItem.rightBarButtonItem?.tintColor = self.navigationItem.leftBarButtonItem?.tintColor
                 }
                 self.isSyncing = false
-            }
-        }
-    }
+            }}}
 
     @objc private func reloadView(_ notification: Notification? = nil) {guard !isLoading else {return}
-        self.reload()
-    }
+        self.reload()}
     override func dailyPageViewController(
         _ dailyPageViewController: OCKDailyPageViewController,
         prepare listViewController: OCKListViewController,
-        for date: Date
-    ) {
+        for date: Date) {
         self.isLoading = true
         let date = modifyDateIfNeeded(date)
         let isCurrentDay = isSameDay(as: date)
@@ -151,42 +137,31 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
                 tipView.imageView.image = UIImage(named: "exercise.jpg")
                 tipView.customStyle = CustomStylerKey.defaultValue
                 listViewController.appendView(tipView, animated: false)
-            }
-        }
+            }}
         #endif
-        fetchAndDisplayTasks(on: listViewController, for: date)
-    }
+        fetchAndDisplayTasks(on: listViewController, for: date)}
     private func isSameDay(as date: Date) -> Bool {
-        Calendar.current.isDate(date,inSameDayAs: Date())
-    }
+        Calendar.current.isDate(date,inSameDayAs: Date())}
     private func modifyDateIfNeeded(_ date: Date) -> Date {
         guard date < .now else {return date}
         guard !isSameDay(as: date) else {return .now}
-        return date.endOfDay
-    }
+        return date.endOfDay}
     private func fetchAndDisplayTasks(
         on listViewController: OCKListViewController,
         for date: Date
-    ) {
-        Task {
+    ) {Task {
             let tasks = await self.fetchTasks(on: date)
-			appendTasks(tasks, to: listViewController, date: date)
-        }
-    }
-    private func fetchTasks(on date: Date) async -> [any OCKAnyTask] {
-        var query = OCKTaskQuery(for: date)
+			appendTasks(tasks, to: listViewController, date: date)}}
+    private func fetchTasks(on date: Date) async -> [any OCKAnyTask] {var query = OCKTaskQuery(for: date)
         query.excludesTasksWithNoEvents = true
-        do {
-            let tasks = try await store.fetchAnyTasks(query: query)
+        do {let tasks = try await store.fetchAnyTasks(query: query)
             let orderedTasks = TaskID.ordered.compactMap { orderedTaskID in
-                tasks.first(where: { $0.id == orderedTaskID })
-            }
+                tasks.first(where: { $0.id == orderedTaskID })}
             return orderedTasks
         } catch {
             Logger.feed.error("Could not fetch tasks: \(error, privacy: .public)")
             return []
-        }
-    }
+        }}
     private func taskViewControllers(
         _ task: any OCKAnyTask,
         on date: Date
@@ -196,88 +171,86 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
         switch task.id {
         case TaskID.steps:
             let card = EventQueryView<NumericProgressTaskView>(
-                query: query
-            )
-            .formattedHostingController()
+                query: query)
+                .formattedHostingController()
             return [card]
-
+            
         case TaskID.ovulationTestResult:
             let card = EventQueryView<LabeledValueTaskView>(
-                query: query
-            )
-            .formattedHostingController()
+                query: query)
+                .formattedHostingController()
             return [card]
-
+            
         case TaskID.stretch:
             let card = EventQueryView<InstructionsTaskView>(
-                query: query
-            )
-            .formattedHostingController()
+                query: query)
+                .formattedHostingController()
             return [card]
-
+            
         case TaskID.kegels:
             let card = EventQueryView<SimpleTaskView>(
-                query: query
-            )
-            .formattedHostingController()
+                query: query)
+                .formattedHostingController()
             return [card]
-        #if os(iOS)
-
+#if os(iOS)
+            
         case TaskID.doxylamine:
             let card = OCKChecklistTaskViewController(
                 query: query,
                 store: self.store
             )
             return [card]
-        #endif
+#endif
         case TaskID.nausea:
-            #if os(iOS)
-            /*
-             Also create a card (UIKit view) that displays a single event.
-             The event query passed into the initializer specifies that only
-             today's log entries should be displayed by this log task view controller.
-             */
+#if os(iOS)
             let nauseaCard = OCKButtonLogTaskViewController(
                 query: query,
                 store: self.store
             )
             return [nauseaCard]
-            #else
+#else
             return []
-            #endif
+#endif
         default:
             if let selected = userSelectedCardType(for: task) {
                 switch selected {
+                    
                 case "simple":
                     return [EventQueryView<SimpleTaskView>(query: query).formattedHostingController()]
+                    
                 case "instructions":
                     return [EventQueryView<InstructionsTaskView>(query: query).formattedHostingController()]
+                    
                 case "numericProgress":
                     return [EventQueryView<NumericProgressTaskView>(query: query).formattedHostingController()]
+                    
                 case "labeledValue":
                     return [EventQueryView<LabeledValueTaskView>(query: query).formattedHostingController()]
-                #if os(iOS)
+                    
+#if os(iOS)
                 case "checklist":
                     return [OCKChecklistTaskViewController(query: query, store: self.store)]
+                    
                 case "buttonLog":
                     return [OCKButtonLogTaskViewController(query: query, store: self.store)]
-                #else
+#else
                 case "checklist", "buttonLog":
                     return []
-                #endif
+#endif
+                    
                 default:
                     return nil
-                }
-            }
+                }}
+            
             return nil
-        }
-    }
+        }}
     private func userSelectedCardType(for task: any OCKAnyTask) -> String? {
         guard let task = task as? OCKTask else { return nil }
         guard let tags = task.tags else { return nil }
         guard let match = tags.first(where: { $0.hasPrefix("cardType:") }) else { return nil }
         return String(match.dropFirst("cardType:".count))
     }
+
     private func appendTasks(
         _ tasks: [any OCKAnyTask],
         to listViewController: OCKListViewController,
@@ -301,11 +274,9 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
             cards.forEach {
                 let card = $0
 				listViewController.appendViewController(card, animated: true)
-            }
-        }
+            }}
 		self.isLoading = false
-    }
-}
+    }}
 
 private extension View {
     /// Convert SwiftUI view to UIKit view.
@@ -313,6 +284,4 @@ private extension View {
         let viewController = UIHostingController(rootView: self)
         viewController.view.backgroundColor = .clear
         return viewController
-    }
-    
-}
+    }}
