@@ -7,17 +7,13 @@
 //
 // swiftlint:disable:next line_length
 // This was built using tutorial: https://www.hackingwithswift.com/books/ios-swiftui/creating-tabs-with-tabview-and-tabitem
-
 import CareKitStore
 import CareKitUI
 import SwiftUI
-
 struct MainTabView: View {
     @ObservedObject var loginViewModel: LoginViewModel
     let storeCoordinator: OCKStoreCoordinator
-
     @State private var selectedTab = 0
-
     var body: some View {
         TabView(selection: $selectedTab) {
             CareView()
@@ -31,7 +27,6 @@ struct MainTabView: View {
                     }
                 }
                 .tag(0)
-
             InsightsView()
                 .tabItem {
                     if selectedTab == 1 {
@@ -43,7 +38,6 @@ struct MainTabView: View {
                     }
                 }
                 .tag(1)
-
             ContactView()
                 .tabItem {
                     if selectedTab == 2 {
@@ -55,7 +49,6 @@ struct MainTabView: View {
                     }
                 }
                 .tag(2)
-
             ProfileView(loginViewModel: loginViewModel,
                         storeCoordinator: storeCoordinator)
                 .tabItem {
@@ -71,7 +64,6 @@ struct MainTabView: View {
         }
     }
 }
-
 struct MainTabView_Previews: PreviewProvider {
     static var previews: some View {
         let previewStore = Utility.createPreviewStore()

@@ -9,14 +9,7 @@
 import Foundation
 import ParseCareKit
 import ParseSwift
-
 extension PCKUtility {
-
-    /**
-     Check server health.
-     - returns: **true** if the server is available. **false** if the server reponds with not healthy.
-     - throws: `ParseError`.
-     */
     static func isServerAvailable() async throws -> Bool {
         try await ParseServer.health() == .ok
     }

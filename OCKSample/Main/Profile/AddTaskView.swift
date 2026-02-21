@@ -7,21 +7,17 @@
 //
 import SwiftUI
 import CareKitStore
-
 struct AddTaskView: View {
-
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel: AddTaskViewModel
 
     init(taskStore: any OCKAnyTaskStore) {
         _viewModel = StateObject(wrappedValue: AddTaskViewModel(taskStore: taskStore))
     }
-
     var body: some View {
         Form {
             Section("Task") {
                 TextField("Title", text: $viewModel.title)
-
                 TextEditor(text: $viewModel.instructions)
                     .frame(minHeight: 120)
             }
@@ -43,7 +39,6 @@ struct AddTaskView: View {
                     }
                 }
             }
-
             if let msg = viewModel.errorMessage {
                 Section { Text(msg).foregroundStyle(.red) }
             }

@@ -8,17 +8,13 @@
 // This file embeds a UIKit View Controller inside of a SwiftUI view.
 // Look at this tutorial for reference:
 // https://developer.apple.com/tutorials/swiftui/interfacing-with-uikit
-
 import CareKit
 import CareKitStore
 import SwiftUI
 import UIKit
-
 struct CareView: UIViewControllerRepresentable {
-
     @Environment(\.appDelegate) private var appDelegate
     @Environment(\.careStore) private var careStore
-
     func makeUIViewController(
         context: Context
     ) -> some UIViewController {
@@ -31,7 +27,6 @@ struct CareView: UIViewControllerRepresentable {
         }
         return navigationController
     }
-
     func updateUIViewController(
         _ uiViewController: UIViewControllerType,
         context: Context
@@ -50,14 +45,12 @@ struct CareView: UIViewControllerRepresentable {
             animated: false
         )
     }
-
     func createViewController() -> UIViewController {
         CareViewController(
             store: careStore
         )
     }
 }
-
 struct CareView_Previews: PreviewProvider {
     static var previews: some View {
         CareView()

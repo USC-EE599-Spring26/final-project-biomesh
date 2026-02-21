@@ -5,35 +5,29 @@
 //  Created by Corey Baker on 10/16/21.
 //  Copyright © 2021 Network Reconnaissance Lab. All rights reserved.
 //
-
 import Foundation
 import CareKit
 import CareKitStore
 import ParseCareKit
 import ParseSwift
 import os.log
-
 class Utility {
-
     static func convertNonSendableDictionaryToSendable(_ dictionary: [String: Any]) -> [String: String] {
 		let sendableDictionary: [String: String] = dictionary.reduce(into: [:]) {
 			$0[$1.key] = $1.value as? String
 		}
 		return sendableDictionary
 	}
-
     static func prepareSyncMessageForWatch() -> [String: String] {
         var returnMessage = [String: String]()
         returnMessage[Constants.requestSync] = "new messages on Remote"
         return returnMessage
     }
-
     static func getUserSessionForWatch() async throws -> [String: String] {
         var returnMessage = [String: String]()
         returnMessage[Constants.parseUserSessionTokenKey] = try await User.sessionToken()
         return returnMessage
     }
-
     static func getRemoteClockUUID() async throws -> UUID {
         guard let user = try? await User.current(),
             let lastUserTypeSelected = user.lastTypeSelected,
@@ -42,14 +36,12 @@ class Utility {
         }
         return remoteClockUUID
     }
-
     static func setDefaultACL() async throws {
         var defaultACL = ParseACL()
         defaultACL.publicRead = false
         defaultACL.publicWrite = false
         _ = try await ParseACL.setDefaultACL(defaultACL, withAccessForCurrentUser: true)
     }
-
     @MainActor
     static func setupRemoteAfterLogin() async throws {
         let remoteUUID = try await Utility.getRemoteClockUUID()
@@ -58,7 +50,6 @@ class Utility {
         } catch {
             Logger.utility.error("Could not set defaultACL: \(error)")
         }
-
         guard let appDelegate = AppDelegateKey.defaultValue else {
             Logger.utility.error("Could not setup remotes, AppDelegate is nil")
             return
@@ -67,7 +58,6 @@ class Utility {
         appDelegate.parseRemote.automaticallySynchronizes = true
         return
     }
-
     static func updateInstallationWithDeviceToken(_ deviceToken: Data? = nil) async {
         guard let keychainInstallation = try? await Installation.current() else {
             Logger.utility.debug("""
@@ -115,7 +105,6 @@ class Utility {
         let patientId = "preview"
         Task {
             do {
-                // If patient exists, assume store is already populated
                 _ = try await store.fetchPatient(withID: patientId)
             } catch {
                 var patient = OCKPatient(
@@ -144,7 +133,6 @@ class Utility {
         }
         return store
     }
-
     static func clearDeviceOnFirstRun(storeName: String? = nil) async {
         // Clear items out of the Keychain on app first run.
         if UserDefaults.standard.object(forKey: Constants.appName) == nil {
@@ -185,8 +173,6 @@ class Utility {
                     Logger.utility.error("Could not delete parse OCKStore because of error: \(error)")
                 }
             }
-
-            // This is no longer the first run
             UserDefaults.standard.setValue(String(Constants.appName),
                                            forKey: Constants.appName)
             UserDefaults.standard.synchronize()
@@ -195,7 +181,6 @@ class Utility {
             }
         }
     }
-
 	@MainActor
 	static func logoutAndResetAppState() async {
 		do {
@@ -213,7 +198,6 @@ class Utility {
 		AppDelegateKey.defaultValue?.healthKitStore.requestHealthKitPermissionsForAllTasksInStore { error in
             guard let error = error else {
                 DispatchQueue.main.async {
-                    // swiftlint:disable:next line_length
                     NotificationCenter.default.post(.init(name: Notification.Name(rawValue: Constants.finishedAskingForPermission)))
                 }
                 return

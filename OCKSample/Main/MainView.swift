@@ -10,13 +10,11 @@ import CareKitEssentials
 import CareKitStore
 import CareKitUI
 import SwiftUI
-
 struct MainView: View {
     @EnvironmentObject private var appDelegate: AppDelegate
     @StateObject private var loginViewModel = LoginViewModel()
     @State private var storeCoordinator = OCKStoreCoordinator()
 	@State private var isLoggedIn: Bool?
-
     var body: some View {
 		Group {
 			if let isLoggedIn {
@@ -49,7 +47,6 @@ struct MainView: View {
         }
     }
 }
-
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
         MainView()
