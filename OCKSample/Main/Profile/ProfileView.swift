@@ -96,9 +96,8 @@ struct ProfileView: View {
                 }
             }
             .sheet(isPresented: $showingAddTask) {
-                NavigationStack {
-                    AddTaskView(taskStore: careStore)
-                }
+                CreateTaskView(store: AppDelegateKey.defaultValue!.store)
+            }
             }
             .onReceive(patients.publisher) { publishedPatient in
                 viewModel.updatePatient(publishedPatient.result)
@@ -106,10 +105,10 @@ struct ProfileView: View {
         }
     }
 
-    static func query() -> OCKPatientQuery {
+func query() -> OCKPatientQuery {
         OCKPatientQuery(for: Date())
     }
-}
+
 
 struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
