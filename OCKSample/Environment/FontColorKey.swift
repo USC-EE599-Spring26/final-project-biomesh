@@ -5,10 +5,8 @@
 //  Created by Corey Baker on 1/5/22.
 //  Copyright © 2022 Network Reconnaissance Lab. All rights reserved.
 //
-
 import Foundation
 import SwiftUI
-
 struct FontColorKey: EnvironmentKey {
     static var defaultValue: UIColor {
         #if os(iOS) || os(visionOS) || os(macOS)
@@ -18,7 +16,6 @@ struct FontColorKey: EnvironmentKey {
         #endif
     }
 }
-
 extension EnvironmentValues {
     var fontColor: UIColor {
         self[FontColorKey.self]

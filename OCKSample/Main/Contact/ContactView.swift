@@ -5,21 +5,17 @@
 //  Created by Corey Baker on 11/25/20.
 //  Copyright © 2020 Network Reconnaissance Lab. All rights reserved.
 //
-
 import CareKit
 import CareKitStore
 import os.log
 import SwiftUI
 import UIKit
-
 struct ContactView: UIViewControllerRepresentable {
     @Environment(\.careStore) var careStore
-
     func makeUIViewController(context: Context) -> some UIViewController {
         let viewController = createViewController()
         return UINavigationController(rootViewController: viewController)
     }
-
     func updateUIViewController(_ uiViewController: UIViewControllerType,
                                 context: Context) {
         guard let navigationController = uiViewController as? UINavigationController else {
@@ -28,7 +24,6 @@ struct ContactView: UIViewControllerRepresentable {
         }
         navigationController.setViewControllers([createViewController()], animated: false)
     }
-
     func createViewController() -> UIViewController {
         #if os(iOS)
         return OCKContactsListViewController(
@@ -40,7 +35,6 @@ struct ContactView: UIViewControllerRepresentable {
         #endif
     }
 }
-
 struct ContactView_Previews: PreviewProvider {
 
     static var previews: some View {

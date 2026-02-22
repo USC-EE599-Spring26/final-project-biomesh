@@ -11,15 +11,12 @@ import CareKitStore
 import os.log
 import ParseCareKit
 import WatchConnectivity
-
 extension AppDelegate: ParseRemoteDelegate {
-
 	nonisolated func didRequestSynchronization(_ remote: OCKRemoteSynchronizable) {
 		DispatchQueue.main.async {
 			NotificationCenter.default.post(.init(name: Notification.Name(rawValue: Constants.requestSync)))
 		}
 	}
-
 	nonisolated func successfullyPushedToRemote() {
 		DispatchQueue.main.async { [weak self] in
 			guard let self else { return }
@@ -41,11 +38,9 @@ extension AppDelegate: ParseRemoteDelegate {
 		}
 #endif
 	}
-
 	nonisolated func provideStore() -> OCKAnyStoreProtocol {
 		return StoreCoordinatorKey.defaultValue
 	}
-
 	nonisolated func remote(
 		_ remote: OCKRemoteSynchronizable,
 		didUpdateProgress progress: Double
@@ -62,7 +57,6 @@ extension AppDelegate: ParseRemoteDelegate {
 			)
 		}
 	}
-
 	nonisolated func chooseConflictResolution(
 		conflicts: [OCKEntity],
 		completion: @escaping OCKResultClosure<OCKEntity>
@@ -76,7 +70,6 @@ extension AppDelegate: ParseRemoteDelegate {
 						try $0.parseEntity().value.createdDate! > $1.parseEntity().value.createdDate!
 					}
 				)!
-
             completion(.success(lastWrite))
         } catch {
 			completion(

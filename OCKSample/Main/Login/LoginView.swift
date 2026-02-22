@@ -25,6 +25,7 @@ struct LoginView: View {
     @ObservedObject var viewModel: LoginViewModel
     @State var usersname = ""
     @State var password = ""
+    @State var email = ""
     @State var firstName: String = ""
     @State var lastName: String = ""
     @State var signupLoginSegmentValue = 0
@@ -32,9 +33,9 @@ struct LoginView: View {
     var body: some View {
         VStack {
             // Change the title to the name of your application
-            Text("APP_NAME")
+            Text("Oh'BigChillin")
                 .font(.largeTitle)
-                .foregroundColor(.white)
+                .foregroundColor(.black)
                 .padding()
             // Change this image to something that represents your application
             Image("exercise.jpg")
@@ -50,7 +51,7 @@ struct LoginView: View {
              https://www.swiftkickmobile.com/creating-a-segmented-control-in-swiftui/
              */
             Picker(selection: $signupLoginSegmentValue,
-                   label: Text("LOGIN_PICKER")) {
+                label: Text("LOGIN_PICKER")) {
                 Text("LOGIN").tag(0)
                 Text("SIGN_UP").tag(1)
             }
@@ -70,7 +71,6 @@ struct LoginView: View {
                     .background(.white)
                     .cornerRadius(20.0)
                     .shadow(radius: 10.0, x: 20, y: 10)
-
                 switch signupLoginSegmentValue {
                 case 1:
                     TextField("GIVEN_NAME", text: $firstName)
@@ -80,6 +80,11 @@ struct LoginView: View {
                         .shadow(radius: 10.0, x: 20, y: 10)
 
                     TextField("FAMILY_NAME", text: $lastName)
+                        .padding()
+                        .background(.white)
+                        .cornerRadius(20.0)
+                        .shadow(radius: 10.0, x: 20, y: 10)
+                    TextField("Email", text: $email)
                         .padding()
                         .background(.white)
                         .cornerRadius(20.0)
@@ -98,19 +103,18 @@ struct LoginView: View {
                 switch signupLoginSegmentValue {
                 case 1:
                     Task {
-                        await viewModel.signup(
-							.patient,
-							username: usersname,
-							password: password,
-							firstName: firstName,
-							lastName: lastName
+                        await viewModel.signup(.patient,
+                                               username: usersname,
+                                               password: password,
+                                               email: email,
+                                               firstName: firstName,
+                                               lastName: lastName
 						)
                     }
                 default:
                     Task {
-                        await viewModel.login(
-							username: usersname,
-							password: password
+                        await viewModel.login(username: usersname,
+                                              password: password
 						)
                     }
                 }

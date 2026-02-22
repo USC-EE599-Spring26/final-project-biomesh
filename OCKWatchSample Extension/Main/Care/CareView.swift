@@ -3,7 +3,7 @@
 //  OCKWatchSample Extension
 //
 //  Created by Corey Baker on 6/25/20.
-//  Copyright © 2020 Network Reconnaissance Lab. All rights reserved.
+//  Updated by You on 2/21/26.
 //
 
 import CareKit
@@ -11,50 +11,51 @@ import CareKitEssentials
 import CareKitStore
 import CareKitUI
 import SwiftUI
-import os.log
 
 struct CareView: View {
 
     @CareStoreFetchRequest(query: query()) private var events
-    @State var sortedTaskIDs: [String: Int] = [:]
+    @State private var sortedTaskIDs: [String: Int] = [:]
 
     var body: some View {
         ScrollView {
-			ForEach(orderedEvents) { event in
-                if event.result.task.id == TaskID.kegels {
+            let ordered = orderedEvents
+
+            // Use indices so we don't require Identifiable conformance
+            ForEach(ordered.indices, id: \.self) { idx in
+                let event = ordered[idx]
+
+                // Pick a card style by task id
+                if event.result.task.id == TaskID.steps {
                     SimpleTaskView(event: event)
-				} else {
+                } else {
                     InstructionsTaskView(event: event)
                 }
             }
-        }.onAppear {
+        }
+        .onAppear {
             let taskIDs = TaskID.orderedWatchOS
             sortedTaskIDs = computeTaskIDOrder(taskIDs: taskIDs)
             events.query.taskIDs = taskIDs
         }
     }
 
-	private var orderedEvents: [CareStoreFetchedResult<OCKAnyEvent>] {
-		events.latest.sorted(by: { left, right in
-			let leftTaskID = left.result.task.id
-			let rightTaskID = right.result.task.id
-
-			return sortedTaskIDs[leftTaskID] ?? 0 < sortedTaskIDs[rightTaskID] ?? 0
-		})
-	}
+    private var orderedEvents: [CareStoreFetchedResult<OCKAnyEvent>] {
+        events.latest.sorted { left, right in
+            let l = left.result.task.id
+            let r = right.result.task.id
+            return (sortedTaskIDs[l] ?? 0) < (sortedTaskIDs[r] ?? 0)
+        }
+    }
 
     static func query() -> OCKEventQuery {
-        let query = OCKEventQuery(for: Date())
-        return query
+        OCKEventQuery(for: Date())
     }
 
     private func computeTaskIDOrder(taskIDs: [String]) -> [String: Int] {
-        // Tie index values to TaskIDs.
-        let sortedTaskIDs = taskIDs.enumerated().reduce(into: [String: Int]()) { taskDictionary, task in
-            taskDictionary[task.element] = task.offset
+        taskIDs.enumerated().reduce(into: [:]) { dict, pair in
+            dict[pair.element] = pair.offset
         }
-
-        return sortedTaskIDs
     }
 }
 
@@ -62,6 +63,6 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         CareView()
             .environment(\.careStore, Utility.createPreviewStore())
-			.careKitStyle(Styler())
+            .careKitStyle(Styler())
     }
 }

@@ -36,16 +36,9 @@ import ParseSwift
 import Synchronization
 import UIKit
 import WatchConnectivity
-
 @MainActor
 final class AppDelegate: UIResponder, ObservableObject {
-
-    // MARK: Public read/write properties
-
     @Published var isFirstTimeLogin = false
-
-    // MARK: Public read private write properties
-
     @Published private(set) var storeCoordinator: OCKStoreCoordinator = .init() {
         willSet {
             StoreCoordinatorKey.defaultValue = newValue
@@ -72,9 +65,6 @@ final class AppDelegate: UIResponder, ObservableObject {
 			state.withLock { $0.parseRemote = newValue }
 		}
 	}
-
-    // MARK: Private read/write properties
-
 	fileprivate var watchRemote: OCKWatchConnectivityPeer {
 		get {
 			return state.withLock { $0.watchRemote }
@@ -105,13 +95,9 @@ final class AppDelegate: UIResponder, ObservableObject {
 	}
 	private let state = Mutex<State>(.init())
 	fileprivate let sessionDelegateLock = NSLock()
-
-    // MARK: Helpers
-
 	func setFirstTimeLogin(_ isFirstTimeLogin: Bool) {
 		self.isFirstTimeLogin = isFirstTimeLogin
 	}
-
     func resetAppToInitialState() {
         do {
             try storeCoordinator.reset()
@@ -124,11 +110,9 @@ final class AppDelegate: UIResponder, ObservableObject {
         } catch {
             Logger.utility.error("Could not delete local OCKStore because of error: \(error)")
         }
-
         storeCoordinator = .init()
         healthKitStore = nil
         parseRemote = nil
-
         let store = OCKStore(
 			name: Constants.noCareStoreName,
 			type: .inMemory
@@ -168,11 +152,8 @@ final class AppDelegate: UIResponder, ObservableObject {
                 sessionDelegate = LocalSessionDelegate(remote: watchRemote, store: store)
                 self.store = store
             }
-
-            // Setup communication with watch
             WCSession.default.delegate = sessionDelegate
 			WCSession.default.activate()
-
             healthKitStore = OCKHealthKitPassthroughStore(store: store)
             let storeCoordinator = OCKStoreCoordinator()
             storeCoordinator.attach(store: store)

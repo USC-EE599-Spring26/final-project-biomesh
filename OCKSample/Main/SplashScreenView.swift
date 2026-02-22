@@ -5,12 +5,9 @@
 //  Created by Corey Baker on 4/30/25.
 //  Copyright © 2025 Network Reconnaissance Lab. All rights reserved.
 //
-
 import SwiftUI
-
 struct SplashScreenView: View {
 	@State private var isAnimating = false
-
 	var body: some View {
 		VStack {
 			ZStack {
@@ -43,7 +40,6 @@ struct SplashScreenView: View {
 		.ignoresSafeArea()
 		.background(backgroundColorGradient)
 	}
-
 	var careKitLogoColor: Color {
 		Color(#colorLiteral(red: 0.9355412722, green: 0.245944649, blue: 0.3403989077, alpha: 1))
 	}
@@ -60,7 +56,6 @@ struct SplashScreenView: View {
 		)
 	}
 }
-
 struct SplashScreenView_Previews: PreviewProvider {
 	static var previews: some View {
 		SplashScreenView()
