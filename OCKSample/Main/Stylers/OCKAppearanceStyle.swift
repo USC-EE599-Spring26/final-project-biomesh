@@ -13,12 +13,12 @@ import CareKitUI
 import UIKit
 
 struct BioMeshAppearanceStyle: OCKAppearanceStyler {
-    // TODO: Change 1: softer shadow opacity — cards feel lighter on screen
-    var shadowOpacity: Float { 0.12 }
+    // Lighter, cleaner card shadow for BioMesh
+    var shadowOpacity: Float { 0.08 }
 
-    // TODO: Change 2: slightly larger blur radius — smoother depth effect
-    var shadowRadius: CGFloat { 10 }
+    // Slightly softer blur for a modern iOS card feel
+    var shadowRadius: CGFloat { 12 }
 
-    // TODO: Change 3: offset pushes shadow downward — standard material design feel
-    var shadowOffset: CGSize { CGSize(width: 0, height: 4) }
+    // Gentle downward shadow (less harsh than 4)
+    var shadowOffset: CGSize { CGSize(width: 0, height: 2) }
 }
