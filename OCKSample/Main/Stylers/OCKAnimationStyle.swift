@@ -13,6 +13,6 @@ import CareKitUI
 import SwiftUI
 
 struct BioMeshAnimationStyle: OCKAnimationStyler {
-    // TODO: Change 1: ease-in-out feels calmer than the default spring — fits a health/sleep app
-    var defaultAnimation: Animation? { .easeInOut(duration: 0.3) }
+    var defaultAnimation: Animation? { .easeInOut(duration: 0.35) }
 }
+
