@@ -287,43 +287,73 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
     }
 
     /// Routes user-added tasks to the correct card based on the "cardType:xxx" tag.
+    /// Routes user-added tasks to the correct card based on the "cardType:xxx" tag.
     private func taskViewControllersForUserTask(
         _ task: any OCKAnyTask,
         query: OCKEventQuery
     ) -> [UIViewController]? {
-        guard let tags = (task as? OCKTask)?.tags,
+
+        let tags: [String]? =
+            (task as? OCKTask)?.tags ??
+            (task as? OCKHealthKitTask)?.tags
+
+        // Helper: safe default "instructions" card for *all* platforms
+        func defaultInstructionsCard() -> [UIViewController] {
+            #if os(iOS)
+            // UIKit card (only exists on iOS)
+            return [OCKInstructionsTaskViewController(query: query, store: self.store)]
+            #else
+            // SwiftUI card (works on visionOS/macOS/catalyst, etc.)
+            return [EventQueryView<InstructionsTaskView>(query: query).formattedHostingController()]
+            #endif
+        }
+
+        // (Optional) Debug
+        Logger.feed.info("USER TASK tags = \((tags ?? []).joined(separator: ","), privacy: .public)")
+
+        guard let tags,
               let match = tags.first(where: { $0.hasPrefix("cardType:") }) else {
             // No tag set — fall back to instructions card so it always shows
-            return [OCKInstructionsTaskViewController(query: query, store: self.store)]
+            return defaultInstructionsCard()
         }
+
         let cardType = String(match.dropFirst("cardType:".count))
 
         switch cardType {
         case "simple":
             return [EventQueryView<SimpleTaskView>(query: query).formattedHostingController()]
+
         case "instructions":
             return [EventQueryView<InstructionsTaskView>(query: query).formattedHostingController()]
+
         case "numericProgress":
             return [EventQueryView<NumericProgressTaskView>(query: query).formattedHostingController()]
+
         case "labeledValue":
             return [EventQueryView<LabeledValueTaskView>(query: query).formattedHostingController()]
+
         #if os(iOS)
         case "checklist":
             return [OCKChecklistTaskViewController(query: query, store: self.store)]
+
         case "buttonLog":
             return [OCKButtonLogTaskViewController(query: query, store: self.store)]
+
         case "grid":
             return [OCKGridTaskViewController(query: query, store: self.store)]
         #else
         case "checklist", "buttonLog", "grid":
             return []
         #endif
+
         case "featuredContent":
             return nil
+
         default:
-            return [OCKInstructionsTaskViewController(query: query, store: self.store)]
+            return defaultInstructionsCard()
         }
     }
+
 
     private func appendTasks(
         _ tasks: [any OCKAnyTask],
