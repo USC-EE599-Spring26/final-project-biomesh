@@ -291,39 +291,58 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
         _ task: any OCKAnyTask,
         query: OCKEventQuery
     ) -> [UIViewController]? {
-        guard let tags = (task as? OCKTask)?.tags,
+
+        // ✅ Support both regular OCKTask and OCKHealthKitTask
+        let tags: [String]? =
+            (task as? OCKTask)?.tags ??
+            (task as? OCKHealthKitTask)?.tags
+
+        // (Optional) Debug
+        Logger.feed.info("USER TASK tags = \((tags ?? []).joined(separator: ","), privacy: .public)")
+
+        guard let tags,
               let match = tags.first(where: { $0.hasPrefix("cardType:") }) else {
             // No tag set — fall back to instructions card so it always shows
             return [OCKInstructionsTaskViewController(query: query, store: self.store)]
         }
+
         let cardType = String(match.dropFirst("cardType:".count))
 
         switch cardType {
         case "simple":
             return [EventQueryView<SimpleTaskView>(query: query).formattedHostingController()]
+
         case "instructions":
             return [EventQueryView<InstructionsTaskView>(query: query).formattedHostingController()]
+
         case "numericProgress":
             return [EventQueryView<NumericProgressTaskView>(query: query).formattedHostingController()]
+
         case "labeledValue":
             return [EventQueryView<LabeledValueTaskView>(query: query).formattedHostingController()]
+
         #if os(iOS)
         case "checklist":
             return [OCKChecklistTaskViewController(query: query, store: self.store)]
+
         case "buttonLog":
             return [OCKButtonLogTaskViewController(query: query, store: self.store)]
+
         case "grid":
             return [OCKGridTaskViewController(query: query, store: self.store)]
         #else
         case "checklist", "buttonLog", "grid":
             return []
         #endif
+
         case "featuredContent":
             return nil
+
         default:
             return [OCKInstructionsTaskViewController(query: query, store: self.store)]
         }
     }
+
 
     private func appendTasks(
         _ tasks: [any OCKAnyTask],
