@@ -9,7 +9,7 @@ import SwiftUI
 import CareKitStore
 import os.log
 
-// View
+// MARK: - View
 
 struct ManageTasksView: View {
     @Environment(\.dismiss) private var dismiss
@@ -17,74 +17,102 @@ struct ManageTasksView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if viewModel.isLoading {
-                    ProgressView("Loading tasks…")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if viewModel.tasks.isEmpty {
-                    ContentUnavailableView(
-                        "No Tasks",
-                        systemImage: "tray",
-                        description: Text("Add a task from the Profile screen first.")
-                    )
-                } else {
-                    List {
-                        ForEach(viewModel.tasks.indices, id: \.self) { index in
-                            let task = viewModel.tasks[index]
-                            HStack(spacing: 12) {
-                                // SF Symbol asset if set
-                                if let asset = task.asset,
-                                   !asset.isEmpty,
-                                   UIImage(systemName: asset) != nil {
-                                    Image(systemName: asset)
-                                        .font(.title3)
-                                        .foregroundColor(.accentColor)
-                                        .frame(width: 30)
-                                }
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(viewModel.displayTitle(for: task))
-                                        .font(.headline)
-                                    Text(task.id)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(1)
-                                }
-                                Spacer()
-                            }
-                            .padding(.vertical, 4)
-                        }
-                        .onDelete { offsets in
-                            Task { await viewModel.delete(at: offsets) }
-                        }
-                    }
+            content
+                .navigationTitle("Manage Tasks")
+                .toolbar { toolbarContent }
+                .task { await viewModel.load() }
+                .alert("Could not delete task", isPresented: $viewModel.showError) {
+                    Button("OK", role: .cancel) {}
+                } message: {
+                    Text(viewModel.errorMessage ?? "Unknown error")
                 }
+        }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if viewModel.isLoading {
+            ProgressView("Loading tasks…")
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if viewModel.tasks.isEmpty {
+            ContentUnavailableView(
+                "No Tasks",
+                systemImage: "tray",
+                description: Text("Add a task from the Profile screen first.")
+            )
+        } else {
+            taskList
+        }
+    }
+
+    private var taskList: some View {
+        List {
+            ForEach(viewModel.tasks.indices, id: \.self) { index in
+                let task = viewModel.tasks[index]
+                TaskRowView(
+                    title: viewModel.displayTitle(for: task),
+                    taskID: task.id,
+                    assetName: task.asset
+                )
             }
-            .navigationTitle("Manage Tasks")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { dismiss() }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        Task { await viewModel.load() }
-                    } label: {
-                        Image(systemName: "arrow.clockwise")
-                    }
-                }
+            .onDelete { offsets in
+                Task { await viewModel.delete(at: offsets) }
             }
-            .task {
-                await viewModel.load()
-            }
-            .alert("Could not delete task", isPresented: $viewModel.showError) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text(viewModel.errorMessage ?? "Unknown error")
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .cancellationAction) {
+            Button("Done") { dismiss() }
+        }
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                Task { await viewModel.load() }
+            } label: {
+                Image(systemName: "arrow.clockwise")
             }
         }
     }
 }
 
-// ViewModel
+private struct TaskRowView: View {
+    let title: String
+    let taskID: String
+    let assetName: String?
+
+    var body: some View {
+        HStack(spacing: 12) {
+            if let symbolName = validatedSFSymbolName(assetName) {
+                Image(systemName: symbolName)
+                    .font(.title3)
+                    .foregroundColor(.accentColor)
+                    .frame(width: 30)
+            }
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(.headline)
+
+                Text(taskID)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+
+            Spacer()
+        }
+        .padding(.vertical, 4)
+    }
+
+    private func validatedSFSymbolName(_ name: String?) -> String? {
+        guard let name, !name.isEmpty else { return nil }
+        guard UIImage(systemName: name) != nil else { return nil }
+        return name
+    }
+}
+
+// MARK: - ViewModel
 
 @MainActor
 final class ManageTasksViewModel: ObservableObject {
@@ -98,60 +126,78 @@ final class ManageTasksViewModel: ObservableObject {
         isLoading = true
         defer { isLoading = false }
 
-        guard let appDelegate = AppDelegateKey.defaultValue else { return }
+        guard let appDelegate = AppDelegateKey.defaultValue else {
+            tasks = []
+            return
+        }
 
         do {
-            // Fetch from both stores
             var query = OCKTaskQuery(for: Date())
             query.excludesTasksWithNoEvents = false
-            let regularTasks = try await appDelegate.store.fetchAnyTasks(query: query)
-            let hkTasks      = try await appDelegate.healthKitStore.fetchAnyTasks(query: query)
 
-            let allTasks = (regularTasks + hkTasks)
-                .sorted {
-                    displayTitle(for: $0).localizedCaseInsensitiveCompare(
-                        displayTitle(for: $1)
-                    ) == .orderedAscending
-                }
-            tasks = allTasks
+            let regularTasks = try await appDelegate.store.fetchAnyTasks(query: query)
+            let healthKitTasks = try await appDelegate.healthKitStore.fetchAnyTasks(query: query)
+
+            tasks = sortTasks(regularTasks + healthKitTasks)
         } catch {
-            errorMessage = error.localizedDescription
-            showError = true
+            present(error: error)
         }
     }
 
     func delete(at offsets: IndexSet) async {
         guard let appDelegate = AppDelegateKey.defaultValue else { return }
-        let toDelete = offsets.map { tasks[$0] }
+
+        let tasksToDelete = offsets.map { tasks[$0] }
+        let regularTasks = tasksToDelete.compactMap { $0 as? OCKTask }
+        let healthKitTasks = tasksToDelete.compactMap { $0 as? OCKHealthKitTask }
 
         do {
-            // Separate by store type
-            let regular  = toDelete.compactMap { $0 as? OCKTask }
-            let hkTasks  = toDelete.compactMap { $0 as? OCKHealthKitTask }
-
-            if !regular.isEmpty {
-                _ = try await appDelegate.store.deleteTasks(regular)
+            if !regularTasks.isEmpty {
+                _ = try await appDelegate.store.deleteTasks(regularTasks)
             }
-            if !hkTasks.isEmpty {
-                _ = try await appDelegate.healthKitStore.deleteTasks(hkTasks)
+            if !healthKitTasks.isEmpty {
+                _ = try await appDelegate.healthKitStore.deleteTasks(healthKitTasks)
             }
 
             tasks.remove(atOffsets: offsets)
+
             NotificationCenter.default.post(
                 name: Notification.Name(rawValue: Constants.shouldRefreshView),
                 object: nil
             )
-            Logger.profile.info("Deleted \(toDelete.count) task(s)")
+
+            Logger.profile.info("Deleted \(tasksToDelete.count) task(s)")
         } catch {
-            errorMessage = error.localizedDescription
-            showError = true
+            present(error: error)
         }
     }
 
     func displayTitle(for task: any OCKAnyTask) -> String {
-        if let t = task as? OCKTask           { return t.title   ?? t.id }
-        if let h = task as? OCKHealthKitTask  { return h.title   ?? h.id }
+        if let regularTask = task as? OCKTask {
+            return regularTask.title ?? regularTask.id
+        }
+        if let healthKitTask = task as? OCKHealthKitTask {
+            return healthKitTask.title ?? healthKitTask.id
+        }
         return task.id
+    }
+}
+
+// MARK: - Helpers
+
+private extension ManageTasksViewModel {
+
+    func sortTasks(_ tasks: [any OCKAnyTask]) -> [any OCKAnyTask] {
+        tasks.sorted { lhs, rhs in
+            let lhsTitle = displayTitle(for: lhs)
+            let rhsTitle = displayTitle(for: rhs)
+            return lhsTitle.localizedCaseInsensitiveCompare(rhsTitle) == .orderedAscending
+        }
+    }
+
+    func present(error: Error) {
+        errorMessage = error.localizedDescription
+        showError = true
     }
 }
 

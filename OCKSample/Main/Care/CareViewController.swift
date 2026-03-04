@@ -219,10 +219,10 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
             let orderedIDs = Set(TaskID.ordered)
             let userTasks = tasks
                 .filter { !orderedIDs.contains($0.id) }
-                .sorted {
-                    let a = ($0 as? OCKTask)?.title ?? $0.id
-                    let b = ($1 as? OCKTask)?.title ?? $1.id
-                    return a.localizedCaseInsensitiveCompare(b) == .orderedAscending
+                .sorted { lhs, rhs in
+                    let lhsTitle = (lhs as? OCKTask)?.title ?? lhs.id
+                    let rhsTitle = (rhs as? OCKTask)?.title ?? rhs.id
+                    return lhsTitle.localizedCaseInsensitiveCompare(rhsTitle) == .orderedAscending
                 }
             return orderedTasks + userTasks
         } catch {
