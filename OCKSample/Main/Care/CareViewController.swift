@@ -341,3 +341,4 @@ private extension View {
         return viewController
     }
 }
+// swiftlint:disable:next line_length
