@@ -14,16 +14,11 @@ import os.log
 
 extension OCKHealthKitPassthroughStore {
 
-    func populateDefaultHealthKitTasks(
-		startDate: Date = Date()
-	) async throws {
+    func populateDefaultHealthKitTasks(startDate: Date = Date()) async throws {
 
+        // Daily Steps
+        // Physical activity as a control variable in the caffeine-anxiety model.
         let countUnit = HKUnit.count()
-        let stepTargetValue = OCKOutcomeValue(
-            2000.0,
-            units: countUnit.unitString
-        )
-        let stepTargetValues = [ stepTargetValue ]
         let stepSchedule = OCKSchedule.dailyAtTime(
             hour: 8,
             minutes: 0,
@@ -31,11 +26,11 @@ extension OCKHealthKitPassthroughStore {
             end: nil,
             text: nil,
             duration: .allDay,
-            targetValues: stepTargetValues
+            targetValues: [OCKOutcomeValue(8000.0, units: countUnit.unitString)]
         )
         var steps = OCKHealthKitTask(
             id: TaskID.steps,
-            title: String(localized: "STEPS"),
+            title: "Daily Steps",
             carePlanUUID: nil,
             schedule: stepSchedule,
             healthKitLinkage: OCKHealthKitLinkage(
@@ -44,10 +39,15 @@ extension OCKHealthKitPassthroughStore {
                 unit: countUnit
             )
         )
+        steps.instructions = "Your step count from HealthKit. " +
+            "Regular movement can reduce caffeine-related anxiety symptoms."
         steps.asset = "figure.walk"
+        steps.tags = ["cardType:numericProgress"]
 
-        let ovulationTestResultSchedule = OCKSchedule.dailyAtTime(
-            hour: 8,
+        // Sleep Duration
+        // The mediator variable in the caffeine → sleep → anxiety research model.
+        let sleepSchedule = OCKSchedule.dailyAtTime(
+            hour: 7,
             minutes: 0,
             start: startDate,
             end: nil,
@@ -55,19 +55,20 @@ extension OCKHealthKitPassthroughStore {
             duration: .allDay,
             targetValues: []
         )
-        var ovulationTestResult = OCKHealthKitTask(
-            id: TaskID.ovulationTestResult,
-            title: String(localized: "OVULATION_TEST_RESULT"),
+        var sleep = OCKHealthKitTask(
+            id: TaskID.sleepDuration,
+            title: "Sleep Duration",
             carePlanUUID: nil,
-            schedule: ovulationTestResultSchedule,
+            schedule: sleepSchedule,
             healthKitLinkage: OCKHealthKitLinkage(
-                categoryIdentifier: .ovulationTestResult
+                categoryIdentifier: .sleepAnalysis
             )
         )
-        ovulationTestResult.asset = "circle.dotted"
-        let tasks = [ steps, ovulationTestResult ]
+        sleep.instructions = "Hours of sleep recorded by HealthKit. " +
+            "This is the key mediator between your caffeine intake and next-day anxiety."
+        sleep.asset = "bed.double.fill"
+        sleep.tags = ["cardType:labeledValue"]
 
-        _ = try await addTasksIfNotPresent(tasks)
-
+        _ = try await addTasksIfNotPresent([steps, sleep])
     }
 }

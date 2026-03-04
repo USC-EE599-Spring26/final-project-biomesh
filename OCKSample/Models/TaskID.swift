@@ -9,26 +9,32 @@
 import Foundation
 
 enum TaskID {
-    static let doxylamine = "doxylamine"
-    static let nausea = "nausea"
-    static let stretch = "stretch"
-    static let kegels = "kegels"
-    static let steps = "steps"
-    static let ovulationTestResult = "ovulationTestResult"
+    // Default OCKTask IDs
+    static let caffeineIntake   = "biomesh.caffeine"
+    static let waterIntake      = "biomesh.water"
+    static let anxietyCheck     = "biomesh.anxiety"
+    static let sleepHygiene     = "biomesh.sleep.hygiene"
 
+    // Default OCKHealthKitTask IDs
+    static let steps            = "biomesh.steps"
+    static let sleepDuration    = "biomesh.sleep.duration"
+
+    // Ordered display lists
     static var ordered: [String] {
         orderedObjective + orderedSubjective
     }
 
+    /// HealthKit-backed tasks shown first
     static var orderedObjective: [String] {
-        [ Self.steps, Self.ovulationTestResult ]
+        [steps, sleepDuration]
     }
 
+    /// Self-reported tasks shown after HealthKit
     static var orderedSubjective: [String] {
-        [ Self.doxylamine, Self.kegels, Self.stretch, Self.nausea]
+        [caffeineIntake, waterIntake, anxietyCheck, sleepHygiene]
     }
 
     static var orderedWatchOS: [String] {
-        [ Self.doxylamine, Self.kegels, Self.stretch ]
+        [caffeineIntake, waterIntake, anxietyCheck]
     }
 }

@@ -13,6 +13,7 @@ import ParseSwift
 import os.log
 import WatchConnectivity
 
+// swiftlint:disable function_parameter_count
 @MainActor
 class LoginViewModel: ObservableObject {
 
@@ -170,6 +171,7 @@ class LoginViewModel: ObservableObject {
 		_ type: UserType,
 		username: String,
 		password: String,
+		email: String,
 		firstName: String,
 		lastName: String
 	) async {
@@ -179,9 +181,10 @@ class LoginViewModel: ObservableObject {
                 return
             }
             var newUser = User()
-            // Set any properties you want saved on the user befor logging in.
+            // Set any properties you want saved on the user before logging in.
             newUser.username = username.lowercased()
             newUser.password = password
+            newUser.email = email
             let user = try await newUser.signup()
             Logger.login.info("Parse signup successful: \(user)")
             let patient = try await savePatientAfterSignUp(type,

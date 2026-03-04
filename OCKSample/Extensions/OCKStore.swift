@@ -6,190 +6,156 @@
 //  Copyright © 2022 Network Reconnaissance Lab. All rights reserved.
 //
 
-import Foundation
-import CareKitEssentials
-import CareKitStore
 import Contacts
+import Foundation
+import CareKitStore
 import os.log
-import ParseSwift
-import ParseCareKit
 
 extension OCKStore {
 
-    func addContactsIfNotPresent(_ contacts: [OCKContact]) async throws -> [OCKContact] {
-        let contactIdsToAdd = contacts.compactMap { $0.id }
-
-        // Prepare query to see if contacts are already added
-        var query = OCKContactQuery(for: Date())
-        query.ids = contactIdsToAdd
-
-        let foundContacts = try await fetchContacts(query: query)
-
-        // Find all missing tasks.
-        let contactsNotInStore = contacts.filter { potentialContact -> Bool in
-            guard foundContacts.first(where: { $0.id == potentialContact.id }) == nil else {
-                return false
-            }
-            return true
-        }
-
-        // Only add if there's a new task
-        guard contactsNotInStore.count > 0 else {
-            return []
-        }
-
-        let addedContacts = try await addContacts(contactsNotInStore)
-        return addedContacts
+    func addTasksIfNotPresent(_ tasks: [OCKTask]) async throws -> [OCKTask] {
+        let ids = tasks.map { $0.id }
+        var query = OCKTaskQuery(for: Date())
+        query.ids = ids
+        let existing = try await fetchTasks(query: query)
+        let existingIDs = Set(existing.map { $0.id })
+        let missing = tasks.filter { !existingIDs.contains($0.id) }
+        guard !missing.isEmpty else { return [] }
+        return try await addTasks(missing)
     }
 
-    // Adds tasks and contacts into the store
-    func populateDefaultCarePlansTasksContacts(
-		startDate: Date = Date()
-	) async throws {
+    func addContactsIfNotPresent(_ contacts: [OCKContact]) async throws -> [OCKContact] {
+        let ids = contacts.map { $0.id }
+        var query = OCKContactQuery(for: Date())
+        query.ids = ids
+        let existing = try await fetchContacts(query: query)
+        let existingIDs = Set(existing.map { $0.id })
+        let missing = contacts.filter { !existingIDs.contains($0.id) }
+        guard !missing.isEmpty else { return [] }
+        return try await addContacts(missing)
+    }
 
-        let thisMorning = Calendar.current.startOfDay(for: startDate)
-        let aFewDaysAgo = Calendar.current.date(byAdding: .day, value: -4, to: thisMorning)!
-        let beforeBreakfast = Calendar.current.date(byAdding: .hour, value: 8, to: aFewDaysAgo)!
-        let afterLunch = Calendar.current.date(byAdding: .hour, value: 14, to: aFewDaysAgo)!
+    /// Seeds the store with BioMesh default tasks and contacts on first sign-up.
+    func populateDefaultCarePlansTasksContacts(startDate: Date = Date()) async throws {
 
-        let schedule = OCKSchedule(
-            composing: [
-                OCKScheduleElement(
-                    start: beforeBreakfast,
-                    end: nil,
-                    interval: DateComponents(day: 1)
-                ),
-                OCKScheduleElement(
-                    start: afterLunch,
-                    end: nil,
-                    interval: DateComponents(day: 2)
-                )
-            ]
-        )
+        let calendar  = Calendar.current
+        let morning   = calendar.startOfDay(for: startDate)
+        let allDay    = OCKSchedule(composing: [
+            OCKScheduleElement(
+                start: morning,
+                end: nil,
+                interval: DateComponents(day: 1),
+                text: "Any time today",
+                targetValues: [],
+                duration: .allDay
+            )
+        ])
+        let eveningStart = calendar.date(
+            bySettingHour: 21, minute: 0, second: 0, of: morning
+        ) ?? morning
+        let eveningSchedule = OCKSchedule(composing: [
+            OCKScheduleElement(
+                start: eveningStart,
+                end: nil,
+                interval: DateComponents(day: 1)
+            )
+        ])
 
-        var doxylamine = OCKTask(
-            id: TaskID.doxylamine,
-            title: String(localized: "TAKE_DOXYLAMINE"),
+        // Caffeine Intake
+        // Logs each caffeinated drink throughout the day.
+        // Research note: >400 mg/day linked to significantly higher anxiety risk.
+        var caffeine = OCKTask(
+            id: TaskID.caffeineIntake,
+            title: "Caffeine Intake",
             carePlanUUID: nil,
-            schedule: schedule
+            schedule: allDay
         )
-        doxylamine.instructions = String(localized: "DOXYLAMINE_INSTRUCTIONS")
-        doxylamine.asset = "pills.fill"
+        caffeine.instructions = "Tap Log each time you have a caffeinated drink " +
+            "(coffee, tea, energy drink). Note: >400 mg/day is linked to higher anxiety risk."
+        caffeine.asset = "cup.and.saucer.fill"
+        caffeine.tags = ["cardType:buttonLog"]
+        caffeine.impactsAdherence = false
 
-        let nauseaSchedule = OCKSchedule(
-            composing: [
-                OCKScheduleElement(
-                    start: beforeBreakfast,
-                    end: nil,
-                    interval: DateComponents(day: 1),
-                    text: String(localized: "ANYTIME_DURING_DAY"),
-                    targetValues: [],
-                    duration: .allDay
-                )
-            ]
-        )
-
-        var nausea = OCKTask(
-            id: TaskID.nausea,
-            title: String(localized: "TRACK_NAUSEA"),
+        // Water Intake
+        // Tracks hydration as a control variable.
+        var water = OCKTask(
+            id: TaskID.waterIntake,
+            title: "Water Intake",
             carePlanUUID: nil,
-            schedule: nauseaSchedule
+            schedule: allDay
         )
-        nausea.impactsAdherence = false
-        nausea.instructions = String(localized: "NAUSEA_INSTRUCTIONS")
-        nausea.asset = "bed.double"
+        water.instructions = "Tap Log each time you drink a glass of water. " +
+            "Staying hydrated helps separate caffeine effects from dehydration."
+        water.asset = "drop.fill"
+        water.tags = ["cardType:buttonLog"]
+        water.impactsAdherence = false
 
-        let kegelElement = OCKScheduleElement(
-            start: beforeBreakfast,
-            end: nil,
-            interval: DateComponents(day: 2)
-        )
-        let kegelSchedule = OCKSchedule(
-            composing: [kegelElement]
-        )
-        var kegels = OCKTask(
-            id: TaskID.kegels,
-            title: String(localized: "KEGEL_EXERCISES"),
+        // Anxiety Check-in
+        // Captures the primary outcome variable from the research model.
+        var anxiety = OCKTask(
+            id: TaskID.anxietyCheck,
+            title: "Anxiety Check-in",
             carePlanUUID: nil,
-            schedule: kegelSchedule
+            schedule: allDay
         )
-        kegels.impactsAdherence = true
-        kegels.instructions = String(localized: "KEGEL_INSTRUCTIONS")
+        anxiety.instructions = "Tap Log whenever you notice an anxiety episode. " +
+            "Try to note how long ago you last had caffeine — this helps trace the " +
+            "caffeine → anxiety relationship your app is studying."
+        anxiety.asset = "brain.head.profile"
+        anxiety.tags = ["cardType:buttonLog"]
+        anxiety.impactsAdherence = false
 
-        let stretchElement = OCKScheduleElement(
-            start: beforeBreakfast,
-            end: nil,
-            interval: DateComponents(day: 1)
-        )
-        let stretchSchedule = OCKSchedule(
-            composing: [stretchElement]
-        )
-        var stretch = OCKTask(
-            id: TaskID.stretch,
-            title: String(localized: "STRETCH"),
+        // Evening Wind-Down
+        // A checklist to support the sleep mediator variable.
+        var windDown = OCKTask(
+            id: TaskID.sleepHygiene,
+            title: "Evening Wind-Down",
             carePlanUUID: nil,
-            schedule: stretchSchedule
+            schedule: eveningSchedule
         )
-        stretch.impactsAdherence = true
-        stretch.asset = "figure.walk"
+        windDown.instructions = "Complete your wind-down routine before bed:\n" +
+            "• No caffeine after 2 PM\n" +
+            "• Dim lights 30 min before sleep\n" +
+            "• Put your phone face-down\n" +
+            "Good sleep quality is the mediator between caffeine and next-day anxiety."
+        windDown.asset = "moon.zzz.fill"
+        windDown.tags = ["cardType:checklist"]
+        windDown.impactsAdherence = true
 
-        _ = try await addTasksIfNotPresent(
-            [
-                nausea,
-                doxylamine,
-                kegels,
-                stretch
-            ]
-        )
+        _ = try await addTasksIfNotPresent([caffeine, water, anxiety, windDown])
 
-        var contact1 = OCKContact(
-            id: "jane",
-            givenName: "Jane",
-            familyName: "Daniels",
+        // Contacts
+        var researcher = OCKContact(
+            id: "biomesh.researcher",
+            givenName: "BioMesh",
+            familyName: "Research Team",
             carePlanUUID: nil
         )
-        contact1.title = "Family Practice Doctor"
-        contact1.role = "Dr. Daniels is a family practice doctor with 8 years of experience."
-        contact1.emailAddresses = [OCKLabeledValue(label: CNLabelEmailiCloud, value: "janedaniels@uky.edu")]
-        contact1.phoneNumbers = [OCKLabeledValue(label: CNLabelWork, value: "(800) 257-2000")]
-        contact1.messagingNumbers = [OCKLabeledValue(label: CNLabelWork, value: "(800) 357-2040")]
-        contact1.address = {
-            let address = OCKPostalAddress(
-				street: "1500 San Pablo St",
-				city: "Los Angeles",
-				state: "CA",
-				postalCode: "90033",
-				country: "US"
-			)
-            return address
-        }()
+        researcher.title = "Study Coordinator"
+        researcher.role = "Contact us with questions about your data or the study protocol."
+        researcher.emailAddresses = [
+            OCKLabeledValue(label: CNLabelWork, value: "research@biomesh.health")
+        ]
+        researcher.phoneNumbers = [
+            OCKLabeledValue(label: CNLabelWork, value: "(213) 555-0100")
+        ]
 
-        var contact2 = OCKContact(
-            id: "matthew",
-            givenName: "Matthew",
-            familyName: "Reiff",
+        var advisor = OCKContact(
+            id: "biomesh.advisor",
+            givenName: "Health",
+            familyName: "Advisor",
             carePlanUUID: nil
         )
-        contact2.title = "OBGYN"
-        contact2.role = "Dr. Reiff is an OBGYN with 13 years of experience."
-        contact2.phoneNumbers = [OCKLabeledValue(label: CNLabelWork, value: "(800) 257-1000")]
-        contact2.messagingNumbers = [OCKLabeledValue(label: CNLabelWork, value: "(800) 257-1234")]
-        contact2.address = {
-			let address = OCKPostalAddress(
-				street: "1500 San Pablo St",
-				city: "Los Angeles",
-				state: "CA",
-				postalCode: "90033",
-				country: "US"
-			)
-            return address
-        }()
+        advisor.title = "Wellness Advisor"
+        advisor.role = "General guidance on managing caffeine intake, sleep hygiene, " +
+            "and anxiety reduction strategies."
+        advisor.emailAddresses = [
+            OCKLabeledValue(label: CNLabelWork, value: "advisor@biomesh.health")
+        ]
+        advisor.phoneNumbers = [
+            OCKLabeledValue(label: CNLabelWork, value: "(213) 555-0200")
+        ]
 
-        _ = try await addContactsIfNotPresent(
-            [
-                contact1,
-                contact2
-            ]
-        )
+        _ = try await addContactsIfNotPresent([researcher, advisor])
     }
 }
