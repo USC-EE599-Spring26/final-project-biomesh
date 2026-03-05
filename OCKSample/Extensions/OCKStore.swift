@@ -13,15 +13,37 @@ import os.log
 
 extension OCKStore {
 
-    func addTasksIfNotPresent(_ tasks: [OCKTask]) async throws -> [OCKTask] {
+    func addOrUpdateTasks(_ tasks: [OCKTask]) async throws -> [OCKTask] {
         let ids = tasks.map { $0.id }
+
         var query = OCKTaskQuery(for: Date())
         query.ids = ids
+
         let existing = try await fetchTasks(query: query)
-        let existingIDs = Set(existing.map { $0.id })
-        let missing = tasks.filter { !existingIDs.contains($0.id) }
-        guard !missing.isEmpty else { return [] }
-        return try await addTasks(missing)
+        let existingByID = Dictionary(uniqueKeysWithValues: existing.map { ($0.id, $0) })
+
+        var addedOrUpdated: [OCKTask] = []
+
+        for task in tasks {
+            if var existingTask = existingByID[task.id] {
+                existingTask.title = task.title
+                existingTask.instructions = task.instructions
+                existingTask.asset = task.asset
+                existingTask.schedule = task.schedule
+                existingTask.impactsAdherence = task.impactsAdherence
+                existingTask.userInfo = task.userInfo
+                existingTask.tags = task.tags
+                existingTask.carePlanUUID = task.carePlanUUID
+
+                let updated = try await updateTask(existingTask)
+                addedOrUpdated.append(updated)
+            } else {
+                let added = try await addTask(task)
+                addedOrUpdated.append(added)
+            }
+        }
+
+        return addedOrUpdated
     }
 
     func addContactsIfNotPresent(_ contacts: [OCKContact]) async throws -> [OCKContact] {
@@ -73,8 +95,9 @@ extension OCKStore {
         caffeine.instructions = "Tap Log each time you have a caffeinated drink " +
             "(coffee, tea, energy drink). Note: >400 mg/day is linked to higher anxiety risk."
         caffeine.asset = "cup.and.saucer.fill"
-        caffeine.tags = ["cardType:buttonLog"]
         caffeine.impactsAdherence = false
+        caffeine.card = .button
+        caffeine.priority = 2
 
         // Water Intake
         // Tracks hydration as a control variable.
@@ -87,8 +110,9 @@ extension OCKStore {
         water.instructions = "Tap Log each time you drink a glass of water. " +
             "Staying hydrated helps separate caffeine effects from dehydration."
         water.asset = "drop.fill"
-        water.tags = ["cardType:buttonLog"]
         water.impactsAdherence = false
+        water.card = .button
+        water.priority = 3
 
         // Anxiety Check-in
         // Captures the primary outcome variable from the research model.
@@ -102,8 +126,9 @@ extension OCKStore {
             "Try to note how long ago you last had caffeine — this helps trace the " +
             "caffeine → anxiety relationship your app is studying."
         anxiety.asset = "brain.head.profile"
-        anxiety.tags = ["cardType:buttonLog"]
         anxiety.impactsAdherence = false
+        anxiety.card = .button
+        anxiety.priority = 0
 
         // Evening Wind-Down
         // A checklist to support the sleep mediator variable.
@@ -119,11 +144,11 @@ extension OCKStore {
             "• Put your phone face-down\n" +
             "Good sleep quality is the mediator between caffeine and next-day anxiety."
         windDown.asset = "moon.zzz.fill"
-        windDown.tags = ["cardType:checklist"]
         windDown.impactsAdherence = true
+        windDown.card = .checklist
+        windDown.priority = 1
 
-        _ = try await addTasksIfNotPresent([caffeine, water, anxiety, windDown])
-
+        _ = try await addOrUpdateTasks([caffeine, water, anxiety, windDown])
         // Contacts
         var researcher = OCKContact(
             id: "biomesh.researcher",

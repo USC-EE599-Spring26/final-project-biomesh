@@ -34,20 +34,29 @@ final class AddTaskViewModel: ObservableObject {
         case grid            = "Grid"
         case link            = "Link"
         case featuredContent = "Featured Content"
+
         var id: String { rawValue }
 
-        /// The tag value written into task.tags
-        var tagValue: String {
+        var careKitCard: CareKitCard {
             switch self {
-            case .button:          return "buttonLog"
-            case .checklist:       return "checklist"
-            case .instructions:    return "instructions"
-            case .simple:          return "simple"
-            case .numericProgress: return "numericProgress"
-            case .labeledValue:    return "labeledValue"
-            case .grid:            return "grid"
-            case .link:            return "linkView"
-            case .featuredContent: return "featuredContent"
+            case .button:
+                return .button
+            case .checklist:
+                return .checklist
+            case .instructions:
+                return .instruction
+            case .simple:
+                return .simple
+            case .numericProgress:
+                return .numericProgress
+            case .labeledValue:
+                return .labeledValue
+            case .grid:
+                return .grid
+            case .link:
+                return .link
+            case .featuredContent:
+                return .featured
             }
         }
     }
@@ -199,7 +208,8 @@ final class AddTaskViewModel: ObservableObject {
             schedule: buildSchedule()
         )
         task.instructions = instructions.trimmingCharacters(in: .whitespacesAndNewlines)
-        task.tags = ["cardType:\(cardType.tagValue)"]
+        task.card = cardType.careKitCard
+        task.priority = 10
         applyAsset(to: &task)
         return task
     }
@@ -210,7 +220,7 @@ final class AddTaskViewModel: ObservableObject {
 
         switch healthKitMetric {
         case .steps:
-            let unit      = HKUnit.count()
+            let unit = HKUnit.count()
             let goalValue = OCKOutcomeValue(stepsGoal, units: unit.unitString)
             let scheduleWithGoal = OCKSchedule(composing: schedule.elements.map {
                 OCKScheduleElement(
@@ -234,7 +244,8 @@ final class AddTaskViewModel: ObservableObject {
                 )
             )
             task.instructions = instructions.trimmingCharacters(in: .whitespacesAndNewlines)
-            task.tags = ["cardType:numericProgress"]
+            task.card = .numericProgress
+            task.priority = 10
             applyAsset(to: &task)
             return task
 
@@ -252,7 +263,8 @@ final class AddTaskViewModel: ObservableObject {
                 )
             )
             task.instructions = instructions.trimmingCharacters(in: .whitespacesAndNewlines)
-            task.tags = ["cardType:labeledValue"]
+            task.card = .labeledValue
+            task.priority = 10
             applyAsset(to: &task)
             return task
         }
