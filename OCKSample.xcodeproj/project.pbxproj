@@ -191,6 +191,12 @@
 		EEAA81E42F6239620016CA3E /* ResearchKitSwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EEAA81D82F6238400016CA3E /* ResearchKitSwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		EEAA81E62F6239770016CA3E /* ResearchKitSwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEAA81D82F6238400016CA3E /* ResearchKitSwiftUI.framework */; };
 		EEAA81E72F6239770016CA3E /* ResearchKitSwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EEAA81D82F6238400016CA3E /* ResearchKitSwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		EEAA81EA2F624D5A0016CA3E /* OCKTask+Survey.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEAA81E92F624D580016CA3E /* OCKTask+Survey.swift */; };
+		EEAA81EB2F624D5A0016CA3E /* OCKTask+Survey.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEAA81E92F624D580016CA3E /* OCKTask+Survey.swift */; };
+		EEAA81EC2F624D5A0016CA3E /* OCKTask+Survey.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEAA81E92F624D580016CA3E /* OCKTask+Survey.swift */; };
+		EEAA81EE2F6251630016CA3E /* SurveyModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEAA81ED2F6251600016CA3E /* SurveyModels.swift */; };
+		EEAA81EF2F6251630016CA3E /* SurveyModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEAA81ED2F6251600016CA3E /* SurveyModels.swift */; };
+		EEAA81F02F6251630016CA3E /* SurveyModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEAA81ED2F6251600016CA3E /* SurveyModels.swift */; };
 		FE38C33C2F560B34000864F1 /* ColorStyler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE38C33B2F560B34000864F1 /* ColorStyler.swift */; };
 		FE38C33D2F560B34000864F1 /* ColorStyler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE38C33B2F560B34000864F1 /* ColorStyler.swift */; };
 		FE38C33E2F560B34000864F1 /* ColorStyler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE38C33B2F560B34000864F1 /* ColorStyler.swift */; };
@@ -406,6 +412,8 @@
 		EEAA80FD2F61212A0016CA3E /* OCKHealthKitTask+CareTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OCKHealthKitTask+CareTask.swift"; sourceTree = "<group>"; };
 		EEAA817A2F62355E0016CA3E /* ResearchKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ResearchKit.xcodeproj; path = ResearchKit/ResearchKit.xcodeproj; sourceTree = SOURCE_ROOT; };
 		EEAA81AB2F6237770016CA3E /* ResearchKitSwiftUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ResearchKitSwiftUI.xcodeproj; path = ResearchKit/ResearchKitSwiftUI/ResearchKitSwiftUI.xcodeproj; sourceTree = SOURCE_ROOT; };
+		EEAA81E92F624D580016CA3E /* OCKTask+Survey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OCKTask+Survey.swift"; sourceTree = "<group>"; };
+		EEAA81ED2F6251600016CA3E /* SurveyModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyModels.swift; sourceTree = "<group>"; };
 		FE38C33B2F560B34000864F1 /* ColorStyler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorStyler.swift; sourceTree = "<group>"; };
 		FE38C33F2F560F19000864F1 /* OCKDimensionStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCKDimensionStyle.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -692,6 +700,7 @@
 		918FDEB3271B402F0045A0EF /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				EEAA81ED2F6251600016CA3E /* SurveyModels.swift */,
 				EEAA80F52F611C700016CA3E /* CareKitCard.swift */,
 				7099D1FE29E98D900037CD8E /* AppError.swift */,
 				7099D20A29E98E400037CD8E /* InstallationChannel.swift */,
@@ -705,6 +714,7 @@
 		918FDEBA271B4DF60045A0EF /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				EEAA81E92F624D580016CA3E /* OCKTask+Survey.swift */,
 				EEAA80FD2F61212A0016CA3E /* OCKHealthKitTask+CareTask.swift */,
 				EEAA80F92F6121160016CA3E /* OCKTask+CareTask.swift */,
 				70221F2928D7BE0600971195 /* AppDelegate+ParseRemoteDelegate.swift */,
@@ -1217,6 +1227,7 @@
 				707D29622DCBE68500980253 /* ProfileViewModel.swift in Sources */,
 				707D29632DCBE68500980253 /* AppDelegate+UIApplicationDelegate.swift in Sources */,
 				707D29642DCBE68500980253 /* CareViewController.swift in Sources */,
+				EEAA81EF2F6251630016CA3E /* SurveyModels.swift in Sources */,
 				707D29652DCBE68500980253 /* PCKUtility.swift in Sources */,
 				707D29662DCBE68500980253 /* UserType.swift in Sources */,
 				707D29672DCBE68500980253 /* ContactView.swift in Sources */,
@@ -1224,6 +1235,7 @@
 				707D29692DCBE68500980253 /* LocalSyncSessionDelegate.swift in Sources */,
 				707D296A2DCBE68500980253 /* Constants.swift in Sources */,
 				707D296B2DCBE68500980253 /* AppDelegate+ParseRemoteDelegate.swift in Sources */,
+				EEAA81EA2F624D5A0016CA3E /* OCKTask+Survey.swift in Sources */,
 				3F4A12122F54F6FC00068C65 /* ManageTasksView.swift in Sources */,
 				707D296C2DCBE68500980253 /* RemoteSessionDelegate.swift in Sources */,
 				FE38C33E2F560B34000864F1 /* ColorStyler.swift in Sources */,
@@ -1260,6 +1272,7 @@
 				70E3422B2DB0581C005124F9 /* MainTabView.swift in Sources */,
 				7075152028DE1BB400A57A0C /* LoginView.swift in Sources */,
 				70E342292DB05813005124F9 /* ProfileView.swift in Sources */,
+				EEAA81F02F6251630016CA3E /* SurveyModels.swift in Sources */,
 				70F921B227CAC16E00368CEC /* RemoteSessionDelegate.swift in Sources */,
 				70E342302DB062F8005124F9 /* NoHighlightStyle.swift in Sources */,
 				7094DCF32DC340E40039CA64 /* SplashScreenView.swift in Sources */,
@@ -1273,6 +1286,7 @@
 				9103AA5227B8C913002C921E /* FontColorKey.swift in Sources */,
 				707CC719254DA91900116728 /* OCKLocalization.swift in Sources */,
 				7007759B252229C900EC0EDA /* User.swift in Sources */,
+				EEAA81EC2F624D5A0016CA3E /* OCKTask+Survey.swift in Sources */,
 				7099D20929E98E200037CD8E /* UserType.swift in Sources */,
 				918FDEB9271B493A0045A0EF /* Installation.swift in Sources */,
 				91AD923F24A4C42D00925D4D /* NotificationController.swift in Sources */,
@@ -1310,6 +1324,7 @@
 				7036E4CE256E9A0C006E9A3C /* ContactView.swift in Sources */,
 				70F03A972786098F00E5AFB4 /* OCKStore.swift in Sources */,
 				70DFD80B2567074500B9DB12 /* LoginView.swift in Sources */,
+				EEAA81EE2F6251630016CA3E /* SurveyModels.swift in Sources */,
 				707D28CF2DCA8AAB00980253 /* OCKStore+SampleData.swift in Sources */,
 				7055725B2DC33AB1008E5B0A /* SplashScreenView.swift in Sources */,
 				70F03AA827860E7700E5AFB4 /* FontColorKey.swift in Sources */,
@@ -1324,6 +1339,7 @@
 				70CF66E428E1E74C00FAE977 /* TintColorFlipKey.swift in Sources */,
 				70F03AA327860AFF00E5AFB4 /* OCKPatient+Parse.swift in Sources */,
 				7099D1FF29E98D900037CD8E /* AppError.swift in Sources */,
+				EEAA81EB2F624D5A0016CA3E /* OCKTask+Survey.swift in Sources */,
 				3F4A12112F54F6FC00068C65 /* ManageTasksView.swift in Sources */,
 				70F0EFE828C2EC050005B5A2 /* OCKSampleApp.swift in Sources */,
 				918FDEB7271B41FF0045A0EF /* Logger.swift in Sources */,

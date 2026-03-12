@@ -36,12 +36,13 @@ import CareKitUI
 import os.log
 import SwiftUI
 import UIKit
+import ResearchKitSwiftUI
 
 @MainActor
 final class CareViewController: OCKDailyPageViewController, @unchecked Sendable {
 	private var isSyncing = false
 	private var isLoading = false
-
+    private let swiftUIPadding: CGFloat = 15
     private var style: Styler {
         CustomStylerKey.defaultValue
     }
@@ -296,6 +297,18 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
 
             case .featured, .link:
                 return nil
+            case .survey:
+                guard let card = researchSurveyViewController(
+                    query: query,
+                    task: standardTask
+                ) else {
+                    Logger.feed.warning(
+                        "Unable to create research survey view controller"
+                    )
+                    return nil
+                }
+
+                return [card]
             }
         }
 
@@ -328,13 +341,44 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
                 )
                 .formattedHostingController()
                 return [card]
-
-            case .button, .checklist, .grid, .featured, .link:
+            case .survey, .button, .checklist, .grid, .featured, .link:
                 return nil
             }
         }
 
         return nil
+    }
+    private func researchSurveyViewController(
+        query: OCKEventQuery,
+        task: OCKTask
+    ) -> UIViewController? {
+
+        guard let steps = task.surveySteps else {
+            return nil
+        }
+
+        let surveyViewController = EventQueryContentView<ResearchSurveyView>(
+            query: query
+        ) {
+            EventQueryContentView<ResearchCareForm>(
+                query: query
+            ) {
+                ForEach(0..<steps.count, id: \.self) { stepIndex in
+                    ResearchFormStep(
+                        title: task.title ?? task.id,
+                        subtitle: task.instructions
+                    ) {
+                        ForEach(0..<steps[stepIndex].questions.count, id: \.self) { questionIndex in
+                            SurveyQuestionView(question: steps[stepIndex].questions[questionIndex])
+                        }
+                    }
+                }
+            }
+        }
+        .padding(.vertical, swiftUIPadding)
+        .formattedHostingController()
+
+        return surveyViewController
     }
 
     private func appendTasks(

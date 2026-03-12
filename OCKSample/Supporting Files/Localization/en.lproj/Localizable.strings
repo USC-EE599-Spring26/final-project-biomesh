@@ -98,6 +98,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 "STRETCH" = "Stretch";
 "STEPS" = "Steps";
 "OVULATION_TEST_RESULT" = "Ovulation Test Result";
+"QUALITY_OF_LIFE" = "Quality of Life";
+"QUALITY_OF_LIFE_TIME" = "Since using the app, have you felt more flexible in managing your time?";
+"QUALITY_OF_LIFE_STRESS" = "How would you score your stress level?";
+"QUALITY_OF_LIFE_STRESS_DETAIL" = "0 is no stress, 10 is extremely high stress.";
+"ANSWER_YES" = "Yes";
+"ANSWER_NO" = "No";
+
+// MARK: ResearchKit SwiftUI
+"BUTTON_CANCEL" = "Cancel";
+"BUTTON_NEXT" = "Next";
+"BUTTON_DONE" = "Done";
+"BUTTON_CLEAR" = "Clear";
+"IMAGE_SELECT_ALL" = "Select all that apply";
+"IMAGE_TAP_SELECT" = "Tap to select";
+"NAVIGATION_TITLE" = "%D of %D";
+"PICKER_TAP" = "Tap Here";
+"QUESTION_HEIGHT" = "Select Height";
+"QUESTION_PROGRESS" = "Question %D of %D";
+"QUESTION_WEIGHT" = "Select Weight";
+"SLIDER_CONFIG_FOR" = "Slider for";
 
 // MARK: Charts
 "CHOOSE_DATE_INTERVAL" = "Chose date interval";

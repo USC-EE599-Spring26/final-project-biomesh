@@ -47,4 +47,5 @@ enum Constants {
     static let appName = "ParseCareKitSample"
     static let card = "card"
     static let priority = "priority"
+    static let qualityOfLife = "qualityOfLife"
 }

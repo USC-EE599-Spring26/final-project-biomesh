@@ -14,6 +14,7 @@ enum TaskID {
     static let waterIntake      = "biomesh.water"
     static let anxietyCheck     = "biomesh.anxiety"
     static let sleepHygiene     = "biomesh.sleep.hygiene"
+    static let qualityOfLife = "biomesh.quality.of.life"
 
     // Default OCKHealthKitTask IDs
     static let steps            = "biomesh.steps"
@@ -31,7 +32,7 @@ enum TaskID {
 
     /// Self-reported tasks shown after HealthKit
     static var orderedSubjective: [String] {
-        [caffeineIntake, waterIntake, anxietyCheck, sleepHygiene]
+        [anxietyCheck, sleepHygiene, caffeineIntake, waterIntake, qualityOfLife]
     }
 
     static var orderedWatchOS: [String] {

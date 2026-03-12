@@ -18,4 +18,5 @@ enum CareKitCard: String, Codable {
     case grid
     case featured
     case link
+    case survey
 }
