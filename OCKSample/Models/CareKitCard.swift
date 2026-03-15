@@ -8,15 +8,17 @@
 
 import Foundation
 
-enum CareKitCard: String, Codable {
-    case button
-    case checklist
-    case simple
-    case instruction
-    case labeledValue
-    case numericProgress
-    case grid
-    case featured
-    case link
-    case survey
+enum CareKitCard: String, CaseIterable, Identifiable {
+    case button = "Button"
+    case checklist = "Checklist"
+    case instruction = "Instruction"
+    case simple = "Simple"
+    case numericProgress = "Numeric Progress"
+    case labeledValue = "Labeled Value"
+    case grid = "Grid"
+    case survey = "Survey"
+    case link = "Link"
+    case featured = "Featured"
+    case custom = "Custom"
+    var id: String { rawValue }
 }

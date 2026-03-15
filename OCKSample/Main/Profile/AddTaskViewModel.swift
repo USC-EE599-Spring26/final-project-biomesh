@@ -4,7 +4,7 @@
 //
 //  Created by Faye.
 //
-
+// swiftlint:disable type_body_length
 import Foundation
 import CareKitStore
 import HealthKit
@@ -14,26 +14,25 @@ import UIKit
 @MainActor
 final class AddTaskViewModel: ObservableObject {
 
-    // Task kind
-
     enum TaskKind: String, CaseIterable, Identifiable {
-        case regular   = "Regular Task"
+        case regular = "Regular Task"
         case healthKit = "HealthKit Task"
+
         var id: String { rawValue }
     }
 
-    // Card type
-
     enum CardType: String, CaseIterable, Identifiable {
-        case button          = "Button Log"
-        case checklist       = "Checklist"
-        case instructions    = "Instructions"
-        case simple          = "Simple"
+        case button = "Button Log"
+        case checklist = "Checklist"
+        case instructions = "Instructions"
+        case simple = "Simple"
         case numericProgress = "Numeric Progress"
-        case labeledValue    = "Labeled Value"
-        case grid            = "Grid"
-        case link            = "Link"
+        case labeledValue = "Labeled Value"
+        case grid = "Grid"
+        case link = "Link"
         case featuredContent = "Featured Content"
+        case survey = "Survey"
+        case custom = "Custom"
 
         var id: String { rawValue }
 
@@ -57,42 +56,49 @@ final class AddTaskViewModel: ObservableObject {
                 return .link
             case .featuredContent:
                 return .featured
+            case .survey:
+                return .survey
+            case .custom:
+                return .custom
             }
         }
     }
-
-    // Frequency
 
     enum Frequency: String, CaseIterable, Identifiable {
-        case daily  = "Daily"
+        case daily = "Daily"
         case weekly = "Weekly"
+
         var id: String { rawValue }
+
         var interval: DateComponents {
             switch self {
-            case .daily:  return DateComponents(day: 1)
-            case .weekly: return DateComponents(weekOfYear: 1)
+            case .daily:
+                return DateComponents(day: 1)
+            case .weekly:
+                return DateComponents(weekOfYear: 1)
             }
         }
     }
 
-    // HealthKit metrics available for user-created tasks
-
     enum HealthKitMetric: String, CaseIterable, Identifiable {
-        case steps      = "Steps"
-        case heartRate  = "Heart Rate"
+        case steps = "Steps"
+        case heartRate = "Heart Rate"
+
         var id: String { rawValue }
     }
 
-    // Published form fields
+    @Published var taskKind: TaskKind = .regular
+    @Published var title: String = ""
+    @Published var instructions: String = ""
+    @Published var startDate: Date = .now
+    @Published var timeOfDay: Date = .now
+    @Published var frequency: Frequency = .daily
+    @Published var cardType: CardType = .button
+    @Published var assetName: String = ""
 
-    @Published var taskKind: TaskKind     = .regular
-    @Published var title: String          = ""
-    @Published var instructions: String   = ""
-    @Published var startDate: Date        = .now
-    @Published var timeOfDay: Date        = .now
-    @Published var frequency: Frequency  = .daily
-    @Published var cardType: CardType    = .button
-    @Published var assetName: String     = ""
+    // Survey support for user-created survey tasks
+    @Published var surveyTitle: String = "Quick Check-In"
+    @Published var surveyQuestion: String = "How are you feeling today?"
 
     // HealthKit-specific
     @Published var healthKitMetric: HealthKitMetric = .steps
@@ -101,8 +107,6 @@ final class AddTaskViewModel: ObservableObject {
     // UI state
     @Published private(set) var isSaving = false
     @Published var errorMessage: String?
-
-    // Quick-select SF Symbol suggestions
 
     static let suggestedSymbols: [String] = [
         "cup.and.saucer.fill",
@@ -126,24 +130,18 @@ final class AddTaskViewModel: ObservableObject {
         "music.note",
         "book.fill"
     ]
-
-    // Validation
-
     var canSave: Bool {
-        !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        && isValidSymbol
+        !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && isValidSymbol
     }
 
     var isValidSymbol: Bool {
         let trimmed = assetName.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return true } // optional field
+        guard !trimmed.isEmpty else { return true }
         return UIImage(systemName: trimmed) != nil
     }
-
-    // Intents
-
     func save() async -> Bool {
         guard canSave else { return false }
+
         isSaving = true
         errorMessage = nil
         defer { isSaving = false }
@@ -170,22 +168,25 @@ final class AddTaskViewModel: ObservableObject {
                 name: Notification.Name(rawValue: Constants.shouldRefreshView),
                 object: nil
             )
+
             Logger.profile.info("Saved new task: \(self.title, privacy: .private)")
             return true
+
         } catch {
             errorMessage = error.localizedDescription
             Logger.profile.error("Could not save task: \(error, privacy: .public)")
             return false
         }
     }
-
-    // Private builders
-
     private func buildSchedule() -> OCKSchedule {
-        let hour   = Calendar.current.component(.hour, from: timeOfDay)
+        let hour = Calendar.current.component(.hour, from: timeOfDay)
         let minute = Calendar.current.component(.minute, from: timeOfDay)
-        let start  = Calendar.current.date(
-            bySettingHour: hour, minute: minute, second: 0, of: startDate
+
+        let start = Calendar.current.date(
+            bySettingHour: hour,
+            minute: minute,
+            second: 0,
+            of: startDate
         ) ?? startDate
 
         let element = OCKScheduleElement(
@@ -196,21 +197,29 @@ final class AddTaskViewModel: ObservableObject {
             targetValues: [],
             duration: .allDay
         )
+
         return OCKSchedule(composing: [element])
     }
 
     private func buildRegularTask() -> OCKTask {
         let id = "user.\(slug(title)).\(UUID().uuidString.prefix(6))"
+
         var task = OCKTask(
             id: id,
             title: title.trimmingCharacters(in: .whitespacesAndNewlines),
             carePlanUUID: nil,
             schedule: buildSchedule()
         )
+
         task.instructions = instructions.trimmingCharacters(in: .whitespacesAndNewlines)
         task.card = cardType.careKitCard
         task.priority = 10
         applyAsset(to: &task)
+
+        if cardType == .survey {
+            task.surveySteps = makeSurveySteps()
+        }
+
         return task
     }
 
@@ -222,16 +231,20 @@ final class AddTaskViewModel: ObservableObject {
         case .steps:
             let unit = HKUnit.count()
             let goalValue = OCKOutcomeValue(stepsGoal, units: unit.unitString)
-            let scheduleWithGoal = OCKSchedule(composing: schedule.elements.map {
-                OCKScheduleElement(
-                    start: $0.start,
-                    end: $0.end,
-                    interval: $0.interval,
-                    text: $0.text,
-                    targetValues: [goalValue],
-                    duration: $0.duration
-                )
-            })
+
+            let scheduleWithGoal = OCKSchedule(
+                composing: schedule.elements.map {
+                    OCKScheduleElement(
+                        start: $0.start,
+                        end: $0.end,
+                        interval: $0.interval,
+                        text: $0.text,
+                        targetValues: [goalValue],
+                        duration: $0.duration
+                    )
+                }
+            )
+
             var task = OCKHealthKitTask(
                 id: id,
                 title: title.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -243,6 +256,7 @@ final class AddTaskViewModel: ObservableObject {
                     unit: unit
                 )
             )
+
             task.instructions = instructions.trimmingCharacters(in: .whitespacesAndNewlines)
             task.card = .numericProgress
             task.priority = 10
@@ -251,6 +265,7 @@ final class AddTaskViewModel: ObservableObject {
 
         case .heartRate:
             let unit = HKUnit.count().unitDivided(by: .minute())
+
             var task = OCKHealthKitTask(
                 id: id,
                 title: title.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -262,12 +277,45 @@ final class AddTaskViewModel: ObservableObject {
                     unit: unit
                 )
             )
+
             task.instructions = instructions.trimmingCharacters(in: .whitespacesAndNewlines)
             task.card = .labeledValue
             task.priority = 10
             applyAsset(to: &task)
             return task
         }
+    }
+
+    private func makeSurveySteps() -> [SurveyStep] {
+        let trimmedSurveyTitle = surveyTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedQuestion = surveyQuestion.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        let finalSurveyTitle = trimmedSurveyTitle.isEmpty ? "Quick Check-In" : trimmedSurveyTitle
+        let finalQuestion = trimmedQuestion.isEmpty ? "How are you feeling today?" : trimmedQuestion
+
+        let choices: [TextChoice] = [
+            .init(id: "yes", choiceText: "Yes", value: "Yes"),
+            .init(id: "no", choiceText: "No", value: "No")
+        ]
+
+        let question = SurveyQuestion(
+            id: "\(slug(finalSurveyTitle))-question",
+            type: .multipleChoice,
+            required: true,
+            title: finalQuestion,
+            detail: nil,
+            textChoices: choices,
+            choicesSelectionLimit: .single,
+            integerRange: nil,
+            sliderStepValue: nil
+        )
+
+        let step = SurveyStep(
+            id: "\(slug(finalSurveyTitle))-step",
+            questions: [question]
+        )
+
+        return [step]
     }
 
     private func applyAsset(to task: inout OCKTask) {
@@ -282,12 +330,14 @@ final class AddTaskViewModel: ObservableObject {
         task.asset = trimmed
     }
 
-    private func slug(_ sss: String) -> String {
+    private func slug(_ value: String) -> String {
         let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-"))
-        let cleaned = sss.lowercased()
+        let cleaned = value
+            .lowercased()
             .replacingOccurrences(of: " ", with: "-")
             .components(separatedBy: allowed.inverted)
             .joined()
+
         return cleaned.isEmpty ? "task" : cleaned
     }
 }
