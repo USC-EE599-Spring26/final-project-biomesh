@@ -5,20 +5,23 @@
 //  Created by Corey Baker on 4/14/23.
 //  Copyright © 2023 Network Reconnaissance Lab. All rights reserved.
 //
-
 import Foundation
 
 enum TaskID {
     // Default OCKTask IDs
-    static let caffeineIntake   = "biomesh.caffeine"
-    static let waterIntake      = "biomesh.water"
-    static let anxietyCheck     = "biomesh.anxiety"
-    static let sleepHygiene     = "biomesh.sleep.hygiene"
+    static let caffeineIntake = "biomesh.caffeine"
+    static let waterIntake = "biomesh.water"
+    static let anxietyCheck = "biomesh.anxiety"
+    static let sleepHygiene = "biomesh.sleep.hygiene"
     static let qualityOfLife = "biomesh.quality.of.life"
 
+    // New default survey tasks
+    static let checkIn = "biomesh.check.in"
+    static let rangeOfMotion = "biomesh.range.of.motion"
+
     // Default OCKHealthKitTask IDs
-    static let steps            = "biomesh.steps"
-    static let sleepDuration    = "biomesh.sleep.duration"
+    static let steps = "biomesh.steps"
+    static let sleepDuration = "biomesh.sleep.duration"
 
     // Ordered display lists
     static var ordered: [String] {
@@ -32,7 +35,15 @@ enum TaskID {
 
     /// Self-reported tasks shown after HealthKit
     static var orderedSubjective: [String] {
-        [anxietyCheck, sleepHygiene, caffeineIntake, waterIntake, qualityOfLife]
+        [
+            anxietyCheck,
+            checkIn,
+            rangeOfMotion,
+            sleepHygiene,
+            caffeineIntake,
+            waterIntake,
+            qualityOfLife
+        ]
     }
 
     static var orderedWatchOS: [String] {

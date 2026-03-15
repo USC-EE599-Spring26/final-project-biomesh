@@ -6,6 +6,12 @@
 //  Copyright © 2022 Network Reconnaissance Lab. All rights reserved.
 //
 
+//
+//  OCKStore.swift
+//  OCKSample
+//
+// swiftlint:disable line_length
+
 import Contacts
 import Foundation
 import CareKitStore
@@ -61,9 +67,10 @@ extension OCKStore {
     /// Seeds the store with BioMesh default tasks and contacts on first sign-up.
     func populateDefaultCarePlansTasksContacts(startDate: Date = Date()) async throws {
 
-        let calendar  = Calendar.current
-        let morning   = calendar.startOfDay(for: startDate)
-        let allDay    = OCKSchedule(composing: [
+        let calendar = Calendar.current
+        let morning = calendar.startOfDay(for: startDate)
+
+        let allDay = OCKSchedule(composing: [
             OCKScheduleElement(
                 start: morning,
                 end: nil,
@@ -73,9 +80,14 @@ extension OCKStore {
                 duration: .allDay
             )
         ])
+
         let eveningStart = calendar.date(
-            bySettingHour: 21, minute: 0, second: 0, of: morning
+            bySettingHour: 21,
+            minute: 0,
+            second: 0,
+            of: morning
         ) ?? morning
+
         let eveningSchedule = OCKSchedule(composing: [
             OCKScheduleElement(
                 start: eveningStart,
@@ -85,72 +97,71 @@ extension OCKStore {
         ])
 
         // Caffeine Intake
-        // Logs each caffeinated drink throughout the day.
-        // Research note: >400 mg/day linked to significantly higher anxiety risk.
         var caffeine = OCKTask(
             id: TaskID.caffeineIntake,
             title: "Caffeine Intake",
             carePlanUUID: nil,
             schedule: allDay
         )
-        caffeine.instructions = "Tap Log each time you have a caffeinated drink " +
-            "(coffee, tea, energy drink). Note: >400 mg/day is linked to higher anxiety risk."
+        caffeine.instructions = "Tap Log each time you have a caffeinated drink (coffee, tea, energy drink). Note: >400 mg/day is linked to higher anxiety risk."
         caffeine.asset = "cup.and.saucer.fill"
         caffeine.impactsAdherence = false
         caffeine.card = .button
         caffeine.priority = 2
 
         // Water Intake
-        // Tracks hydration as a control variable.
         var water = OCKTask(
             id: TaskID.waterIntake,
             title: "Water Intake",
             carePlanUUID: nil,
             schedule: allDay
         )
-        water.instructions = "Tap Log each time you drink a glass of water. " +
-            "Staying hydrated helps separate caffeine effects from dehydration."
+        water.instructions = "Tap Log each time you drink a glass of water. Staying hydrated helps separate caffeine effects from dehydration."
         water.asset = "drop.fill"
         water.impactsAdherence = false
         water.card = .button
         water.priority = 3
 
         // Anxiety Check-in
-        // Captures the primary outcome variable from the research model.
         var anxiety = OCKTask(
             id: TaskID.anxietyCheck,
             title: "Anxiety Check-in",
             carePlanUUID: nil,
             schedule: allDay
         )
-        anxiety.instructions = "Tap Log whenever you notice an anxiety episode. " +
-            "Try to note how long ago you last had caffeine — this helps trace the " +
-            "caffeine → anxiety relationship your app is studying."
+        anxiety.instructions = "Tap Log whenever you notice an anxiety episode. Try to note how long ago you last had caffeine — this helps trace the caffeine → anxiety relationship your app is studying."
         anxiety.asset = "brain.head.profile"
         anxiety.impactsAdherence = false
         anxiety.card = .button
         anxiety.priority = 0
 
         // Evening Wind-Down
-        // A checklist to support the sleep mediator variable.
         var windDown = OCKTask(
             id: TaskID.sleepHygiene,
             title: "Evening Wind-Down",
             carePlanUUID: nil,
             schedule: eveningSchedule
         )
-        windDown.instructions = "Complete your wind-down routine before bed:\n" +
-            "• No caffeine after 2 PM\n" +
-            "• Dim lights 30 min before sleep\n" +
-            "• Put your phone face-down\n" +
-            "Good sleep quality is the mediator between caffeine and next-day anxiety."
+        windDown.instructions = "Complete your wind-down routine before bed:\n• No caffeine after 2 PM\n• Dim lights 30 min before sleep\n• Put your phone face-down\nGood sleep quality is the mediator between caffeine and next-day anxiety."
         windDown.asset = "moon.zzz.fill"
         windDown.impactsAdherence = true
         windDown.card = .checklist
         windDown.priority = 1
 
         let qualityOfLife = createQualityOfLifeSurveyTask(carePlanUUID: nil)
-        _ = try await addOrUpdateTasks([caffeine, water, anxiety, windDown, qualityOfLife])
+        let checkIn = createCheckInSurveyTask(carePlanUUID: nil, startDate: startDate)
+        let rangeOfMotion = createRangeOfMotionSurveyTask(carePlanUUID: nil, startDate: startDate)
+
+        _ = try await addOrUpdateTasks([
+            caffeine,
+            water,
+            anxiety,
+            windDown,
+            qualityOfLife,
+            checkIn,
+            rangeOfMotion
+        ])
+
         // Contacts
         var researcher = OCKContact(
             id: "biomesh.researcher",
@@ -174,8 +185,7 @@ extension OCKStore {
             carePlanUUID: nil
         )
         advisor.title = "Wellness Advisor"
-        advisor.role = "General guidance on managing caffeine intake, sleep hygiene, " +
-            "and anxiety reduction strategies."
+        advisor.role = "General guidance on managing caffeine intake, sleep hygiene, and anxiety reduction strategies."
         advisor.emailAddresses = [
             OCKLabeledValue(label: CNLabelWork, value: "advisor@biomesh.health")
         ]
@@ -199,9 +209,7 @@ extension OCKStore {
             interval: DateComponents(day: 1)
         )
 
-        let qualityOfLifeSchedule = OCKSchedule(
-            composing: [qualityOfLifeElement]
-        )
+        let qualityOfLifeSchedule = OCKSchedule(composing: [qualityOfLifeElement])
 
         let textChoiceYesText = String(localized: "ANSWER_YES")
         let textChoiceNoText = String(localized: "ANSWER_NO")
@@ -223,16 +231,16 @@ extension OCKStore {
 
         let questionOne = SurveyQuestion(
             id: "\(qualityOfLifeTaskId)-managing-time",
-            type: SurveyQuestionType.multipleChoice,
+            type: .multipleChoice,
             required: true,
             title: String(localized: "QUALITY_OF_LIFE_TIME"),
             textChoices: choices,
-            choicesSelectionLimit: ChoiceSelectionLimit.single
+            choicesSelectionLimit: .single
         )
 
         let questionTwo = SurveyQuestion(
             id: "\(qualityOfLifeTaskId)-stress",
-            type: SurveyQuestionType.slider,
+            type: .slider,
             required: false,
             title: String(localized: "QUALITY_OF_LIFE_STRESS"),
             detail: String(localized: "QUALITY_OF_LIFE_STRESS_DETAIL"),
@@ -240,11 +248,9 @@ extension OCKStore {
             sliderStepValue: 1
         )
 
-        let questions = [questionOne, questionTwo]
-
         let stepOne = SurveyStep(
             id: "\(qualityOfLifeTaskId)-step-1",
-            questions: questions
+            questions: [questionOne, questionTwo]
         )
 
         var qualityOfLife = OCKTask(
@@ -262,5 +268,202 @@ extension OCKStore {
         qualityOfLife.priority = 1
 
         return qualityOfLife
+    }
+
+    func createCheckInSurveyTask(
+        carePlanUUID: UUID?,
+        startDate: Date = Date()
+    ) -> OCKTask {
+
+        let taskID = TaskID.checkIn
+
+        let schedule = OCKSchedule(composing: [
+            OCKScheduleElement(
+                start: Calendar.current.startOfDay(for: startDate),
+                end: nil,
+                interval: DateComponents(day: 1),
+                text: "Complete once today",
+                targetValues: [],
+                duration: .allDay
+            )
+        ])
+
+        let moodChoices: [TextChoice] = [
+            .init(id: "\(taskID).mood.great", choiceText: "Great", value: "Great"),
+            .init(id: "\(taskID).mood.okay", choiceText: "Okay", value: "Okay"),
+            .init(id: "\(taskID).mood.bad", choiceText: "Bad", value: "Bad")
+        ]
+
+        let yesNoChoices: [TextChoice] = [
+            .init(id: "\(taskID).yes", choiceText: "Yes", value: "Yes"),
+            .init(id: "\(taskID).no", choiceText: "No", value: "No")
+        ]
+
+        let moodQuestion = SurveyQuestion(
+            id: "\(taskID).mood",
+            type: .multipleChoice,
+            required: true,
+            title: "How do you feel today?",
+            detail: "Choose the option that best matches your overall mood.",
+            textChoices: moodChoices,
+            choicesSelectionLimit: .single,
+            integerRange: nil,
+            sliderStepValue: nil
+        )
+
+        let stressQuestion = SurveyQuestion(
+            id: "\(taskID).stress",
+            type: .slider,
+            required: true,
+            title: "How stressed do you feel right now?",
+            detail: "0 = no stress, 10 = highest stress",
+            textChoices: nil,
+            choicesSelectionLimit: nil,
+            integerRange: 0...10,
+            sliderStepValue: 1
+        )
+
+        let sleepQuestion = SurveyQuestion(
+            id: "\(taskID).sleep",
+            type: .slider,
+            required: false,
+            title: "How well did you sleep last night?",
+            detail: "0 = very poorly, 10 = extremely well",
+            textChoices: nil,
+            choicesSelectionLimit: nil,
+            integerRange: 0...10,
+            sliderStepValue: 1
+        )
+
+        let symptomsQuestion = SurveyQuestion(
+            id: "\(taskID).symptoms",
+            type: .multipleChoice,
+            required: true,
+            title: "Are you having symptoms today?",
+            detail: "Select the best answer.",
+            textChoices: yesNoChoices,
+            choicesSelectionLimit: .single,
+            integerRange: nil,
+            sliderStepValue: nil
+        )
+
+        let checkInStep = SurveyStep(
+            id: "\(taskID).step.1",
+            questions: [
+                moodQuestion,
+                stressQuestion,
+                sleepQuestion,
+                symptomsQuestion
+            ]
+        )
+
+        var task = OCKTask(
+            id: taskID,
+            title: "Daily Check-In",
+            carePlanUUID: carePlanUUID,
+            schedule: schedule
+        )
+
+        task.instructions = "Complete this short daily check-in to track your mood, stress, sleep, and symptoms over time."
+        task.asset = "checkmark.bubble.fill"
+        task.impactsAdherence = true
+        task.card = .survey
+        task.surveySteps = [checkInStep]
+        task.priority = 1
+
+        return task
+    }
+
+    func createRangeOfMotionSurveyTask(
+        carePlanUUID: UUID?,
+        startDate: Date = Date()
+    ) -> OCKTask {
+
+        let taskID = TaskID.rangeOfMotion
+
+        let schedule = OCKSchedule(composing: [
+            OCKScheduleElement(
+                start: Calendar.current.startOfDay(for: startDate),
+                end: nil,
+                interval: DateComponents(day: 1),
+                text: "Complete once today",
+                targetValues: [],
+                duration: .allDay
+            )
+        ])
+
+        let shoulderQuestion = SurveyQuestion(
+            id: "\(taskID).shoulder",
+            type: .slider,
+            required: true,
+            title: "How far can you raise your arm today?",
+            detail: "0 = cannot raise at all, 10 = full range of motion",
+            textChoices: nil,
+            choicesSelectionLimit: nil,
+            integerRange: 0...10,
+            sliderStepValue: 1
+        )
+
+        let neckQuestion = SurveyQuestion(
+            id: "\(taskID).neck",
+            type: .slider,
+            required: false,
+            title: "How easily can you turn your neck today?",
+            detail: "0 = not at all, 10 = full motion",
+            textChoices: nil,
+            choicesSelectionLimit: nil,
+            integerRange: 0...10,
+            sliderStepValue: 1
+        )
+
+        let kneeQuestion = SurveyQuestion(
+            id: "\(taskID).knee",
+            type: .slider,
+            required: false,
+            title: "How well can you bend your knee today?",
+            detail: "0 = no movement, 10 = full movement",
+            textChoices: nil,
+            choicesSelectionLimit: nil,
+            integerRange: 0...10,
+            sliderStepValue: 1
+        )
+
+        let painQuestion = SurveyQuestion(
+            id: "\(taskID).pain",
+            type: .slider,
+            required: false,
+            title: "How much pain do you feel during movement?",
+            detail: "0 = no pain, 10 = worst pain",
+            textChoices: nil,
+            choicesSelectionLimit: nil,
+            integerRange: 0...10,
+            sliderStepValue: 1
+        )
+
+        let rangeOfMotionStep = SurveyStep(
+            id: "\(taskID).step.1",
+            questions: [
+                shoulderQuestion,
+                neckQuestion,
+                kneeQuestion,
+                painQuestion
+            ]
+        )
+
+        var task = OCKTask(
+            id: taskID,
+            title: "Range of Motion",
+            carePlanUUID: carePlanUUID,
+            schedule: schedule
+        )
+
+        task.instructions = "Track your daily movement and comfort during motion. Use the sliders to estimate how well you can move today."
+        task.asset = "figure.flexibility"
+        task.impactsAdherence = true
+        task.card = .survey
+        task.surveySteps = [rangeOfMotionStep]
+        task.priority = 2
+
+        return task
     }
 }
