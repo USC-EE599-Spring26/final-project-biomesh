@@ -43,6 +43,8 @@ extension OCKHealthKitPassthroughStore {
             "Regular movement can reduce caffeine-related anxiety symptoms."
         steps.asset = "figure.walk"
         steps.tags = ["cardType:numericProgress"]
+        steps.card = .numericProgress
+        steps.priority = 0
 
         // Sleep Duration
         // The mediator variable in the caffeine → sleep → anxiety research model.
@@ -68,7 +70,9 @@ extension OCKHealthKitPassthroughStore {
             "This is the key mediator between your caffeine intake and next-day anxiety."
         sleep.asset = "bed.double.fill"
         sleep.tags = ["cardType:labeledValue"]
-
+        sleep.card = .labeledValue
+        sleep.priority = 1
+        
         _ = try await addTasksIfNotPresent([steps, sleep])
     }
 }
