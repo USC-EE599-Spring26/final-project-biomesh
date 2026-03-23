@@ -42,7 +42,8 @@ extension OCKHealthKitPassthroughStore {
         steps.instructions = "Your step count from HealthKit. " +
             "Regular movement can reduce caffeine-related anxiety symptoms."
         steps.asset = "figure.walk"
-        steps.tags = ["cardType:numericProgress"]
+        steps.card = .numericProgress
+        steps.priority = 4
 
         // Sleep Duration
         // The mediator variable in the caffeine → sleep → anxiety research model.
@@ -67,7 +68,8 @@ extension OCKHealthKitPassthroughStore {
         sleep.instructions = "Hours of sleep recorded by HealthKit. " +
             "This is the key mediator between your caffeine intake and next-day anxiety."
         sleep.asset = "bed.double.fill"
-        sleep.tags = ["cardType:labeledValue"]
+        sleep.card = .labeledValue
+        sleep.priority = 5
 
         _ = try await addTasksIfNotPresent([steps, sleep])
     }

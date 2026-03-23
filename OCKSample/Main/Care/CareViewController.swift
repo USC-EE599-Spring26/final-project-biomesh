@@ -28,7 +28,6 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 // swiftlint:disable type_body_length
-// swiftlint:disable cyclomatic_complexity
 import CareKit
 import CareKitEssentials
 import CareKitStore
@@ -41,6 +40,7 @@ import UIKit
 final class CareViewController: OCKDailyPageViewController, @unchecked Sendable {
 	private var isSyncing = false
 	private var isLoading = false
+	private let swiftUIPadding: CGFloat = 15
 
     private var style: Styler {
         CustomStylerKey.defaultValue
@@ -197,114 +197,101 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
         query.excludesTasksWithNoEvents = true
         do {
             let tasks = try await store.fetchAnyTasks(query: query)
-            let orderedTasks = TaskID.ordered.compactMap { orderedTaskID in
-                tasks.first(where: { $0.id == orderedTaskID })
+
+            guard let tasksWithPriority = tasks as? [CareTask] else {
+                Logger.feed.warning("Could not cast all tasks to \"CareTask\"")
+                return tasks
             }
-            let orderedIDs = Set(TaskID.ordered)
-            let userTasks = tasks
-                .filter { !orderedIDs.contains($0.id) }
-                .sorted { lhs, rhs in
-                    let lhsTitle = (lhs as? OCKTask)?.title ?? lhs.id
-                    let rhsTitle = (rhs as? OCKTask)?.title ?? rhs.id
-                    return lhsTitle.localizedCaseInsensitiveCompare(rhsTitle) == .orderedAscending
-                }
-            return orderedTasks + userTasks
+            let orderedPriorityTasks = tasksWithPriority.sortedByPriority()
+            let orderedTasks = orderedPriorityTasks.compactMap { orderedPriorityTask in
+                tasks.first(where: { $0.id == orderedPriorityTask.id })
+            }
+            return orderedTasks
         } catch {
             Logger.feed.error("Could not fetch tasks: \(error, privacy: .public)")
             return []
         }
     }
+    // swiftlint:disable:next cyclomatic_complexity
     private func taskViewControllers(
         _ task: any OCKAnyTask,
         on date: Date
     ) -> [UIViewController]? {
+
         var query = OCKEventQuery(for: date)
         query.taskIDs = [task.id]
-        switch task.id {
-        case TaskID.steps:
-            let card = EventQueryView<NumericProgressTaskView>(
-                query: query
-            )
-            .formattedHostingController()
-            return [card]
-        case TaskID.sleepDuration:
-            let card = EventQueryView<LabeledValueTaskView>(
-                query: query
-            )
-            .formattedHostingController()
-            return [card]
-        case TaskID.sleepHygiene:
-            #if os(iOS)
-            let card = OCKChecklistTaskViewController(
-                query: query,
-                store: self.store
-            )
-            return [card]
-            #else
-            return []
-            #endif
-        case TaskID.caffeineIntake, TaskID.waterIntake, TaskID.anxietyCheck:
-            #if os(iOS)
-            let card = OCKButtonLogTaskViewController(
-                query: query,
-                store: self.store
-            )
-            return [card]
-            #else
-            return []
-            #endif
-        default:
-            return taskViewControllersForUserTask(task, query: query)
-        }
-    }
-    private func taskViewControllersForUserTask(
-        _ task: any OCKAnyTask,
-        query: OCKEventQuery
-    ) -> [UIViewController]? {
 
-        let tags: [String]? =
-            (task as? OCKTask)?.tags ??
-            (task as? OCKHealthKitTask)?.tags
-        func defaultInstructionsCard() -> [UIViewController] {
-            #if os(iOS)
-            // UIKit card (only exists on iOS)
-            return [OCKInstructionsTaskViewController(query: query, store: self.store)]
-            #else
-            return [EventQueryView<InstructionsTaskView>(query: query).formattedHostingController()]
-            #endif
-        }
-        Logger.feed.info("USER TASK tags = \((tags ?? []).joined(separator: ","), privacy: .public)")
+        if let standardTask = task as? OCKTask {
 
-        guard let tags,
-              let match = tags.first(where: { $0.hasPrefix("cardType:") }) else {
-            return defaultInstructionsCard()
-        }
-        let cardType = String(match.dropFirst("cardType:".count))
+            switch standardTask.card {
 
-        switch cardType {
-        case "simple":
-            return [EventQueryView<SimpleTaskView>(query: query).formattedHostingController()]
-        case "instructions":
-            return [EventQueryView<InstructionsTaskView>(query: query).formattedHostingController()]
-        case "numericProgress":
-            return [EventQueryView<NumericProgressTaskView>(query: query).formattedHostingController()]
-        case "labeledValue":
-            return [EventQueryView<LabeledValueTaskView>(query: query).formattedHostingController()]
-        #if os(iOS)
-        case "checklist":
-            return [OCKChecklistTaskViewController(query: query, store: self.store)]
-        case "buttonLog":
-            return [OCKButtonLogTaskViewController(query: query, store: self.store)]
-        case "grid":
-            return [OCKGridTaskViewController(query: query, store: self.store)]
-        #else
-        case "checklist", "buttonLog", "grid":
-            return []
-        #endif
-        case "featuredContent":
+            case .button:
+                let card = OCKButtonLogTaskViewController(
+                    query: query,
+                    store: self.store
+                )
+                return [card]
+
+            case .checklist:
+                let card = OCKChecklistTaskViewController(
+                    query: query,
+                    store: self.store
+                )
+                return [card]
+
+            case .featured:
+                return nil
+
+            case .grid:
+                return nil
+
+            case .instruction:
+                let card = EventQueryView<InstructionsTaskView>(
+                    query: query
+                )
+                .padding(.vertical, swiftUIPadding)
+                .formattedHostingController()
+                return [card]
+
+            case .link:
+                return nil
+
+            case .simple:
+                let card = EventQueryView<SimpleTaskView>(
+                    query: query
+                )
+                .padding(.vertical, swiftUIPadding)
+                .formattedHostingController()
+                return [card]
+
+            default:
+                return nil
+            }
+
+        } else if let healthTask = task as? OCKHealthKitTask {
+            switch healthTask.card {
+
+            case .labeledValue:
+                let card = EventQueryView<LabeledValueTaskView>(
+                    query: query
+                )
+                .padding(.vertical, swiftUIPadding)
+                .formattedHostingController()
+                return [card]
+
+            case .numericProgress:
+                let card = EventQueryView<NumericProgressTaskView>(
+                    query: query
+                )
+                .padding(.vertical, swiftUIPadding)
+                .formattedHostingController()
+                return [card]
+
+            default:
+                return nil
+            }
+        } else {
             return nil
-        default:
-            return defaultInstructionsCard()
         }
     }
     private func appendTasks(

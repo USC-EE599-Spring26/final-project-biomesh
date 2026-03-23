@@ -73,7 +73,8 @@ extension OCKStore {
         caffeine.instructions = "Tap Log each time you have a caffeinated drink " +
             "(coffee, tea, energy drink). Note: >400 mg/day is linked to higher anxiety risk."
         caffeine.asset = "cup.and.saucer.fill"
-        caffeine.tags = ["cardType:buttonLog"]
+        caffeine.card = .button
+        caffeine.priority = 0
         caffeine.impactsAdherence = false
 
         // Water Intake
@@ -87,7 +88,8 @@ extension OCKStore {
         water.instructions = "Tap Log each time you drink a glass of water. " +
             "Staying hydrated helps separate caffeine effects from dehydration."
         water.asset = "drop.fill"
-        water.tags = ["cardType:buttonLog"]
+        water.card = .button
+        water.priority = 1
         water.impactsAdherence = false
 
         // Anxiety Check-in
@@ -102,7 +104,8 @@ extension OCKStore {
             "Try to note how long ago you last had caffeine — this helps trace the " +
             "caffeine → anxiety relationship your app is studying."
         anxiety.asset = "brain.head.profile"
-        anxiety.tags = ["cardType:buttonLog"]
+        anxiety.card = .button
+        anxiety.priority = 2
         anxiety.impactsAdherence = false
 
         // Evening Wind-Down
@@ -119,7 +122,8 @@ extension OCKStore {
             "• Put your phone face-down\n" +
             "Good sleep quality is the mediator between caffeine and next-day anxiety."
         windDown.asset = "moon.zzz.fill"
-        windDown.tags = ["cardType:checklist"]
+        windDown.card = .checklist
+        windDown.priority = 3
         windDown.impactsAdherence = true
 
         _ = try await addTasksIfNotPresent([caffeine, water, anxiety, windDown])
