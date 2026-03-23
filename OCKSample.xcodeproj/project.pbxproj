@@ -185,8 +185,6 @@
 		FE9F3C942F71DA5000E5EF7E /* CareKitCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9F3C932F71DA4900E5EF7E /* CareKitCard.swift */; };
 		FE9F3C952F71DA5000E5EF7E /* CareKitCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9F3C932F71DA4900E5EF7E /* CareKitCard.swift */; };
 		FE9F3C962F71DA5000E5EF7E /* CareKitCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9F3C932F71DA4900E5EF7E /* CareKitCard.swift */; };
-		FEE33FCB2F6FE5B30033059F /* ResearchKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEE33FC42F6FE4D60033059F /* ResearchKit.framework */; platformFilter = ios; };
-		FEE33FCC2F6FE5B30033059F /* ResearchKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FEE33FC42F6FE4D60033059F /* ResearchKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -211,34 +209,6 @@
 			remoteGlobalIDString = 91AD922624A4C42B00925D4D;
 			remoteInfo = OCKWatchSample;
 		};
-		FEE33FC32F6FE4D60033059F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = FEE33FA92F6FE4D60033059F /* ResearchKit.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = B183A5951A8535D100C76870;
-			remoteInfo = ResearchKit;
-		};
-		FEE33FC52F6FE4D60033059F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = FEE33FA92F6FE4D60033059F /* ResearchKit.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 86CC8E9A1AC09332001CCD89;
-			remoteInfo = ResearchKitTests;
-		};
-		FEE33FC72F6FE4D60033059F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = FEE33FA92F6FE4D60033059F /* ResearchKit.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = CA1C7A5A288B0C68004DAB3A;
-			remoteInfo = ResearchKitUI;
-		};
-		FEE33FC92F6FE4D60033059F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = FEE33FA92F6FE4D60033059F /* ResearchKit.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = CAD08967289DD747007B2A98;
-			remoteInfo = ResearchKitActiveTask;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -248,7 +218,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				FEE33FCC2F6FE5B30033059F /* ResearchKit.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -357,7 +326,6 @@
 		FE9F3C8B2F71D59B00E5EF7E /* OCKTask+Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OCKTask+Card.swift"; sourceTree = "<group>"; };
 		FE9F3C8F2F71D5AB00E5EF7E /* OCKHealthKitTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCKHealthKitTask.swift; sourceTree = "<group>"; };
 		FE9F3C932F71DA4900E5EF7E /* CareKitCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareKitCard.swift; sourceTree = "<group>"; };
-		FEE33FA92F6FE4D60033059F /* ResearchKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ResearchKit.xcodeproj; path = ResearchKit/ResearchKit.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -382,7 +350,6 @@
 			files = (
 				918FDEAF271B3F8F0045A0EF /* ParseCareKit in Frameworks */,
 				708542F9276687F90029E888 /* HealthKit.framework in Frameworks */,
-				FEE33FCB2F6FE5B30033059F /* ResearchKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -713,7 +680,6 @@
 		E72B2BFD226939E3009A9438 = {
 			isa = PBXGroup;
 			children = (
-				FEE33FA92F6FE4D60033059F /* ResearchKit.xcodeproj */,
 				9169381F271B80EA00A634ED /* CONTRIBUTING.md */,
 				91AD922324A461D200925D4D /* README.md */,
 				0520468223C3C1F2004F0F36 /* OCKSample.xctestplan */,
@@ -766,17 +732,6 @@
 				FE9F3C872F71D0EA00E5EF7E /* CareTask.swift */,
 			);
 			path = Protocols;
-			sourceTree = "<group>";
-		};
-		FEE33FAA2F6FE4D60033059F /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				FEE33FC42F6FE4D60033059F /* ResearchKit.framework */,
-				FEE33FC62F6FE4D60033059F /* ResearchKitTests.xctest */,
-				FEE33FC82F6FE4D60033059F /* ResearchKitUI.framework */,
-				FEE33FCA2F6FE4D60033059F /* ResearchKitActiveTask.framework */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -977,12 +932,6 @@
 			);
 			productRefGroup = E72B2C07226939E3009A9438 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = FEE33FAA2F6FE4D60033059F /* Products */;
-					ProjectRef = FEE33FA92F6FE4D60033059F /* ResearchKit.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				E72B2C05226939E3009A9438 /* OCKSample */,
@@ -993,37 +942,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		FEE33FC42F6FE4D60033059F /* ResearchKit.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = ResearchKit.framework;
-			remoteRef = FEE33FC32F6FE4D60033059F /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		FEE33FC62F6FE4D60033059F /* ResearchKitTests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = ResearchKitTests.xctest;
-			remoteRef = FEE33FC52F6FE4D60033059F /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		FEE33FC82F6FE4D60033059F /* ResearchKitUI.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = ResearchKitUI.framework;
-			remoteRef = FEE33FC72F6FE4D60033059F /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		FEE33FCA2F6FE4D60033059F /* ResearchKitActiveTask.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = ResearchKitActiveTask.framework;
-			remoteRef = FEE33FC92F6FE4D60033059F /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		5173CB8523C3A846007655A0 /* Resources */ = {
