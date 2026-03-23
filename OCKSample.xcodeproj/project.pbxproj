@@ -185,6 +185,18 @@
 		FE9F3C942F71DA5000E5EF7E /* CareKitCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9F3C932F71DA4900E5EF7E /* CareKitCard.swift */; };
 		FE9F3C952F71DA5000E5EF7E /* CareKitCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9F3C932F71DA4900E5EF7E /* CareKitCard.swift */; };
 		FE9F3C962F71DA5000E5EF7E /* CareKitCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9F3C932F71DA4900E5EF7E /* CareKitCard.swift */; };
+		FE9F3D372F71EAB000E5EF7E /* ResearchKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE9F3CE12F71E7D900E5EF7E /* ResearchKit.framework */; platformFilter = ios; };
+		FE9F3D382F71EAB000E5EF7E /* ResearchKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FE9F3CE12F71E7D900E5EF7E /* ResearchKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		FE9F3D392F71EAB000E5EF7E /* ResearchKitActiveTask.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE9F3CE72F71E7D900E5EF7E /* ResearchKitActiveTask.framework */; platformFilter = ios; };
+		FE9F3D3A2F71EAB000E5EF7E /* ResearchKitActiveTask.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FE9F3CE72F71E7D900E5EF7E /* ResearchKitActiveTask.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		FE9F3D3B2F71EAB000E5EF7E /* ResearchKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE9F3CE52F71E7D900E5EF7E /* ResearchKitUI.framework */; platformFilter = ios; };
+		FE9F3D3C2F71EAB000E5EF7E /* ResearchKitUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FE9F3CE52F71E7D900E5EF7E /* ResearchKitUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		FE9F3D3D2F71EAB000E5EF7E /* ResearchKitSwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE9F3D342F71EA1B00E5EF7E /* ResearchKitSwiftUI.framework */; platformFilters = (ios, xros, ); };
+		FE9F3D3E2F71EAB000E5EF7E /* ResearchKitSwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FE9F3D342F71EA1B00E5EF7E /* ResearchKitSwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		FE9F3D3F2F71EACE00E5EF7E /* ResearchKitSwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE9F3D342F71EA1B00E5EF7E /* ResearchKitSwiftUI.framework */; };
+		FE9F3D402F71EACE00E5EF7E /* ResearchKitSwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FE9F3D342F71EA1B00E5EF7E /* ResearchKitSwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		FE9F3D422F71EAE400E5EF7E /* ResearchKitSwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE9F3D342F71EA1B00E5EF7E /* ResearchKitSwiftUI.framework */; };
+		FE9F3D432F71EAE400E5EF7E /* ResearchKitSwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FE9F3D342F71EA1B00E5EF7E /* ResearchKitSwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -209,6 +221,48 @@
 			remoteGlobalIDString = 91AD922624A4C42B00925D4D;
 			remoteInfo = OCKWatchSample;
 		};
+		FE9F3CE02F71E7D900E5EF7E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FE9F3CB72F71E79000E5EF7E /* ResearchKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = B183A5951A8535D100C76870;
+			remoteInfo = ResearchKit;
+		};
+		FE9F3CE22F71E7D900E5EF7E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FE9F3CB72F71E79000E5EF7E /* ResearchKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 86CC8E9A1AC09332001CCD89;
+			remoteInfo = ResearchKitTests;
+		};
+		FE9F3CE42F71E7D900E5EF7E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FE9F3CB72F71E79000E5EF7E /* ResearchKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CA1C7A5A288B0C68004DAB3A;
+			remoteInfo = ResearchKitUI;
+		};
+		FE9F3CE62F71E7D900E5EF7E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FE9F3CB72F71E79000E5EF7E /* ResearchKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CAD08967289DD747007B2A98;
+			remoteInfo = ResearchKitActiveTask;
+		};
+		FE9F3D332F71EA1B00E5EF7E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FE9F3D2C2F71EA1B00E5EF7E /* ResearchKitSwiftUI.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 0BF86B1D2B4F360000E3790E;
+			remoteInfo = ResearchKitSwiftUI;
+		};
+		FE9F3D352F71EA1B00E5EF7E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FE9F3D2C2F71EA1B00E5EF7E /* ResearchKitSwiftUI.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 38DB82DF2C753A8B0074B95D;
+			remoteInfo = ResearchKitSwiftUITests;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -218,6 +272,10 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				FE9F3D3E2F71EAB000E5EF7E /* ResearchKitSwiftUI.framework in Embed Frameworks */,
+				FE9F3D3C2F71EAB000E5EF7E /* ResearchKitUI.framework in Embed Frameworks */,
+				FE9F3D382F71EAB000E5EF7E /* ResearchKit.framework in Embed Frameworks */,
+				FE9F3D3A2F71EAB000E5EF7E /* ResearchKitActiveTask.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -231,6 +289,28 @@
 				91AD924B24A4C42E00925D4D /* OCKWatchSample.app in Embed Watch Content */,
 			);
 			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FE9F3D412F71EACE00E5EF7E /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				FE9F3D402F71EACE00E5EF7E /* ResearchKitSwiftUI.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FE9F3D442F71EAE400E5EF7E /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				FE9F3D432F71EAE400E5EF7E /* ResearchKitSwiftUI.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -326,6 +406,8 @@
 		FE9F3C8B2F71D59B00E5EF7E /* OCKTask+Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OCKTask+Card.swift"; sourceTree = "<group>"; };
 		FE9F3C8F2F71D5AB00E5EF7E /* OCKHealthKitTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCKHealthKitTask.swift; sourceTree = "<group>"; };
 		FE9F3C932F71DA4900E5EF7E /* CareKitCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareKitCard.swift; sourceTree = "<group>"; };
+		FE9F3CB72F71E79000E5EF7E /* ResearchKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ResearchKit.xcodeproj; path = ResearchKit/ResearchKit.xcodeproj; sourceTree = SOURCE_ROOT; };
+		FE9F3D2C2F71EA1B00E5EF7E /* ResearchKitSwiftUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ResearchKitSwiftUI.xcodeproj; path = ResearchKit/ResearchKitSwiftUI/ResearchKitSwiftUI.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -349,7 +431,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				918FDEAF271B3F8F0045A0EF /* ParseCareKit in Frameworks */,
+				FE9F3D3B2F71EAB000E5EF7E /* ResearchKitUI.framework in Frameworks */,
+				FE9F3D3D2F71EAB000E5EF7E /* ResearchKitSwiftUI.framework in Frameworks */,
 				708542F9276687F90029E888 /* HealthKit.framework in Frameworks */,
+				FE9F3D372F71EAB000E5EF7E /* ResearchKit.framework in Frameworks */,
+				FE9F3D392F71EAB000E5EF7E /* ResearchKitActiveTask.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -359,6 +445,7 @@
 			files = (
 				707D29762DCBE89600980253 /* ParseCareKit in Frameworks */,
 				707D292D2DCBE5E500980253 /* RealityKitContent in Frameworks */,
+				FE9F3D422F71EAE400E5EF7E /* ResearchKitSwiftUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -375,6 +462,7 @@
 			files = (
 				918FDEB1271B3F9B0045A0EF /* ParseCareKit in Frameworks */,
 				70202EC7280733BC00CF73FB /* CareKit in Frameworks */,
+				FE9F3D3F2F71EACE00E5EF7E /* ResearchKitSwiftUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -680,8 +768,10 @@
 		E72B2BFD226939E3009A9438 = {
 			isa = PBXGroup;
 			children = (
+				FE9F3D2C2F71EA1B00E5EF7E /* ResearchKitSwiftUI.xcodeproj */,
 				9169381F271B80EA00A634ED /* CONTRIBUTING.md */,
 				91AD922324A461D200925D4D /* README.md */,
+				FE9F3CB72F71E79000E5EF7E /* ResearchKit.xcodeproj */,
 				0520468223C3C1F2004F0F36 /* OCKSample.xctestplan */,
 				51431F9723D166AE006A7CFD /* Frameworks */,
 				E72B2C08226939E3009A9438 /* OCKSample */,
@@ -734,6 +824,26 @@
 			path = Protocols;
 			sourceTree = "<group>";
 		};
+		FE9F3CD72F71E7D900E5EF7E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FE9F3CE12F71E7D900E5EF7E /* ResearchKit.framework */,
+				FE9F3CE32F71E7D900E5EF7E /* ResearchKitTests.xctest */,
+				FE9F3CE52F71E7D900E5EF7E /* ResearchKitUI.framework */,
+				FE9F3CE72F71E7D900E5EF7E /* ResearchKitActiveTask.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		FE9F3D2D2F71EA1B00E5EF7E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FE9F3D342F71EA1B00E5EF7E /* ResearchKitSwiftUI.framework */,
+				FE9F3D362F71EA1B00E5EF7E /* ResearchKitSwiftUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -762,6 +872,7 @@
 				707D29242DCBE5E500980253 /* Sources */,
 				707D29252DCBE5E500980253 /* Frameworks */,
 				707D29262DCBE5E500980253 /* Resources */,
+				FE9F3D442F71EAE400E5EF7E /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -809,6 +920,7 @@
 				91AD922524A4C42B00925D4D /* Resources */,
 				8E2FA4969104CA618976C1EC /* Frameworks */,
 				91AD922F24A4C42D00925D4D /* Sources */,
+				FE9F3D412F71EACE00E5EF7E /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -932,6 +1044,16 @@
 			);
 			productRefGroup = E72B2C07226939E3009A9438 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = FE9F3CD72F71E7D900E5EF7E /* Products */;
+					ProjectRef = FE9F3CB72F71E79000E5EF7E /* ResearchKit.xcodeproj */;
+				},
+				{
+					ProductGroup = FE9F3D2D2F71EA1B00E5EF7E /* Products */;
+					ProjectRef = FE9F3D2C2F71EA1B00E5EF7E /* ResearchKitSwiftUI.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				E72B2C05226939E3009A9438 /* OCKSample */,
@@ -942,6 +1064,51 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		FE9F3CE12F71E7D900E5EF7E /* ResearchKit.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = ResearchKit.framework;
+			remoteRef = FE9F3CE02F71E7D900E5EF7E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		FE9F3CE32F71E7D900E5EF7E /* ResearchKitTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ResearchKitTests.xctest;
+			remoteRef = FE9F3CE22F71E7D900E5EF7E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		FE9F3CE52F71E7D900E5EF7E /* ResearchKitUI.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = ResearchKitUI.framework;
+			remoteRef = FE9F3CE42F71E7D900E5EF7E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		FE9F3CE72F71E7D900E5EF7E /* ResearchKitActiveTask.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = ResearchKitActiveTask.framework;
+			remoteRef = FE9F3CE62F71E7D900E5EF7E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		FE9F3D342F71EA1B00E5EF7E /* ResearchKitSwiftUI.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = ResearchKitSwiftUI.framework;
+			remoteRef = FE9F3D332F71EA1B00E5EF7E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		FE9F3D362F71EA1B00E5EF7E /* ResearchKitSwiftUITests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ResearchKitSwiftUITests.xctest;
+			remoteRef = FE9F3D352F71EA1B00E5EF7E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		5173CB8523C3A846007655A0 /* Resources */ = {
