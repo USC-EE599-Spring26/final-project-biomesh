@@ -125,7 +125,18 @@ extension OCKStore {
         windDown.impactsAdherence = true
         
         let qualityOfLife = createQualityOfLifeSurveyTask(carePlanUUID: nil)
-        _ = try await addTasksIfNotPresent([caffeine, water, anxiety, windDown,qualityOfLife])
+        let checkin = createCheckinSurveyTask(carePlanUUID: nil)
+        let rom = createRangeOfMotionSurveyTask(carePlanUUID: nil)
+
+        _ = try await addTasksIfNotPresent([
+            caffeine,
+            water,
+            anxiety,
+            windDown,
+            qualityOfLife,
+            checkin,
+            rom
+        ])
 
         // Contacts
         var researcher = OCKContact(
@@ -229,6 +240,97 @@ extension OCKStore {
         qualityOfLife.priority = 1
 
         return qualityOfLife
+    }
+    func createCheckinSurveyTask(carePlanUUID: UUID?) -> OCKTask {
+        let taskId = "checkin"
+
+        let schedule = OCKSchedule(
+            composing: [OCKScheduleElement(
+                start: Date(),
+                end: nil,
+                interval: DateComponents(day: 1)
+            )]
+        )
+
+        let moodQuestion = SurveyQuestion(
+            id: "\(taskId)-mood",
+            type: .multipleChoice,
+            required: true,
+            title: "How are you feeling today?",
+            textChoices: [
+                .init(id: "good", choiceText: "Good", value: "Good"),
+                .init(id: "okay", choiceText: "Okay", value: "Okay"),
+                .init(id: "bad", choiceText: "Bad", value: "Bad")
+            ],
+            choiceSelectionLimit: .single
+        )
+
+        let stressQuestion = SurveyQuestion(
+            id: "\(taskId)-stress",
+            type: .slider,
+            required: false,
+            title: "Stress level",
+            detail: "0 = no stress, 10 = very high stress",
+            integerRange: 0...10,
+            sliderStepValue: 1
+        )
+
+        let step = SurveyStep(
+            id: "\(taskId)-step",
+            questions: [moodQuestion, stressQuestion]
+        )
+
+        var task = OCKTask(
+            id: taskId,
+            title: "Daily Checkin",
+            carePlanUUID: carePlanUUID,
+            schedule: schedule
+        )
+
+        task.card = .survey
+        task.tags = ["cardType:survey"]
+        task.surveySteps = [step]
+
+        return task
+    }
+    func createRangeOfMotionSurveyTask(carePlanUUID: UUID?) -> OCKTask {
+        let taskId = "rangeOfMotion"
+
+        let schedule = OCKSchedule(
+            composing: [OCKScheduleElement(
+                start: Date(),
+                end: nil,
+                interval: DateComponents(day: 1)
+            )]
+        )
+
+        let flexibilityQuestion = SurveyQuestion(
+            id: "\(taskId)-flex",
+            type: .slider,
+            required: true,
+            title: "How flexible do you feel today?",
+            detail: "0 = very stiff, 10 = very flexible",
+            integerRange: 0...10,
+            sliderStepValue: 1
+        )
+
+        let step = SurveyStep(
+            id: "\(taskId)-step",
+            questions: [flexibilityQuestion]
+        )
+
+        var task = OCKTask(
+            id: taskId,
+            title: "Range of Motion",
+            carePlanUUID: carePlanUUID,
+            schedule: schedule
+        )
+
+        task.card = .survey
+        task.tags = ["cardType:survey"]
+        task.surveySteps = [step]
+
+        return task
     }
 }
 
