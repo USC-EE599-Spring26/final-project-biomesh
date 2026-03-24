@@ -10,9 +10,11 @@ import Contacts
 import Foundation
 import CareKitStore
 import os.log
+import ResearchKitSwiftUI
+import CareKitEssentials
 
 extension OCKStore {
-
+    
     func addTasksIfNotPresent(_ tasks: [OCKTask]) async throws -> [OCKTask] {
         let ids = tasks.map { $0.id }
         var query = OCKTaskQuery(for: Date())
@@ -121,8 +123,9 @@ extension OCKStore {
         windDown.asset = "moon.zzz.fill"
         windDown.tags = ["cardType:checklist"]
         windDown.impactsAdherence = true
-
-        _ = try await addTasksIfNotPresent([caffeine, water, anxiety, windDown])
+        
+        let qualityOfLife = createQualityOfLifeSurveyTask(carePlanUUID: nil)
+        _ = try await addTasksIfNotPresent([caffeine, water, anxiety, windDown,qualityOfLife])
 
         // Contacts
         var researcher = OCKContact(
@@ -158,4 +161,74 @@ extension OCKStore {
 
         _ = try await addContactsIfNotPresent([researcher, advisor])
     }
+    
+    func createQualityOfLifeSurveyTask(carePlanUUID: UUID?) -> OCKTask {
+        let qualityOfLifeTaskId = TaskID.qualityOfLife
+        let thisMorning = Calendar.current.startOfDay(for: Date())
+        let aFewDaysAgo = Calendar.current.date(byAdding: .day, value: -4, to: thisMorning)!
+        let beforeBreakfast = Calendar.current.date(byAdding: .hour, value: 8, to: aFewDaysAgo)!
+        let qualityOfLifeElement = OCKScheduleElement(
+            start: beforeBreakfast,
+            end: nil,
+            interval: DateComponents(day: 1)
+        )
+        let qualityOfLifeSchedule = OCKSchedule(
+            composing: [qualityOfLifeElement]
+        )
+        let textChoiceYesText = String(localized: "ANSWER_YES")
+        let textChoiceNoText = String(localized: "ANSWER_NO")
+        let yesValue = "Yes"
+        let noValue = "No"
+        let choices: [TextChoice] = [
+            .init(
+                id: "\(qualityOfLifeTaskId)_0",
+                choiceText: textChoiceYesText,
+                value: yesValue
+            ),
+            .init(
+                id: "\(qualityOfLifeTaskId)_1",
+                choiceText: textChoiceNoText,
+                value: noValue
+            )
+
+        ]
+        
+        let questionOne = SurveyQuestion(
+            id: "\(qualityOfLifeTaskId)-managing-time",
+            type: .multipleChoice,
+            required: true,
+            title: String(localized: "QUALITY_OF_LIFE_TIME"),
+            textChoices: choices,
+            choiceSelectionLimit: .single
+        )
+        let questionTwo = SurveyQuestion(
+            id: qualityOfLifeTaskId,
+            type: .slider,
+            required: false,
+            title: String(localized: "QUALITY_OF_LIFE_STRESS"),
+            detail: String(localized: "QUALITY_OF_LIFE_STRESS_DETAIL"),
+            integerRange: 0...10,
+            sliderStepValue: 1
+        )
+        let questions = [questionOne, questionTwo]
+        let stepOne = SurveyStep(
+            id: "\(qualityOfLifeTaskId)-step-1",
+            questions: questions
+        )
+        var qualityOfLife = OCKTask(
+            id: "\(qualityOfLifeTaskId)-stress",
+            title: String(localized: "QUALITY_OF_LIFE"),
+            carePlanUUID: carePlanUUID,
+            schedule: qualityOfLifeSchedule
+        )
+        qualityOfLife.impactsAdherence = true
+        qualityOfLife.asset = "brain.head.profile"
+        qualityOfLife.card = .survey
+        qualityOfLife.tags = ["cardType:survey"]
+        qualityOfLife.surveySteps = [stepOne]
+        qualityOfLife.priority = 1
+
+        return qualityOfLife
+    }
 }
+
