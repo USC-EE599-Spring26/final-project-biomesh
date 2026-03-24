@@ -14,7 +14,7 @@ enum TaskID {
     static let waterIntake      = "biomesh.water"
     static let anxietyCheck     = "biomesh.anxiety"
     static let sleepHygiene     = "biomesh.sleep.hygiene"
-
+    static let qualityOfLife    = "biomesh.qualityOfLife"
     // Default OCKHealthKitTask IDs
     static let steps            = "biomesh.steps"
     static let sleepDuration    = "biomesh.sleep.duration"

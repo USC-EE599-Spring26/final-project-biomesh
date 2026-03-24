@@ -10,9 +10,11 @@ import Contacts
 import Foundation
 import CareKitStore
 import os.log
+import ResearchKitSwiftUI
+import CareKitEssentials
 
 extension OCKStore {
-
+    
     func addTasksIfNotPresent(_ tasks: [OCKTask]) async throws -> [OCKTask] {
         let ids = tasks.map { $0.id }
         var query = OCKTaskQuery(for: Date())
@@ -121,8 +123,20 @@ extension OCKStore {
         windDown.asset = "moon.zzz.fill"
         windDown.tags = ["cardType:checklist"]
         windDown.impactsAdherence = true
+        
+        let qualityOfLife = createQualityOfLifeSurveyTask(carePlanUUID: nil)
+        let checkin = createCheckinSurveyTask(carePlanUUID: nil)
+        let rom = createRangeOfMotionSurveyTask(carePlanUUID: nil)
 
-        _ = try await addTasksIfNotPresent([caffeine, water, anxiety, windDown])
+        _ = try await addTasksIfNotPresent([
+            caffeine,
+            water,
+            anxiety,
+            windDown,
+            qualityOfLife,
+            checkin,
+            rom
+        ])
 
         // Contacts
         var researcher = OCKContact(
@@ -158,4 +172,165 @@ extension OCKStore {
 
         _ = try await addContactsIfNotPresent([researcher, advisor])
     }
+    
+    func createQualityOfLifeSurveyTask(carePlanUUID: UUID?) -> OCKTask {
+        let qualityOfLifeTaskId = TaskID.qualityOfLife
+        let thisMorning = Calendar.current.startOfDay(for: Date())
+        let aFewDaysAgo = Calendar.current.date(byAdding: .day, value: -4, to: thisMorning)!
+        let beforeBreakfast = Calendar.current.date(byAdding: .hour, value: 8, to: aFewDaysAgo)!
+        let qualityOfLifeElement = OCKScheduleElement(
+            start: beforeBreakfast,
+            end: nil,
+            interval: DateComponents(day: 1)
+        )
+        let qualityOfLifeSchedule = OCKSchedule(
+            composing: [qualityOfLifeElement]
+        )
+        let textChoiceYesText = String(localized: "ANSWER_YES")
+        let textChoiceNoText = String(localized: "ANSWER_NO")
+        let yesValue = "Yes"
+        let noValue = "No"
+        let choices: [TextChoice] = [
+            .init(
+                id: "\(qualityOfLifeTaskId)_0",
+                choiceText: textChoiceYesText,
+                value: yesValue
+            ),
+            .init(
+                id: "\(qualityOfLifeTaskId)_1",
+                choiceText: textChoiceNoText,
+                value: noValue
+            )
+
+        ]
+        
+        let questionOne = SurveyQuestion(
+            id: "\(qualityOfLifeTaskId)-managing-time",
+            type: .multipleChoice,
+            required: true,
+            title: String(localized: "QUALITY_OF_LIFE_TIME"),
+            textChoices: choices,
+            choiceSelectionLimit: .single
+        )
+        let questionTwo = SurveyQuestion(
+            id: qualityOfLifeTaskId,
+            type: .slider,
+            required: false,
+            title: String(localized: "QUALITY_OF_LIFE_STRESS"),
+            detail: String(localized: "QUALITY_OF_LIFE_STRESS_DETAIL"),
+            integerRange: 0...10,
+            sliderStepValue: 1
+        )
+        let questions = [questionOne, questionTwo]
+        let stepOne = SurveyStep(
+            id: "\(qualityOfLifeTaskId)-step-1",
+            questions: questions
+        )
+        var qualityOfLife = OCKTask(
+            id: "\(qualityOfLifeTaskId)-stress",
+            title: String(localized: "QUALITY_OF_LIFE"),
+            carePlanUUID: carePlanUUID,
+            schedule: qualityOfLifeSchedule
+        )
+        qualityOfLife.impactsAdherence = true
+        qualityOfLife.asset = "brain.head.profile"
+        qualityOfLife.card = .survey
+        qualityOfLife.tags = ["cardType:survey"]
+        qualityOfLife.surveySteps = [stepOne]
+        qualityOfLife.priority = 1
+
+        return qualityOfLife
+    }
+    func createCheckinSurveyTask(carePlanUUID: UUID?) -> OCKTask {
+        let taskId = "checkin"
+
+        let schedule = OCKSchedule(
+            composing: [OCKScheduleElement(
+                start: Date(),
+                end: nil,
+                interval: DateComponents(day: 1)
+            )]
+        )
+
+        let moodQuestion = SurveyQuestion(
+            id: "\(taskId)-mood",
+            type: .multipleChoice,
+            required: true,
+            title: "How are you feeling today?",
+            textChoices: [
+                .init(id: "good", choiceText: "Good", value: "Good"),
+                .init(id: "okay", choiceText: "Okay", value: "Okay"),
+                .init(id: "bad", choiceText: "Bad", value: "Bad")
+            ],
+            choiceSelectionLimit: .single
+        )
+
+        let stressQuestion = SurveyQuestion(
+            id: "\(taskId)-stress",
+            type: .slider,
+            required: false,
+            title: "Stress level",
+            detail: "0 = no stress, 10 = very high stress",
+            integerRange: 0...10,
+            sliderStepValue: 1
+        )
+
+        let step = SurveyStep(
+            id: "\(taskId)-step",
+            questions: [moodQuestion, stressQuestion]
+        )
+
+        var task = OCKTask(
+            id: taskId,
+            title: "Daily Checkin",
+            carePlanUUID: carePlanUUID,
+            schedule: schedule
+        )
+
+        task.card = .survey
+        task.tags = ["cardType:survey"]
+        task.surveySteps = [step]
+
+        return task
+    }
+    func createRangeOfMotionSurveyTask(carePlanUUID: UUID?) -> OCKTask {
+        let taskId = "rangeOfMotion"
+
+        let schedule = OCKSchedule(
+            composing: [OCKScheduleElement(
+                start: Date(),
+                end: nil,
+                interval: DateComponents(day: 1)
+            )]
+        )
+
+        let flexibilityQuestion = SurveyQuestion(
+            id: "\(taskId)-flex",
+            type: .slider,
+            required: true,
+            title: "How flexible do you feel today?",
+            detail: "0 = very stiff, 10 = very flexible",
+            integerRange: 0...10,
+            sliderStepValue: 1
+        )
+
+        let step = SurveyStep(
+            id: "\(taskId)-step",
+            questions: [flexibilityQuestion]
+        )
+
+        var task = OCKTask(
+            id: taskId,
+            title: "Range of Motion",
+            carePlanUUID: carePlanUUID,
+            schedule: schedule
+        )
+
+        task.card = .survey
+        task.tags = ["cardType:survey"]
+        task.surveySteps = [step]
+
+        return task
+    }
 }
+
