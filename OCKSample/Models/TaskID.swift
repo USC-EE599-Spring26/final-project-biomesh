@@ -19,6 +19,9 @@ enum TaskID {
     static let steps            = "biomesh.steps"
     static let sleepDuration    = "biomesh.sleep.duration"
 
+    // ResearchKit survey
+    static let qualityOfLife    = "qualityOfLife"
+
     // Ordered display lists
     static var ordered: [String] {
         orderedObjective + orderedSubjective

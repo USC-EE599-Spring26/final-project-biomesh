@@ -35,6 +35,12 @@
 		3F3C42432F712B9E00A0FEAB /* CareKitCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C42422F712B9C00A0FEAB /* CareKitCard.swift */; };
 		3F3C42442F712B9E00A0FEAB /* CareKitCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C42422F712B9C00A0FEAB /* CareKitCard.swift */; };
 		3F3C42452F712B9E00A0FEAB /* CareKitCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C42422F712B9C00A0FEAB /* CareKitCard.swift */; };
+		3F3C42472F7225D400A0FEAB /* CardEnabledEnvironmentKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C42462F7225D400A0FEAB /* CardEnabledEnvironmentKey.swift */; };
+		3F3C42482F7225D400A0FEAB /* CardEnabledEnvironmentKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C42462F7225D400A0FEAB /* CardEnabledEnvironmentKey.swift */; };
+		3F3C42492F7225D400A0FEAB /* CardEnabledEnvironmentKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C42462F7225D400A0FEAB /* CardEnabledEnvironmentKey.swift */; };
+		3F3C424B2F72266400A0FEAB /* MyCustomCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C424A2F72266400A0FEAB /* MyCustomCardView.swift */; };
+		3F3C424C2F72266400A0FEAB /* MyCustomCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C424A2F72266400A0FEAB /* MyCustomCardView.swift */; };
+		3F3C424D2F72266400A0FEAB /* MyCustomCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C424A2F72266400A0FEAB /* MyCustomCardView.swift */; };
 		3F4A120C2F54F6EA00068C65 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4A120A2F54F6EA00068C65 /* AddTaskView.swift */; };
 		3F4A120D2F54F6EA00068C65 /* AddTaskViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4A120B2F54F6EA00068C65 /* AddTaskViewModel.swift */; };
 		3F4A120E2F54F6EA00068C65 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4A120A2F54F6EA00068C65 /* AddTaskView.swift */; };
@@ -330,6 +336,8 @@
 		3F3C423C2F712AA200A0FEAB /* CareKitTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareKitTaskView.swift; sourceTree = "<group>"; };
 		3F3C423F2F712AD200A0FEAB /* CareKitTaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareKitTaskViewModel.swift; sourceTree = "<group>"; };
 		3F3C42422F712B9C00A0FEAB /* CareKitCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareKitCard.swift; sourceTree = "<group>"; };
+		3F3C42462F7225D400A0FEAB /* CardEnabledEnvironmentKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEnabledEnvironmentKey.swift; sourceTree = "<group>"; };
+		3F3C424A2F72266400A0FEAB /* MyCustomCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyCustomCardView.swift; sourceTree = "<group>"; };
 		3F4A120A2F54F6EA00068C65 /* AddTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTaskView.swift; sourceTree = "<group>"; };
 		3F4A120B2F54F6EA00068C65 /* AddTaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTaskViewModel.swift; sourceTree = "<group>"; };
 		3F4A12102F54F6FC00068C65 /* ManageTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTasksView.swift; sourceTree = "<group>"; };
@@ -685,6 +693,7 @@
 		70E3422C2DB058A7005124F9 /* Cards */ = {
 			isa = PBXGroup;
 			children = (
+				3F3C424A2F72266400A0FEAB /* MyCustomCardView.swift */,
 				E7C37848228F887800E982D8 /* TipView.swift */,
 				70E3422D2DB0626A005124F9 /* Modifiers */,
 			);
@@ -767,6 +776,7 @@
 		918FDEC1271B4E710045A0EF /* Environment */ = {
 			isa = PBXGroup;
 			children = (
+				3F3C42462F7225D400A0FEAB /* CardEnabledEnvironmentKey.swift */,
 				70F0EFE928C2EE6C0005B5A2 /* AppDelegateKey.swift */,
 				70F921A727CA9A3A00368CEC /* CustomStylerKey.swift */,
 				70F03AA727860E7700E5AFB4 /* FontColorKey.swift */,
@@ -1227,6 +1237,7 @@
 				707D295D2DCBE68500980253 /* LoginViewModel.swift in Sources */,
 				3F3C42362F7129A700A0FEAB /* OCKHealthKitTask+Card.swift in Sources */,
 				70B8E0A62F0EC1CA00440FCA /* Mutex.swift in Sources */,
+				3F3C424C2F72266400A0FEAB /* MyCustomCardView.swift in Sources */,
 				707D295E2DCBE68500980253 /* Utility.swift in Sources */,
 				707D295F2DCBE68500980253 /* OCKSampleApp.swift in Sources */,
 				707D29602DCBE68500980253 /* SessionDelegate.swift in Sources */,
@@ -1237,6 +1248,7 @@
 				707D29642DCBE68500980253 /* CareViewController.swift in Sources */,
 				707D29652DCBE68500980253 /* PCKUtility.swift in Sources */,
 				707D29662DCBE68500980253 /* UserType.swift in Sources */,
+				3F3C42472F7225D400A0FEAB /* CardEnabledEnvironmentKey.swift in Sources */,
 				3F3C423A2F7129CF00A0FEAB /* OCKTask+Card.swift in Sources */,
 				707D29672DCBE68500980253 /* ContactView.swift in Sources */,
 				707D29682DCBE68500980253 /* NoHighlightStyle.swift in Sources */,
@@ -1267,8 +1279,10 @@
 				70221F3928D8C10800971195 /* StoreCoordinatorKey.swift in Sources */,
 				7099D20029E98D900037CD8E /* AppError.swift in Sources */,
 				918FDEB8271B49060045A0EF /* Logger.swift in Sources */,
+				3F3C42492F7225D400A0FEAB /* CardEnabledEnvironmentKey.swift in Sources */,
 				91AD923B24A4C42D00925D4D /* CareView.swift in Sources */,
 				70F921A927CA9A4000368CEC /* CustomStylerKey.swift in Sources */,
+				3F3C424B2F72266400A0FEAB /* MyCustomCardView.swift in Sources */,
 				7099D20629E98DFF0037CD8E /* TaskID.swift in Sources */,
 				7075151E28DE1A8300A57A0C /* MainView.swift in Sources */,
 				707D28D02DCA8AAB00980253 /* OCKStore+SampleData.swift in Sources */,
@@ -1329,6 +1343,7 @@
 				70F03A972786098F00E5AFB4 /* OCKStore.swift in Sources */,
 				70DFD80B2567074500B9DB12 /* LoginView.swift in Sources */,
 				707D28CF2DCA8AAB00980253 /* OCKStore+SampleData.swift in Sources */,
+				3F3C424D2F72266400A0FEAB /* MyCustomCardView.swift in Sources */,
 				7055725B2DC33AB1008E5B0A /* SplashScreenView.swift in Sources */,
 				3F3C42382F7129CF00A0FEAB /* OCKTask+Card.swift in Sources */,
 				70F03AA827860E7700E5AFB4 /* FontColorKey.swift in Sources */,
@@ -1361,6 +1376,7 @@
 				3F4A12192F54F70800068C65 /* OCKAnimationStyle.swift in Sources */,
 				3F4A121A2F54F70800068C65 /* OCKAppearanceStyle.swift in Sources */,
 				70077597252228E900EC0EDA /* User.swift in Sources */,
+				3F3C42482F7225D400A0FEAB /* CardEnabledEnvironmentKey.swift in Sources */,
 				7036E4C9256E1A6F006E9A3C /* ProfileView.swift in Sources */,
 				FE38C33C2F560B34000864F1 /* ColorStyler.swift in Sources */,
 				7083A856279CA40A00B3832E /* PCKUtility.swift in Sources */,

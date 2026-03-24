@@ -6,10 +6,12 @@
 //  Copyright © 2022 Network Reconnaissance Lab. All rights reserved.
 //
 
+import CareKitEssentials
 import Contacts
 import Foundation
 import CareKitStore
 import os.log
+import ResearchKitSwiftUI
 
 extension OCKStore {
 
@@ -122,11 +124,13 @@ extension OCKStore {
             "• Put your phone face-down\n" +
             "Good sleep quality is the mediator between caffeine and next-day anxiety."
         windDown.asset = "moon.zzz.fill"
-        windDown.card = .checklist
+        windDown.card = .custom
         windDown.priority = 3
         windDown.impactsAdherence = true
 
-        _ = try await addTasksIfNotPresent([caffeine, water, anxiety, windDown])
+        let qualityOfLife = createQualityOfLifeSurveyTask(carePlanUUID: nil)
+
+        _ = try await addTasksIfNotPresent([caffeine, water, anxiety, windDown, qualityOfLife])
 
         // Contacts
         var researcher = OCKContact(
@@ -161,5 +165,61 @@ extension OCKStore {
         ]
 
         _ = try await addContactsIfNotPresent([researcher, advisor])
+    }
+
+    func createQualityOfLifeSurveyTask(carePlanUUID: UUID?) -> OCKTask {
+        let qualityOfLifeTaskId = TaskID.qualityOfLife
+
+        let thisMorning = Calendar.current.startOfDay(for: Date())
+        let aFewDaysAgo = Calendar.current.date(byAdding: .day, value: -4, to: thisMorning)!
+        let beforeBreakfast = Calendar.current.date(byAdding: .hour, value: 8, to: aFewDaysAgo)!
+        let qualityOfLifeElement = OCKScheduleElement(
+            start: beforeBreakfast, end: nil, interval: DateComponents(day: 1)
+        )
+        let qualityOfLifeSchedule = OCKSchedule(composing: [qualityOfLifeElement])
+
+        let choices: [TextChoice] = [
+            .init(id: "\(qualityOfLifeTaskId)_0", choiceText: "Yes", value: "Yes"),
+            .init(id: "\(qualityOfLifeTaskId)_1", choiceText: "No", value: "No")
+        ]
+
+        let questionOne = SurveyQuestion(
+            id: "\(qualityOfLifeTaskId)-managing-time",
+            type: .multipleChoice,
+            required: true,
+            title: String(localized: "QUALITY_OF_LIFE_TIME"),
+            textChoices: choices,
+            choiceSelectionLimit: .single
+        )
+
+        let questionTwo = SurveyQuestion(
+            id: qualityOfLifeTaskId,
+            type: .slider,
+            required: false,
+            title: String(localized: "QUALITY_OF_LIFE_STRESS"),
+            detail: String(localized: "QUALITY_OF_LIFE_STRESS_DETAIL"),
+            integerRange: 0...10,
+            sliderStepValue: 1
+        )
+
+        let stepOne = SurveyStep(
+            id: "\(qualityOfLifeTaskId)-step-1",
+            questions: [questionOne, questionTwo]
+        )
+
+        var qualityOfLife = OCKTask(
+            id: "\(qualityOfLifeTaskId)-stress",
+            title: String(localized: "QUALITY_OF_LIFE"),
+            carePlanUUID: carePlanUUID,
+            schedule: qualityOfLifeSchedule
+        )
+        qualityOfLife.instructions = "Answer a few quick questions about your stress and time management since using BioMesh."
+        qualityOfLife.impactsAdherence = true
+        qualityOfLife.asset = "list.clipboard"
+        qualityOfLife.card = .survey
+        qualityOfLife.surveySteps = [stepOne]
+        qualityOfLife.priority = 1
+
+        return qualityOfLife
     }
 }
