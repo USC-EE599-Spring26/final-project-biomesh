@@ -11,30 +11,37 @@ import CareKitStore
 import CareKitUI
 import SwiftUI
 
+
 struct MainView: View {
     @EnvironmentObject private var appDelegate: AppDelegate
     @StateObject private var loginViewModel = LoginViewModel()
     @State private var storeCoordinator = OCKStoreCoordinator()
 	@State private var isLoggedIn: Bool?
-
+    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     var body: some View {
-		Group {
-			if let isLoggedIn {
-				if isLoggedIn {
-					if isSyncingWithRemote {
-						MainTabView(loginViewModel: loginViewModel)
-							.navigationBarHidden(true)
-					} else {
-						CareView()
-							.navigationBarHidden(true)
-					}
-				} else {
-					LoginView(viewModel: loginViewModel)
-				}
-			} else {
-				SplashScreenView()
-			}
-		}
+        Group {
+            if let isLoggedIn {
+                
+                if !hasSeenOnboarding {
+                    OnboardingView()
+                    
+                } else if isLoggedIn {
+                    if isSyncingWithRemote {
+                        MainTabView(loginViewModel: loginViewModel)
+                            .navigationBarHidden(true)
+                    } else {
+                        CareView()
+                            .navigationBarHidden(true)
+                    }
+                    
+                } else {
+                    LoginView(viewModel: loginViewModel)
+                }
+                
+            } else {
+                SplashScreenView()
+            }
+        }
 		.task {
 			await loginViewModel.checkStatus()
 		}

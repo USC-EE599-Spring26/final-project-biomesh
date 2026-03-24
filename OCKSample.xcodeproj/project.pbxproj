@@ -197,6 +197,8 @@
 		FE9F3D402F71EACE00E5EF7E /* ResearchKitSwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FE9F3D342F71EA1B00E5EF7E /* ResearchKitSwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FE9F3D422F71EAE400E5EF7E /* ResearchKitSwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE9F3D342F71EA1B00E5EF7E /* ResearchKitSwiftUI.framework */; };
 		FE9F3D432F71EAE400E5EF7E /* ResearchKitSwiftUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FE9F3D342F71EA1B00E5EF7E /* ResearchKitSwiftUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		FE9F3D862F72199F00E5EF7E /* Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9F3D7E2F72199D00E5EF7E /* Main.swift */; };
+		FE9F3D872F72199F00E5EF7E /* Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9F3D7E2F72199D00E5EF7E /* Main.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -408,6 +410,7 @@
 		FE9F3C932F71DA4900E5EF7E /* CareKitCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareKitCard.swift; sourceTree = "<group>"; };
 		FE9F3CB72F71E79000E5EF7E /* ResearchKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ResearchKit.xcodeproj; path = ResearchKit/ResearchKit.xcodeproj; sourceTree = SOURCE_ROOT; };
 		FE9F3D2C2F71EA1B00E5EF7E /* ResearchKitSwiftUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ResearchKitSwiftUI.xcodeproj; path = ResearchKit/ResearchKitSwiftUI/ResearchKitSwiftUI.xcodeproj; sourceTree = "<group>"; };
+		FE9F3D7E2F72199D00E5EF7E /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -514,6 +517,7 @@
 		703088772582727500FFABB6 /* Main */ = {
 			isa = PBXGroup;
 			children = (
+				FE9F3D7E2F72199D00E5EF7E /* Main.swift */,
 				70221F2728D7809800971195 /* MainTabView.swift */,
 				7036E4D2256EBE35006E9A3C /* MainView.swift */,
 				7055725A2DC33AAC008E5B0A /* SplashScreenView.swift */,
@@ -1245,6 +1249,7 @@
 				707D29572DCBE68500980253 /* OCKStore.swift in Sources */,
 				FE38C3422F560F45000864F1 /* OCKDimensionStyle.swift in Sources */,
 				707D29582DCBE68500980253 /* ProfileView.swift in Sources */,
+				FE9F3D862F72199F00E5EF7E /* Main.swift in Sources */,
 				707D29592DCBE68500980253 /* AppError.swift in Sources */,
 				707D295A2DCBE68500980253 /* InstallationChannel.swift in Sources */,
 				707D295B2DCBE68500980253 /* LoginView.swift in Sources */,
@@ -1375,6 +1380,7 @@
 				70221F2A28D7BE0600971195 /* AppDelegate+ParseRemoteDelegate.swift in Sources */,
 				7036E4D3256EBE35006E9A3C /* MainView.swift in Sources */,
 				918FDEC5271B4EA70045A0EF /* StoreCoordinatorKey.swift in Sources */,
+				FE9F3D872F72199F00E5EF7E /* Main.swift in Sources */,
 				FE9F3C922F71D5BA00E5EF7E /* OCKHealthKitTask.swift in Sources */,
 				91693822271B897200A634ED /* Utility.swift in Sources */,
 				FE38C3402F560F45000864F1 /* OCKDimensionStyle.swift in Sources */,
