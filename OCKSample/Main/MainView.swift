@@ -16,15 +16,14 @@ struct MainView: View {
     @EnvironmentObject private var appDelegate: AppDelegate
     @StateObject private var loginViewModel = LoginViewModel()
     @State private var storeCoordinator = OCKStoreCoordinator()
-	@State private var isLoggedIn: Bool?
+    @State private var isLoggedIn: Bool?
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
+
     var body: some View {
         Group {
             if let isLoggedIn {
-                
                 if !hasSeenOnboarding {
                     OnboardingView()
-                    
                 } else if isLoggedIn {
                     if isSyncingWithRemote {
                         MainTabView(loginViewModel: loginViewModel)
@@ -33,34 +32,26 @@ struct MainView: View {
                         CareView()
                             .navigationBarHidden(true)
                     }
-                    
                 } else {
                     LoginView(viewModel: loginViewModel)
                 }
-                
             } else {
                 SplashScreenView()
             }
         }
-		.task {
-			await loginViewModel.checkStatus()
-		}
-        .environment(\.careStore, storeCoordinator)
-		.onReceive(appDelegate.$storeCoordinator) { newStoreCoordinator in
-			guard storeCoordinator !== newStoreCoordinator else { return }
-			storeCoordinator = newStoreCoordinator
-		}
-		.onReceive(loginViewModel.isLoggedIn.publisher) { currentStatus in
-			isLoggedIn = currentStatus
+        .onAppear {
+            hasSeenOnboarding = false
         }
-    }
-}
-
-struct MainView_Previews: PreviewProvider {
-    static var previews: some View {
-        MainView()
-            .environment(\.appDelegate, AppDelegate())
-            .environment(\.careStore, Utility.createPreviewStore())
-			.careKitStyle(Styler())
+        .task {
+            await loginViewModel.checkStatus()
+        }
+        .environment(\.careStore, storeCoordinator)
+        .onReceive(appDelegate.$storeCoordinator) { newStoreCoordinator in
+            guard storeCoordinator !== newStoreCoordinator else { return }
+            storeCoordinator = newStoreCoordinator
+        }
+        .onReceive(loginViewModel.isLoggedIn.publisher) { currentStatus in
+            isLoggedIn = currentStatus
+        }
     }
 }
