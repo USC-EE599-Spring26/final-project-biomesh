@@ -22,6 +22,10 @@ enum TaskID {
     // ResearchKit survey
     static let qualityOfLife    = "qualityOfLife"
 
+    // Classic ResearchKit (ORK) tasks
+    static let onboarding       = "onboarding"
+    static let rangeOfMotion     = "rangeOfMotion"
+
     // Ordered display lists
     static var ordered: [String] {
         orderedObjective + orderedSubjective

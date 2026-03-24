@@ -130,7 +130,49 @@ extension OCKStore {
 
         let qualityOfLife = createQualityOfLifeSurveyTask(carePlanUUID: nil)
 
-        _ = try await addTasksIfNotPresent([caffeine, water, anxiety, windDown, qualityOfLife])
+        // Onboarding — one-time, all-day
+        var onboarding = OCKTask(
+            id: TaskID.onboarding,
+            title: "Onboarding",
+            carePlanUUID: nil,
+            schedule: OCKSchedule.dailyAtTime(
+                hour: 0, minutes: 0,
+                start: morning, end: nil,
+                text: "Complete enrollment",
+                duration: .allDay,
+                targetValues: []
+            )
+        )
+        onboarding.instructions = "Complete the onboarding to enroll in the BioMesh study."
+        onboarding.impactsAdherence = false
+        onboarding.priority = -1
+        onboarding.card = .instruction
+
+        // Range of Motion — weekly
+        var romTask = OCKTask(
+            id: TaskID.rangeOfMotion,
+            title: "Range of Motion",
+            carePlanUUID: nil,
+            schedule: OCKSchedule(composing: [
+                OCKScheduleElement(
+                    start: morning,
+                    end: nil,
+                    interval: DateComponents(weekOfYear: 1),
+                    text: "Measure knee ROM",
+                    targetValues: [],
+                    duration: .allDay
+                )
+            ])
+        )
+        romTask.instructions = "Measure your left knee range of motion."
+        romTask.impactsAdherence = true
+        romTask.card = .instruction
+        romTask.priority = 1
+
+        _ = try await addTasksIfNotPresent([
+            onboarding, romTask,
+            caffeine, water, anxiety, windDown, qualityOfLife
+        ])
 
         // Contacts
         var researcher = OCKContact(

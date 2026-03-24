@@ -28,11 +28,16 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 // swiftlint:disable type_body_length
+// swiftlint:disable file_length
 import CareKit
 import CareKitEssentials
 import CareKitStore
 import CareKitUI
 import os.log
+#if os(iOS)
+import ResearchKit
+import ResearchKitUI
+#endif
 import ResearchKitSwiftUI
 import SwiftUI
 import UIKit
@@ -190,7 +195,32 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
     ) {
         Task {
             let tasks = await self.fetchTasks(on: date)
-			appendTasks(tasks, to: listViewController, date: date)
+
+            let isOnboarded = await checkIfOnboardingIsComplete()
+            if isOnboarded {
+                // Show all tasks except onboarding
+                let filtered = tasks.filter { $0.id != TaskID.onboarding }
+                appendTasks(filtered, to: listViewController, date: date)
+            } else {
+                // Only show the onboarding card
+                let onboardingOnly = tasks.filter { $0.id == TaskID.onboarding }
+                appendTasks(onboardingOnly, to: listViewController, date: date)
+            }
+        }
+    }
+
+    private func checkIfOnboardingIsComplete() async -> Bool {
+        var query = OCKEventQuery(for: Date())
+        query.taskIDs = [TaskID.onboarding]
+        do {
+            let events = try await store.fetchAnyEvents(query: query)
+            // If no onboarding events exist (task not seeded yet), not onboarded
+            guard let event = events.first else { return false }
+            // Onboarded if the event has an outcome
+            return event.outcome != nil
+        } catch {
+            Logger.feed.error("Failed to check onboarding status: \(error, privacy: .public)")
+            return false
         }
     }
     private func fetchTasks(on date: Date) async -> [any OCKAnyTask] {
@@ -223,6 +253,30 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
         query.taskIDs = [task.id]
 
         if let standardTask = task as? OCKTask {
+
+            #if os(iOS)
+            // Classic ResearchKit (ORK) tasks — instruction cards that launch ORK surveys
+            switch standardTask.id {
+            case TaskID.onboarding:
+                let card = SurveyCardViewController(
+                    query: query,
+                    store: self.store,
+                    survey: Surveys.onboardingSurvey(),
+                    presenter: self
+                )
+                return [card]
+            case TaskID.rangeOfMotion:
+                let card = SurveyCardViewController(
+                    query: query,
+                    store: self.store,
+                    survey: Surveys.rangeOfMotionCheck(),
+                    presenter: self
+                )
+                return [card]
+            default:
+                break
+            }
+            #endif
 
             switch standardTask.card {
 
@@ -374,6 +428,93 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
 		self.isLoading = false
     }
 }
+#if os(iOS)
+// MARK: - ORKTaskViewControllerDelegate
+
+extension CareViewController: ORKTaskViewControllerDelegate {
+
+    nonisolated func taskViewController(
+        _ taskViewController: ORKTaskViewController,
+        didFinishWith reason: ORKTaskFinishReason,
+        error: Error?
+    ) {
+        Task { @MainActor in
+            taskViewController.dismiss(animated: true)
+
+            guard reason == .completed else { return }
+
+            let taskID = taskViewController.task?.identifier ?? ""
+            let result = taskViewController.result
+
+            let values: [OCKOutcomeValue]
+            switch taskID {
+            case Surveys.rangeOfMotionIdentifier:
+                values = Surveys.extractRangeOfMotionOutcome(result)
+            default:
+                values = [OCKOutcomeValue(Date())]
+            }
+
+            var eventQuery = OCKEventQuery(for: Date())
+            eventQuery.taskIDs = [taskID]
+            guard let event = try? await self.store.fetchAnyEvents(
+                query: eventQuery
+            ).first else { return }
+
+            let outcome = OCKOutcome(
+                taskUUID: event.task.uuid,
+                taskOccurrenceIndex: event.scheduleEvent.occurrence,
+                values: values
+            )
+            try? await self.store.addAnyOutcome(outcome)
+            self.reload()
+        }
+    }
+
+    func presentSurvey(_ survey: ORKTask) {
+        let surveyVC = ORKTaskViewController(task: survey, taskRun: nil)
+        let directory = FileManager.default.urls(
+            for: .documentDirectory,
+            in: .userDomainMask
+        ).last!.appendingPathComponent("ResearchKit", isDirectory: true)
+        surveyVC.outputDirectory = directory
+        surveyVC.delegate = self
+        present(surveyVC, animated: true)
+    }
+}
+
+// MARK: - SurveyCardViewController
+
+final class SurveyCardViewController: OCKInstructionsTaskViewController {
+
+    private let survey: ORKTask
+    private weak var presenter: CareViewController?
+
+    init(
+        query: OCKEventQuery,
+        store: OCKAnyStoreProtocol,
+        survey: ORKTask,
+        presenter: CareViewController
+    ) {
+        self.survey = survey
+        self.presenter = presenter
+        super.init(query: query, store: store)
+    }
+
+    override func taskView(
+        _ taskView: UIView & OCKTaskDisplayable,
+        didCompleteEvent isComplete: Bool,
+        at indexPath: IndexPath,
+        sender: Any?
+    ) {
+        guard isComplete else {
+            super.taskView(taskView, didCompleteEvent: isComplete, at: indexPath, sender: sender)
+            return
+        }
+        presenter?.presentSurvey(survey)
+    }
+}
+#endif
+
 private extension View {
     func formattedHostingController() -> UIHostingController<Self> {
         let viewController = UIHostingController(rootView: self)

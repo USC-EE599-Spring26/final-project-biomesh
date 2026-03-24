@@ -154,3 +154,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 "SHOW_HIGHLIGHTED" = "Show highlighted annotation";
 "SHOW_MEAN" = "Show mean annotation";
 "SHOW_MEDIAN" = "Show median annotation";
+
+// MARK: Onboarding
+"ONBOARDING_TITLE" = "Welcome to BioMesh";
+"ONBOARDING_OVERVIEW" = "Before You Join";
+"ONBOARDING_CONSENT" = "Consent";
+"ONBOARDING_PERMISSIONS" = "Permissions";
+"ONBOARDING_COMPLETE" = "Enrollment Complete";
+
+// MARK: Check-in
+"CHECKIN_TITLE" = "Daily Check-in";
+"CHECKIN_ANXIETY" = "How anxious do you feel today?";
+"CHECKIN_SLEEP" = "How many hours of sleep did you get last night?";
+"CHECKIN_ANXIETY_LABEL" = "Anxiety";
+"CHECKIN_SLEEP_LABEL" = "Sleep";
+
+// MARK: Range of Motion
+"ROM_TITLE" = "Range of Motion";
+"ROM_INSTRUCTION" = "Measure your left knee range of motion.";
+"ROM_COMPLETE" = "All Done!";
+"ROM_COMPLETE_DETAIL" = "Your range of motion has been recorded.";
