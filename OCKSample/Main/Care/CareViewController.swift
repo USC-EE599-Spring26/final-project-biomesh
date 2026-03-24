@@ -280,6 +280,7 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
 
             switch standardTask.card {
 
+            #if os(iOS)
             case .button:
                 let card = OCKButtonLogTaskViewController(
                     query: query,
@@ -293,6 +294,7 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
                     store: self.store
                 )
                 return [card]
+            #endif
 
             case .featured:
                 return nil
