@@ -48,7 +48,6 @@
 		3F3C43842F7251E000A0FEAB /* OCKAnyEvent+Answer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C43822F7251E000A0FEAB /* OCKAnyEvent+Answer.swift */; };
 		3F3C43852F7251E000A0FEAB /* OCKAnyEvent+Answer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C43822F7251E000A0FEAB /* OCKAnyEvent+Answer.swift */; };
 		3F3C43882F72522100A0FEAB /* Surveys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C43862F72522100A0FEAB /* Surveys.swift */; };
-		3F3C43892F72522100A0FEAB /* Surveys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C43862F72522100A0FEAB /* Surveys.swift */; };
 		3F4A120C2F54F6EA00068C65 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4A120A2F54F6EA00068C65 /* AddTaskView.swift */; };
 		3F4A120D2F54F6EA00068C65 /* AddTaskViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4A120B2F54F6EA00068C65 /* AddTaskViewModel.swift */; };
 		3F4A120E2F54F6EA00068C65 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4A120A2F54F6EA00068C65 /* AddTaskView.swift */; };
@@ -1217,7 +1216,6 @@
 				3F3C43852F7251E000A0FEAB /* OCKAnyEvent+Answer.swift in Sources */,
 				3F3C42402F712AD400A0FEAB /* CareKitTaskViewModel.swift in Sources */,
 				707D295D2DCBE68500980253 /* LoginViewModel.swift in Sources */,
-				3F3C43892F72522100A0FEAB /* Surveys.swift in Sources */,
 				3F3C42362F7129A700A0FEAB /* OCKHealthKitTask+Card.swift in Sources */,
 				70B8E0A62F0EC1CA00440FCA /* Mutex.swift in Sources */,
 				3F3C424C2F72266400A0FEAB /* MyCustomCardView.swift in Sources */,
