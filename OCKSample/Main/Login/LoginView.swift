@@ -20,23 +20,50 @@ import UIKit
  the view when a change occurs. List to the last lecture
  in Section 2 for an explanation
  */
+
 struct LoginView: View {
-    @Environment(\.tintColorFlip) var tintColorFlip
+    @Environment(\.tintColorFlip) private var tintColorFlip
     @ObservedObject var viewModel: LoginViewModel
-    @State var usersname = ""
-    @State var password = ""
-    @State var firstName: String = ""
-    @State var lastName: String = ""
-    @State var signupLoginSegmentValue = 0
+
+    @State private var username = ""
+    @State private var password = ""
+    @State private var email = ""
+    @State private var firstName = ""
+    @State private var lastName = ""
+    @State private var signupLoginSegmentValue = 0
 
     var body: some View {
         VStack {
-            // Change the title to the name of your application
-            Text("APP_NAME")
+            header
+
+            loginSignupPicker
+
+            credentialFields
+
+            primaryActionButton
+
+            anonymousLoginButton
+
+            loginErrorText
+
+            Spacer()
+        }
+        .background(backgroundGradient)
+    }
+}
+
+// MARK: - Subviews
+
+private extension LoginView {
+
+    var header: some View {
+        VStack {
+            Text("BioMesh")
                 .font(.largeTitle)
+                .fontWeight(.bold)
                 .foregroundColor(.white)
                 .padding()
-            // Change this image to something that represents your application
+
             Image("exercise.jpg")
                 .resizable()
                 .frame(width: 150, height: 150, alignment: .center)
@@ -44,133 +71,144 @@ struct LoginView: View {
                 .overlay(Circle().stroke(Color(.white), lineWidth: 4))
                 .shadow(radius: 10)
                 .padding()
-
-            /*
-             Example of how to do the picker here:
-             https://www.swiftkickmobile.com/creating-a-segmented-control-in-swiftui/
-             */
-            Picker(selection: $signupLoginSegmentValue,
-                   label: Text("LOGIN_PICKER")) {
-                Text("LOGIN").tag(0)
-                Text("SIGN_UP").tag(1)
-            }
-            .pickerStyle(.segmented)
-            .background(Color(tintColorFlip))
-            .cornerRadius(20.0)
-            .padding()
-
-            VStack(alignment: .leading) {
-                TextField("USERNAME", text: $usersname)
-                    .padding()
-                    .background(.white)
-                    .cornerRadius(20.0)
-                    .shadow(radius: 10.0, x: 20, y: 10)
-                SecureField("PASSWORD", text: $password)
-                    .padding()
-                    .background(.white)
-                    .cornerRadius(20.0)
-                    .shadow(radius: 10.0, x: 20, y: 10)
-
-                switch signupLoginSegmentValue {
-                case 1:
-                    TextField("GIVEN_NAME", text: $firstName)
-                        .padding()
-                        .background(.white)
-                        .cornerRadius(20.0)
-                        .shadow(radius: 10.0, x: 20, y: 10)
-
-                    TextField("FAMILY_NAME", text: $lastName)
-                        .padding()
-                        .background(.white)
-                        .cornerRadius(20.0)
-                        .shadow(radius: 10.0, x: 20, y: 10)
-                default:
-                    EmptyView()
-                }
-            }.padding()
-
-            /*
-             Notice that "action" and "label" are closures
-             (which is essentially afunction as argument
-             like we discussed in class)
-             */
-            Button(action: {
-                switch signupLoginSegmentValue {
-                case 1:
-                    Task {
-                        await viewModel.signup(
-							.patient,
-							username: usersname,
-							password: password,
-							firstName: firstName,
-							lastName: lastName
-						)
-                    }
-                default:
-                    Task {
-                        await viewModel.login(
-							username: usersname,
-							password: password
-						)
-                    }
-                }
-            }, label: {
-                switch signupLoginSegmentValue {
-                case 1:
-                    Text("SIGN_UP")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(width: 300)
-                default:
-                    Text("LOGIN")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(width: 300)
-                }
-            })
-            .background(Color(.green))
-            .cornerRadius(15)
-
-            Button(action: {
-                Task {
-                    await viewModel.loginAnonymously()
-                }
-            }, label: {
-                switch signupLoginSegmentValue {
-                case 0:
-                    Text("LOGIN_ANONYMOUSLY")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(width: 300)
-                default:
-                    EmptyView()
-                }
-            })
-            .background(Color(.lightGray))
-            .cornerRadius(15)
-
-            // If an error occurs show it on the screen
-            if let error = viewModel.loginError {
-                Text("\(String(localized: "ERROR")): \(error.message)")
-                    .foregroundColor(.red)
-            }
-            Spacer()
         }
-        .background(
-            LinearGradient(
-                gradient: Gradient(
-                    colors: [
-                        Color(tintColorFlip),
-                        Color.accentColor
-					]
-                ),
-                startPoint: .top,
-                endPoint: .bottom
-            )
+    }
+
+    var loginSignupPicker: some View {
+        Picker(selection: $signupLoginSegmentValue, label: Text("LOGIN_PICKER")) {
+            Text("LOGIN").tag(0)
+            Text("SIGN_UP").tag(1)
+        }
+        .pickerStyle(.segmented)
+        .background(Color(tintColorFlip))
+        .cornerRadius(20.0)
+        .padding()
+    }
+
+    var credentialFields: some View {
+        VStack(alignment: .leading) {
+            TextField("USERNAME", text: $username)
+                .padding()
+                .background(.white)
+                .cornerRadius(20.0)
+                .shadow(radius: 10.0, x: 20, y: 10)
+
+            SecureField("PASSWORD", text: $password)
+                .padding()
+                .background(.white)
+                .cornerRadius(20.0)
+                .shadow(radius: 10.0, x: 20, y: 10)
+
+            if isSignupMode {
+                signupFields
+            }
+        }
+        .padding()
+    }
+
+    var signupFields: some View {
+        Group {
+            TextField("GIVEN_NAME", text: $firstName)
+                .padding()
+                .background(.white)
+                .cornerRadius(20.0)
+                .shadow(radius: 10.0, x: 20, y: 10)
+
+            TextField("FAMILY_NAME", text: $lastName)
+                .padding()
+                .background(.white)
+                .cornerRadius(20.0)
+                .shadow(radius: 10.0, x: 20, y: 10)
+
+            TextField("EMAIL", text: $email)
+                .keyboardType(.emailAddress)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled(true)
+                .padding()
+                .background(.white)
+                .cornerRadius(20.0)
+                .shadow(radius: 10.0, x: 20, y: 10)
+        }
+    }
+
+    var primaryActionButton: some View {
+        Button {
+            Task { await performPrimaryAction() }
+        } label: {
+            Text(isSignupMode ? "SIGN_UP" : "LOGIN")
+                .font(.headline)
+                .foregroundColor(.white)
+                .padding()
+                .frame(width: 300)
+        }
+        .background(Color(.green))
+        .cornerRadius(15)
+    }
+
+    var anonymousLoginButton: some View {
+        Button {
+            Task { await viewModel.loginAnonymously() }
+        } label: {
+            if !isSignupMode {
+                Text("LOGIN_ANONYMOUSLY")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding()
+                    .frame(width: 300)
+            } else {
+                EmptyView()
+            }
+        }
+        .background(Color(.lightGray))
+        .cornerRadius(15)
+    }
+
+    @ViewBuilder
+    var loginErrorText: some View {
+        if let loginError = viewModel.loginError {
+            Text("\(String(localized: "ERROR")): \(loginError.message)")
+                .foregroundColor(.red)
+        }
+    }
+
+    var backgroundGradient: some View {
+        LinearGradient(
+            gradient: Gradient(
+                colors: [
+                    Color(tintColorFlip),
+                    Color.accentColor
+                ]
+            ),
+            startPoint: .top,
+            endPoint: .bottom
         )
+    }
+
+    var isSignupMode: Bool {
+        signupLoginSegmentValue == 1
+    }
+}
+
+// MARK: - Actions
+
+private extension LoginView {
+
+    func performPrimaryAction() async {
+        if isSignupMode {
+            await viewModel.signup(
+                .patient,
+                username: username,
+                password: password,
+                email: email,
+                firstName: firstName,
+                lastName: lastName
+            )
+        } else {
+            await viewModel.login(
+                username: username,
+                password: password
+            )
+        }
     }
 }
 

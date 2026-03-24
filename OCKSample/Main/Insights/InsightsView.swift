@@ -32,8 +32,8 @@ struct InsightsView: View {
 					ForEach(orderedEvents) { event in
 						let eventResult = event.result
 						let dataStrategy = determineDataStrategy(for: eventResult.task.id)
-						if eventResult.task.id != TaskID.doxylamine
-							&& eventResult.task.id != TaskID.nausea {
+						if eventResult.task.id != TaskID.caffeineIntake
+							&& eventResult.task.id != TaskID.anxietyCheck {
 
 							// dynamic gradient colors
 							let meanGradientStart = Color(TintColorFlipKey.defaultValue)
@@ -76,7 +76,7 @@ struct InsightsView: View {
 								]
 							)
 
-						} else if eventResult.task.id == TaskID.doxylamine {
+						} else if eventResult.task.id == TaskID.caffeineIntake {
 							// Example of showing nausea vs doxlymine
 
 							// dynamic gradient colors
@@ -84,7 +84,7 @@ struct InsightsView: View {
 							let nauseaGradientEnd = Color.accentColor
 
 							let nauseaConfiguration = CKEDataSeriesConfiguration(
-								taskID: TaskID.nausea,
+								taskID: TaskID.anxietyCheck,
 								dataStrategy: .sum,
 								mark: .bar,
 								legendTitle: String(localized: "NAUSEA"),
@@ -209,7 +209,7 @@ struct InsightsView: View {
 
 	private func determineDataStrategy(for taskID: String) -> CKEDataSeriesConfiguration.DataStrategy {
 		switch taskID {
-		case TaskID.ovulationTestResult, TaskID.steps:
+		case TaskID.steps, TaskID.sleepDuration:
 			return .max
 		default:
 			return .mean
