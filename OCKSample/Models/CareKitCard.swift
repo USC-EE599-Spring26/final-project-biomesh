@@ -21,5 +21,6 @@ enum CareKitCard: String, CaseIterable, Identifiable {
     case simple = "Simple"
     case survey = "Survey"
     case custom = "Custom"
+    case uiKitSurvey = "UIKitSurvey"
 }
 

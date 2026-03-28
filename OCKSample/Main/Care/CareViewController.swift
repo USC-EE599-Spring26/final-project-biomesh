@@ -244,6 +244,7 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
         }
     }
     // swiftlint:disable:next cyclomatic_complexity
+    // swiftlint:disable:next cyclomatic_complexity
     private func taskViewControllers(
         _ task: any OCKAnyTask,
         on date: Date
@@ -255,26 +256,15 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
         if let standardTask = task as? OCKTask {
 
             #if os(iOS)
-            // Classic ResearchKit (ORK) tasks — instruction cards that launch ORK surveys
-            switch standardTask.id {
-            case TaskID.onboarding:
+            if standardTask.card == .uiKitSurvey,
+               let surveyType = standardTask.uiKitSurvey {
                 let card = SurveyCardViewController(
                     query: query,
                     store: self.store,
-                    survey: Surveys.onboardingSurvey(),
+                    survey: surveyType.task(),
                     presenter: self
                 )
                 return [card]
-            case TaskID.rangeOfMotion:
-                let card = SurveyCardViewController(
-                    query: query,
-                    store: self.store,
-                    survey: Surveys.rangeOfMotionCheck(),
-                    presenter: self
-                )
-                return [card]
-            default:
-                break
             }
             #endif
 
@@ -338,6 +328,9 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
                 .padding(.vertical, swiftUIPadding)
                 .formattedHostingController()
                 return [card]
+
+            case .uiKitSurvey:
+                return nil
 
             default:
                 return nil
