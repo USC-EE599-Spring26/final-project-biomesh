@@ -29,6 +29,7 @@
  */
 // swiftlint:disable type_body_length
 // swiftlint:disable file_length
+
 import CareKit
 import CareKitEssentials
 import CareKitStore
@@ -44,9 +45,10 @@ import UIKit
 
 @MainActor
 final class CareViewController: OCKDailyPageViewController, @unchecked Sendable {
-	private var isSyncing = false
-	private var isLoading = false
-	private let swiftUIPadding: CGFloat = 15
+
+    private var isSyncing = false
+    private var isLoading = false
+    private let swiftUIPadding: CGFloat = 15
 
     private var style: Styler {
         CustomStylerKey.defaultValue
@@ -54,31 +56,34 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .refresh,
             target: self,
             action: #selector(synchronizeWithRemote)
         )
+
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(synchronizeWithRemote),
-            name: Notification.Name(
-                rawValue: Constants.requestSync
-            ),
+            name: Notification.Name(rawValue: Constants.requestSync),
             object: nil
         )
+
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(updateSynchronizationProgress(_:)),
             name: Notification.Name(rawValue: Constants.progressUpdate),
             object: nil
         )
+
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(reloadView(_:)),
             name: Notification.Name(rawValue: Constants.finishedAskingForPermission),
             object: nil
         )
+
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(reloadView(_:)),
@@ -87,145 +92,147 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
         )
     }
 
-    @objc private func updateSynchronizationProgress(
-        _ notification: Notification
-    ) {
-        guard let receivedInfo = notification.userInfo as? [String: Any],
-            let progress = receivedInfo[Constants.progressUpdate] as? Int else {
+    @objc
+    private func updateSynchronizationProgress(_ notification: Notification) {
+        guard
+            let receivedInfo = notification.userInfo as? [String: Any],
+            let progress = receivedInfo[Constants.progressUpdate] as? Int
+        else {
             return
         }
 
-		switch progress {
-		case 100:
-			self.navigationItem.rightBarButtonItem = UIBarButtonItem(
-				title: "\(progress)",
-				style: .plain, target: self,
-				action: #selector(self.synchronizeWithRemote)
-			)
-			self.navigationItem.rightBarButtonItem?.tintColor = self.view.tintColor
-			DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-				guard let self else { return }
-				self.navigationItem.rightBarButtonItem = UIBarButtonItem(
-					barButtonSystemItem: .refresh,
-					target: self,
-					action: #selector(self.synchronizeWithRemote)
-				)
-				self.navigationItem.rightBarButtonItem?.tintColor = self.navigationItem.leftBarButtonItem?.tintColor
-			}
-		default:
-			self.navigationItem.rightBarButtonItem = UIBarButtonItem(
-				title: "\(progress)",
-				style: .plain, target: self,
-				action: #selector(self.synchronizeWithRemote)
-			)
-			self.navigationItem.rightBarButtonItem?.tintColor = self.view.tintColor
-		}
+        switch progress {
+        case 100:
+            navigationItem.rightBarButtonItem = UIBarButtonItem(
+                title: "\(progress)",
+                style: .plain,
+                target: self,
+                action: #selector(synchronizeWithRemote)
+            )
+            navigationItem.rightBarButtonItem?.tintColor = view.tintColor
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                guard let self else { return }
+                self.navigationItem.rightBarButtonItem = UIBarButtonItem(
+                    barButtonSystemItem: .refresh,
+                    target: self,
+                    action: #selector(self.synchronizeWithRemote)
+                )
+                self.navigationItem.rightBarButtonItem?.tintColor = self.navigationItem.leftBarButtonItem?.tintColor
+            }
+
+        default:
+            navigationItem.rightBarButtonItem = UIBarButtonItem(
+                title: "\(progress)",
+                style: .plain,
+                target: self,
+                action: #selector(synchronizeWithRemote)
+            )
+            navigationItem.rightBarButtonItem?.tintColor = view.tintColor
+        }
     }
 
-    @objc private func synchronizeWithRemote() {
-        guard !isSyncing else {
-            return
-        }
+    @objc
+    private func synchronizeWithRemote() {
+        guard !isSyncing else { return }
+
         isSyncing = true
         AppDelegateKey.defaultValue?.store.synchronize { error in
             let errorString = error?.localizedDescription ?? "Successful sync with remote!"
             Logger.feed.info("\(errorString)")
+
             DispatchQueue.main.async { [weak self] in
-				guard let self else { return }
+                guard let self else { return }
+
                 if error != nil {
                     self.navigationItem.rightBarButtonItem?.tintColor = .red
                 } else {
                     self.navigationItem.rightBarButtonItem?.tintColor = self.navigationItem.leftBarButtonItem?.tintColor
                 }
+
                 self.isSyncing = false
             }
         }
     }
 
-    @objc private func reloadView(_ notification: Notification? = nil) {
-        guard !isLoading else {
-            return
-        }
-        self.reload()
+    @objc
+    private func reloadView(_ notification: Notification? = nil) {
+        guard !isLoading else { return }
+        reload()
     }
+
     override func dailyPageViewController(
         _ dailyPageViewController: OCKDailyPageViewController,
         prepare listViewController: OCKListViewController,
         for date: Date
     ) {
-        self.isLoading = true
-        let date = modifyDateIfNeeded(date)
-        let isCurrentDay = isSameDay(as: date)
+        isLoading = true
+
+        let adjustedDate = modifyDateIfNeeded(date)
 
         #if os(iOS)
-        if isCurrentDay {
-            if Calendar.current.isDate(date, inSameDayAs: Date()) {
-                // Add a non-CareKit view into the list
-                let tipTitle = "Caffeine & Your Health"
-                let tipText = "High caffeine intake (>400 mg/day) is linked to increased anxiety"
-                let tipView = TipView()
-                tipView.headerView.titleLabel.text = tipTitle
-                tipView.headerView.detailLabel.text = tipText
-                tipView.imageView.image = UIImage(named: "exercise.jpg")
-                tipView.customStyle = CustomStylerKey.defaultValue
-                listViewController.appendView(tipView, animated: false)
-            }
+        if isSameDay(as: adjustedDate),
+           Calendar.current.isDate(adjustedDate, inSameDayAs: Date()) {
+            let tipTitle = "Caffeine & Your Health"
+            let tipText = "High caffeine intake (>400 mg/day) is linked to increased anxiety"
+            let tipView = TipView()
+            tipView.headerView.titleLabel.text = tipTitle
+            tipView.headerView.detailLabel.text = tipText
+            tipView.imageView.image = UIImage(named: "exercise.jpg")
+            tipView.customStyle = CustomStylerKey.defaultValue
+            listViewController.appendView(tipView, animated: false)
         }
         #endif
-        fetchAndDisplayTasks(on: listViewController, for: date)
+
+        Task {
+            await fetchAndDisplayTasks(on: listViewController, for: adjustedDate)
+        }
     }
+
     private func isSameDay(as date: Date) -> Bool {
-        Calendar.current.isDate(
-            date,
-            inSameDayAs: Date()
-        )
+        Calendar.current.isDate(date, inSameDayAs: Date())
     }
+
     private func modifyDateIfNeeded(_ date: Date) -> Date {
-        guard date < .now else {
-            return date
-        }
-        guard !isSameDay(as: date) else {
-            return .now
-        }
+        guard date < .now else { return date }
+        guard !isSameDay(as: date) else { return .now }
         return date.endOfDay
     }
+
     private func fetchAndDisplayTasks(
         on listViewController: OCKListViewController,
         for date: Date
-    ) {
-        Task {
-            let tasks = await self.fetchTasks(on: date)
+    ) async {
+        let tasks = await fetchTasks(on: date)
+        let isOnboarded = await checkIfOnboardingIsComplete()
 
-            let isOnboarded = await checkIfOnboardingIsComplete()
-            if isOnboarded {
-                // Show all tasks except onboarding
-                let filtered = tasks.filter { $0.id != TaskID.onboarding }
-                appendTasks(filtered, to: listViewController, date: date)
-            } else {
-                // Only show the onboarding card
-                let onboardingOnly = tasks.filter { $0.id == TaskID.onboarding }
-                appendTasks(onboardingOnly, to: listViewController, date: date)
-            }
+        if isOnboarded {
+            let filtered = tasks.filter { $0.id != TaskID.onboarding }
+            appendTasks(filtered, to: listViewController, date: date)
+        } else {
+            let onboardingOnly = tasks.filter { $0.id == TaskID.onboarding }
+            appendTasks(onboardingOnly, to: listViewController, date: date)
         }
     }
 
     private func checkIfOnboardingIsComplete() async -> Bool {
         var query = OCKEventQuery(for: Date())
         query.taskIDs = [TaskID.onboarding]
+
         do {
             let events = try await store.fetchAnyEvents(query: query)
-            // If no onboarding events exist (task not seeded yet), not onboarded
             guard let event = events.first else { return false }
-            // Onboarded if the event has an outcome
             return event.outcome != nil
         } catch {
             Logger.feed.error("Failed to check onboarding status: \(error, privacy: .public)")
             return false
         }
     }
+
     private func fetchTasks(on date: Date) async -> [any OCKAnyTask] {
         var query = OCKTaskQuery(for: date)
         query.excludesTasksWithNoEvents = true
+
         do {
             let tasks = try await store.fetchAnyTasks(query: query)
 
@@ -233,17 +240,19 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
                 Logger.feed.warning("Could not cast all tasks to \"CareTask\"")
                 return tasks
             }
+
             let orderedPriorityTasks = tasksWithPriority.sortedByPriority()
             let orderedTasks = orderedPriorityTasks.compactMap { orderedPriorityTask in
                 tasks.first(where: { $0.id == orderedPriorityTask.id })
             }
+
             return orderedTasks
         } catch {
             Logger.feed.error("Could not fetch tasks: \(error, privacy: .public)")
             return []
         }
     }
-    // swiftlint:disable:next cyclomatic_complexity
+
     // swiftlint:disable:next cyclomatic_complexity
     private func taskViewControllers(
         _ task: any OCKAnyTask,
@@ -254,13 +263,12 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
         query.taskIDs = [task.id]
 
         if let standardTask = task as? OCKTask {
-
-            #if os(iOS)
+            #if canImport(ResearchKit) && canImport(ResearchKitUI)
             if standardTask.card == .uiKitSurvey,
                let surveyType = standardTask.uiKitSurvey {
                 let card = SurveyCardViewController(
                     query: query,
-                    store: self.store,
+                    store: store,
                     survey: surveyType.task(),
                     presenter: self
                 )
@@ -274,14 +282,14 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
             case .button:
                 let card = OCKButtonLogTaskViewController(
                     query: query,
-                    store: self.store
+                    store: store
                 )
                 return [card]
 
             case .checklist:
                 let card = OCKChecklistTaskViewController(
                     query: query,
-                    store: self.store
+                    store: store
                 )
                 return [card]
             #endif
@@ -362,6 +370,7 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
             return nil
         }
     }
+
     private func researchSurveyViewController(
         query: OCKEventQuery,
         task: OCKTask
@@ -401,29 +410,31 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
         date: Date
     ) {
         let isCurrentDay = isSameDay(as: date)
+
         tasks.compactMap {
-            let cards = self.taskViewControllers(
-                $0,
-                on: date
-            )
+            let cards = taskViewControllers($0, on: date)
+
             cards?.forEach {
-                if let carekitView = $0.view as? OCKView {
-                    carekitView.customStyle = style
+                if let careKitView = $0.view as? OCKView {
+                    careKitView.customStyle = style
                 }
                 $0.view.isUserInteractionEnabled = isCurrentDay
-                $0.view.alpha = !isCurrentDay ? 0.4 : 1.0
+                $0.view.alpha = isCurrentDay ? 1.0 : 0.4
             }
+
             return cards
-        }.forEach { (cards: [UIViewController]) in
-            cards.forEach {
-                let card = $0
-				listViewController.appendViewController(card, animated: true)
+        }
+        .forEach { cards in
+            cards.forEach { card in
+                listViewController.appendViewController(card, animated: true)
             }
         }
-		self.isLoading = false
+
+        isLoading = false
     }
 }
-#if os(iOS)
+
+#if canImport(ResearchKit) && canImport(ResearchKitUI)
 // MARK: - ORKTaskViewControllerDelegate
 
 extension CareViewController: ORKTaskViewControllerDelegate {
@@ -451,17 +462,19 @@ extension CareViewController: ORKTaskViewControllerDelegate {
 
             var eventQuery = OCKEventQuery(for: Date())
             eventQuery.taskIDs = [taskID]
-            guard let event = try? await self.store.fetchAnyEvents(
-                query: eventQuery
-            ).first else { return }
+
+            guard let event = try? await store.fetchAnyEvents(query: eventQuery).first else {
+                return
+            }
 
             let outcome = OCKOutcome(
                 taskUUID: event.task.uuid,
                 taskOccurrenceIndex: event.scheduleEvent.occurrence,
                 values: values
             )
-            try? await self.store.addAnyOutcome(outcome)
-            self.reload()
+
+            try? await store.addAnyOutcome(outcome)
+            reload()
         }
     }
 
@@ -470,7 +483,10 @@ extension CareViewController: ORKTaskViewControllerDelegate {
         let directory = FileManager.default.urls(
             for: .documentDirectory,
             in: .userDomainMask
-        ).last!.appendingPathComponent("ResearchKit", isDirectory: true)
+        )
+        .last!
+        .appendingPathComponent("ResearchKit", isDirectory: true)
+
         surveyVC.outputDirectory = directory
         surveyVC.delegate = self
         present(surveyVC, animated: true)
@@ -502,9 +518,15 @@ final class SurveyCardViewController: OCKInstructionsTaskViewController {
         sender: Any?
     ) {
         guard isComplete else {
-            super.taskView(taskView, didCompleteEvent: isComplete, at: indexPath, sender: sender)
+            super.taskView(
+                taskView,
+                didCompleteEvent: isComplete,
+                at: indexPath,
+                sender: sender
+            )
             return
         }
+
         presenter?.presentSurvey(survey)
     }
 }
