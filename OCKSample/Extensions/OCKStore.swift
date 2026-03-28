@@ -6,11 +6,6 @@
 //  Copyright © 2022 Network Reconnaissance Lab. All rights reserved.
 //
 
-//
-//  OCKStore.swift
-//  OCKSample
-//
-
 import CareKitEssentials
 import Contacts
 import Foundation
