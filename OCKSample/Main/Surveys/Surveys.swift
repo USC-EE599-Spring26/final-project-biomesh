@@ -6,8 +6,10 @@
 //
 
 import CareKitStore
+import HealthKit
 import ResearchKit
 import ResearchKitActiveTask
+import UIKit
 
 struct Surveys {
 
@@ -21,23 +23,116 @@ struct Surveys {
     static let onboardingCompletionIdentifier = "onboarding.completion"
 
     static func onboardingSurvey() -> ORKTask {
-        let welcomeStep = ORKInstructionStep(identifier: onboardingWelcomeIdentifier)
-        welcomeStep.title = "Welcome to BioMesh"
-        welcomeStep.detailText = "This study explores how your daily caffeine intake " +
-            "relates to anxiety, with sleep quality as a key mediator. " +
-            "Tap Next to get started!"
-        welcomeStep.image = UIImage(systemName: "hand.wave")
+        let welcomeStep = ORKInstructionStep(
+            identifier: onboardingWelcomeIdentifier
+        )
+        welcomeStep.title = "Welcome!"
+        welcomeStep.detailText = "Thank you for joining our study. Tap Next to learn more before signing up."
+        welcomeStep.image = UIImage(systemName: "hand.wave.fill")
         welcomeStep.imageContentMode = .scaleAspectFit
 
-        let completionStep = ORKCompletionStep(identifier: onboardingCompletionIdentifier)
-        completionStep.title = "Enrollment Complete"
-        completionStep.text = "You're all set! Your daily tasks are now ready."
-
-        let orderedTask = ORKOrderedTask(
-            identifier: onboardingIdentifier,
-            steps: [welcomeStep, completionStep]
+        let overviewStep = ORKInstructionStep(
+            identifier: onboardingOverviewIdentifier
         )
-        return orderedTask
+        overviewStep.title = "Before You Join"
+        overviewStep.iconImage = UIImage(systemName: "checkmark.seal.fill")
+
+        let heartBodyItem = ORKBodyItem(
+            text: "The study will ask you to share some of your health data.",
+            detailText: nil,
+            image: UIImage(systemName: "heart.fill"),
+            learnMoreItem: nil,
+            bodyItemStyle: .image
+        )
+
+        let completeTasksBodyItem = ORKBodyItem(
+            text: "You will be asked to complete various tasks over the duration of the study.",
+            detailText: nil,
+            image: UIImage(systemName: "checkmark.circle.fill"),
+            learnMoreItem: nil,
+            bodyItemStyle: .image
+        )
+
+        let signatureBodyItem = ORKBodyItem(
+            text: "Before joining, we will ask you to sign an informed consent document.",
+            detailText: nil,
+            image: UIImage(systemName: "signature"),
+            learnMoreItem: nil,
+            bodyItemStyle: .image
+        )
+
+        let secureDataBodyItem = ORKBodyItem(
+            text: "Your data is kept private and secure.",
+            detailText: nil,
+            image: UIImage(systemName: "lock.fill"),
+            learnMoreItem: nil,
+            bodyItemStyle: .image
+        )
+
+        overviewStep.bodyItems = [
+            heartBodyItem,
+            completeTasksBodyItem,
+            signatureBodyItem,
+            secureDataBodyItem
+        ]
+
+        let consentStep = ORKWebViewStep(
+            identifier: onboardingSignatureIdentifier,
+            html: informedConsentHTML
+        )
+        consentStep.showSignatureAfterContent = true
+
+        let healthKitTypesToWrite: Set<HKSampleType> = [
+            .quantityType(forIdentifier: .bodyMassIndex)!,
+            .quantityType(forIdentifier: .activeEnergyBurned)!,
+            .workoutType()
+        ]
+
+        let healthKitTypesToRead: Set<HKObjectType> = [
+            .characteristicType(forIdentifier: .dateOfBirth)!,
+            .workoutType(),
+            .quantityType(forIdentifier: .appleStandTime)!,
+            .quantityType(forIdentifier: .appleExerciseTime)!
+        ]
+
+        let healthKitPermissionType = ORKHealthKitPermissionType(
+            sampleTypesToWrite: healthKitTypesToWrite,
+            objectTypesToRead: healthKitTypesToRead
+        )
+
+        let notificationsPermissionType = ORKNotificationPermissionType(
+            authorizationOptions: [.alert, .badge, .sound]
+        )
+
+        let motionPermissionType = ORKMotionActivityPermissionType()
+
+        let permissionsStep = ORKRequestPermissionsStep(
+            identifier: onboardingRequestPermissionsIdentifier,
+            permissionTypes: [
+                healthKitPermissionType,
+                notificationsPermissionType,
+                motionPermissionType
+            ]
+        )
+        permissionsStep.title = "Health Data Request"
+        permissionsStep.text = "Please review the health data types below and enable sharing to contribute to the study."
+
+        let completionStep = ORKCompletionStep(
+            identifier: onboardingCompletionIdentifier
+        )
+        completionStep.title = "Enrollment Complete"
+        completionStep.text = "Thank you for enrolling in this study. Your participation will contribute to meaningful research!"
+
+        return ORKOrderedTask(
+            identifier: onboardingIdentifier,
+            steps: [
+                welcomeStep,
+                overviewStep,
+                consentStep,
+                permissionsStep,
+                completionStep
+            ]
+        )
     }
 
     // MARK: - Check-in Survey
@@ -57,6 +152,7 @@ struct Surveys {
             maximumValueDescription: "Very anxious",
             minimumValueDescription: "Not anxious"
         )
+
         let anxietyItem = ORKFormItem(
             identifier: checkinAnxietyItemIdentifier,
             text: "How anxious do you feel today?",
@@ -73,6 +169,7 @@ struct Surveys {
             maximumValueDescription: "12 hours",
             minimumValueDescription: "0 hours"
         )
+
         let sleepItem = ORKFormItem(
             identifier: checkinSleepItemIdentifier,
             text: "How many hours of sleep did you get last night?",
@@ -88,11 +185,10 @@ struct Surveys {
         formStep.formItems = [anxietyItem, sleepItem]
         formStep.isOptional = false
 
-        let orderedTask = ORKOrderedTask(
+        return ORKOrderedTask(
             identifier: checkinIdentifier,
             steps: [formStep]
         )
-        return orderedTask
     }
 
     static func extractAnswersFromCheckIn(
@@ -108,8 +204,7 @@ struct Surveys {
         var outcomeValues = [OCKOutcomeValue]()
 
         if let anxietyResult = formResult
-            .first(where: { $0.identifier == checkinAnxietyItemIdentifier })
-                as? ORKScaleQuestionResult,
+            .first(where: { $0.identifier == checkinAnxietyItemIdentifier }) as? ORKScaleQuestionResult,
            let anxietyAnswer = anxietyResult.scaleAnswer {
             var value = OCKOutcomeValue(Double(truncating: anxietyAnswer))
             value.kind = checkinAnxietyItemIdentifier
@@ -117,8 +212,7 @@ struct Surveys {
         }
 
         if let sleepResult = formResult
-            .first(where: { $0.identifier == checkinSleepItemIdentifier })
-                as? ORKScaleQuestionResult,
+            .first(where: { $0.identifier == checkinSleepItemIdentifier }) as? ORKScaleQuestionResult,
            let sleepAnswer = sleepResult.scaleAnswer {
             var value = OCKOutcomeValue(Double(truncating: sleepAnswer))
             value.kind = checkinSleepItemIdentifier
@@ -137,37 +231,37 @@ struct Surveys {
         let kneeTask = ORKOrderedTask.kneeRangeOfMotionTask(
             withIdentifier: rangeOfMotionIdentifier,
             limbOption: .left,
-            intendedUseDescription: "Measure your left knee's range of motion.",
+            intendedUseDescription: nil,
             options: [.excludeConclusion]
         )
 
         let completionStep = ORKCompletionStep(
             identifier: rangeOfMotionCompletionIdentifier
         )
-        completionStep.title = "All Done!"
-        completionStep.text = "Your range of motion has been recorded."
+        completionStep.title = "All done!"
+        completionStep.detailText = "We know the road to recovery can be tough. Keep up the good work!"
 
         var steps = kneeTask.steps
         steps.append(completionStep)
 
-        let task = ORKOrderedTask(
+        return ORKOrderedTask(
             identifier: rangeOfMotionIdentifier,
             steps: steps
         )
-        return task
     }
 
     static func extractRangeOfMotionOutcome(
         _ result: ORKTaskResult
     ) -> [OCKOutcomeValue] {
-        let start = result.results?.compactMap { stepResult -> ORKRangeOfMotionResult? in
-            guard let results = (stepResult as? ORKStepResult)?.results else {
-                return nil
-            }
-            return results.compactMap { $0 as? ORKRangeOfMotionResult }.first
-        }.first
+        let romResult = result.results?
+            .compactMap { $0 as? ORKStepResult }
+            .compactMap { $0.results }
+            .flatMap { $0 }
+            .compactMap { $0 as? ORKRangeOfMotionResult }
+            .first
 
-        guard let romResult = start else {
+        guard let romResult else {
+            assertionFailure("Failed to parse range of motion result")
             return []
         }
 
