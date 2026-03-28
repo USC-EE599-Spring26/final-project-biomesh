@@ -6,6 +6,11 @@
 //  Copyright © 2022 Network Reconnaissance Lab. All rights reserved.
 //
 
+//
+//  OCKStore.swift
+//  OCKSample
+//
+
 import CareKitEssentials
 import Contacts
 import Foundation
@@ -85,10 +90,12 @@ extension OCKStore {
     }
 
     /// Seeds the store with BioMesh default care plans, tasks, and contacts on first sign-up.
-    func populateDefaultCarePlansTasksContacts(startDate: Date = Date()) async throws {
+    func populateDefaultCarePlansTasksContacts(
+        patientUUID: UUID? = nil,
+        startDate: Date = Date()
+    ) async throws {
 
-        //let carePlanUUIDs = try await populateDefaultCarePlans()
-        let carePlanUUIDs = try await populateDefaultCarePlans(patientUUID: nil)
+        let carePlanUUIDs = try await populateDefaultCarePlans(patientUUID: patientUUID)
         let healthUUID = carePlanUUIDs[.health]
         let wellnessUUID = carePlanUUIDs[.wellness]
         let nutritionUUID = carePlanUUIDs[.nutrition]
@@ -122,7 +129,7 @@ extension OCKStore {
             )
         ])
 
-        // Caffeine Intake
+        // Nutrition
         var caffeine = OCKTask(
             id: TaskID.caffeineIntake,
             title: "Caffeine Intake",
@@ -135,7 +142,6 @@ extension OCKStore {
         caffeine.priority = 0
         caffeine.impactsAdherence = false
 
-        // Water Intake
         var water = OCKTask(
             id: TaskID.waterIntake,
             title: "Water Intake",
@@ -148,7 +154,7 @@ extension OCKStore {
         water.priority = 1
         water.impactsAdherence = false
 
-        // Anxiety Check-in
+        // Wellness
         var anxiety = OCKTask(
             id: TaskID.anxietyCheck,
             title: "Anxiety Check-in",
@@ -161,7 +167,6 @@ extension OCKStore {
         anxiety.priority = 2
         anxiety.impactsAdherence = false
 
-        // Evening Wind-Down
         var windDown = OCKTask(
             id: TaskID.sleepHygiene,
             title: "Evening Wind-Down",
@@ -176,7 +181,7 @@ extension OCKStore {
 
         let qualityOfLife = createQualityOfLifeSurveyTask(carePlanUUID: wellnessUUID)
 
-        // Onboarding — one-time, all-day
+        // Health
         var onboarding = OCKTask(
             id: TaskID.onboarding,
             title: "Onboarding",
@@ -201,7 +206,6 @@ extension OCKStore {
         onboarding.card = .instruction
         #endif
 
-        // Range of Motion — weekly
         var romTask = OCKTask(
             id: TaskID.rangeOfMotion,
             title: "Range of Motion",
@@ -237,7 +241,6 @@ extension OCKStore {
             qualityOfLife
         ])
 
-        // Contacts
         var researcher = OCKContact(
             id: "biomesh.researcher",
             givenName: "BioMesh",

@@ -139,8 +139,9 @@ class LoginViewModel: ObservableObject {
 			to: currentDate
 		)! : currentDate
         try await appDelegate.store.populateDefaultCarePlansTasksContacts(
-			startDate: startDate
-		)
+            patientUUID: savedPatient.uuid,
+            startDate: startDate
+        )
         try await appDelegate.healthKitStore.populateDefaultHealthKitTasks(
 			startDate: startDate
 		)
