@@ -11,7 +11,9 @@ import Contacts
 import Foundation
 import CareKitStore
 import os.log
+#if canImport(ResearchKitSwiftUI)
 import ResearchKitSwiftUI
+#endif
 
 extension OCKStore {
 
@@ -282,6 +284,18 @@ extension OCKStore {
         )
         let qualityOfLifeSchedule = OCKSchedule(composing: [qualityOfLifeElement])
 
+        var qualityOfLife = OCKTask(
+            id: "\(qualityOfLifeTaskId)-stress",
+            title: String(localized: "QUALITY_OF_LIFE"),
+            carePlanUUID: carePlanUUID,
+            schedule: qualityOfLifeSchedule
+        )
+        qualityOfLife.instructions = "Answer a few quick questions about your stress and time management since using BioMesh."
+        qualityOfLife.impactsAdherence = true
+        qualityOfLife.asset = "list.clipboard"
+        qualityOfLife.priority = 1
+
+        #if canImport(ResearchKitSwiftUI)
         let choices: [TextChoice] = [
             .init(id: "\(qualityOfLifeTaskId)_0", choiceText: "Yes", value: "Yes"),
             .init(id: "\(qualityOfLifeTaskId)_1", choiceText: "No", value: "No")
@@ -311,18 +325,11 @@ extension OCKStore {
             questions: [questionOne, questionTwo]
         )
 
-        var qualityOfLife = OCKTask(
-            id: "\(qualityOfLifeTaskId)-stress",
-            title: String(localized: "QUALITY_OF_LIFE"),
-            carePlanUUID: carePlanUUID,
-            schedule: qualityOfLifeSchedule
-        )
-        qualityOfLife.instructions = "Answer a few quick questions about your stress and time management since using BioMesh."
-        qualityOfLife.impactsAdherence = true
-        qualityOfLife.asset = "list.clipboard"
         qualityOfLife.card = .survey
         qualityOfLife.surveySteps = [stepOne]
-        qualityOfLife.priority = 1
+        #else
+        qualityOfLife.card = .instruction
+        #endif
 
         return qualityOfLife
     }
