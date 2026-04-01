@@ -45,6 +45,8 @@
 	<string>CareKit sample app would like to read from HealthKit</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>CareKit would like to write to your HealthKit data!</string>
+	<key>NSMotionUsageDescription</key>
+	<string>CareKit sample app would like to write to your motion data!</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

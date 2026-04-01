@@ -14,7 +14,72 @@ import os.log
 import ResearchKitSwiftUI
 
 extension OCKStore {
+    @MainActor
+    class func getCarePlanUUIDs() async throws -> [CarePlanID: UUID] {
+        var results = [CarePlanID: UUID]()
 
+        guard let store = AppDelegateKey.defaultValue?.store else {
+            return results
+        }
+
+        var query = OCKCarePlanQuery(for: Date())
+        query.ids = [
+            CarePlanID.health.rawValue
+        ]
+
+        let foundCarePlans = try await store.fetchCarePlans(query: query)
+        // Populate the dictionary for all CarePlan's
+        CarePlanID.allCases.forEach { carePlanID in
+            results[carePlanID] = foundCarePlans
+                .first(where: { $0.id == carePlanID.rawValue })?.uuid
+        }
+        return results
+    }
+    // TODO: Rewrite this method in a functional programming way.
+        /**
+         Adds an `OCKAnyCarePlan`*asynchronously*  to `OCKStore` if it has not been added already.
+
+         - parameter carePlans: The array of `OCKAnyCarePlan`'s to be added to the `OCKStore`.
+         - parameter patientUUID: The uuid of the `OCKPatient` to tie to the `OCKCarePlan`. Defaults to nil.
+         - throws: An error if there was a problem adding the missing `OCKAnyCarePlan`'s.
+         - note: `OCKAnyCarePlan`'s that have an existing `id` will not be added and will not cause errors to be thrown.
+        */
+    func addCarePlansIfNotPresent(
+        _ carePlans: [OCKAnyCarePlan],
+        patientUUID: UUID? = nil
+    ) async throws {
+        let carePlanIdsToAdd = carePlans.compactMap { $0.id }
+
+        // Prepare query to see if Care Plan are already added
+        var query = OCKCarePlanQuery(for: Date())
+        query.ids = carePlanIdsToAdd
+        let foundCarePlans = try await self.fetchAnyCarePlans(query: query)
+        var carePlanNotInStore = [OCKAnyCarePlan]()
+        // Check results to see if there's a missing Care Plan
+        carePlans.forEach { potentialCarePlan in
+            if foundCarePlans.first(where: { $0.id == potentialCarePlan.id }) == nil {
+                // Check if can be casted to OCKCarePlan to add patientUUID
+                guard var mutableCarePlan = potentialCarePlan as? OCKCarePlan else {
+                    carePlanNotInStore.append(potentialCarePlan)
+                    return
+                }
+                mutableCarePlan.patientUUID = patientUUID
+                carePlanNotInStore.append(mutableCarePlan)
+            }
+        }
+
+        // Only add if there's a new Care Plan
+        if carePlanNotInStore.count > 0 {
+            do {
+                _ = try await self.addAnyCarePlans(carePlanNotInStore)
+                Logger.ockStore.info("Added Care Plans into OCKStore!")
+            } catch {
+                Logger.ockStore.error("Error adding Care Plans: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    // TODO: Rewrite this method in a functional programming way.
     func addTasksIfNotPresent(_ tasks: [OCKTask]) async throws -> [OCKTask] {
         let ids = tasks.map { $0.id }
         var query = OCKTaskQuery(for: Date())
@@ -36,10 +101,28 @@ extension OCKStore {
         guard !missing.isEmpty else { return [] }
         return try await addContacts(missing)
     }
-
+    
+    func populateCarePlans(patientUUID: UUID? = nil) async throws {
+            // TODO: Add at least 2 more CarePlans.
+            let healthCarePlan = OCKCarePlan(
+                id: CarePlanID.health.rawValue,
+                title: "Health Care Plan",
+                patientUUID: patientUUID
+            )
+            try await addCarePlansIfNotPresent(
+                [healthCarePlan],
+                patientUUID: patientUUID
+            )
+        }
+    
     /// Seeds the store with BioMesh default tasks and contacts on first sign-up.
-    func populateDefaultCarePlansTasksContacts(startDate: Date = Date()) async throws {
-
+    func populateDefaultCarePlansTasksContacts(_ patientUUID: UUID? = nil, startDate: Date = Date()) async throws {
+        
+        try await populateCarePlans(patientUUID: patientUUID)
+        
+        // TODO: Relate all tasks to a respective CarePlan
+        let carePlanUUIDs = try await Self.getCarePlanUUIDs()
+        
         let calendar  = Calendar.current
         let morning   = calendar.startOfDay(for: startDate)
         let allDay    = OCKSchedule(composing: [
@@ -62,7 +145,7 @@ extension OCKStore {
                 interval: DateComponents(day: 1)
             )
         ])
-
+        
         // Caffeine Intake
         // Logs each caffeinated drink throughout the day.
         // Research note: >400 mg/day linked to significantly higher anxiety risk.
@@ -79,6 +162,8 @@ extension OCKStore {
         caffeine.priority = 0
         caffeine.impactsAdherence = false
 
+        _ = try await addOnboardingTask(carePlanUUIDs[.health])
+        _ = try await addUIKitSurveyTasks(carePlanUUIDs[.health])
         // Water Intake
         // Tracks hydration as a control variable.
         var water = OCKTask(
@@ -263,5 +348,78 @@ extension OCKStore {
         qualityOfLife.priority = 1
 
         return qualityOfLife
+    }
+    func addOnboardingTask(_ carePlanUUID: UUID? = nil) async throws -> [OCKTask] {
+
+            let onboardSchedule = OCKSchedule.dailyAtTime(
+                hour: 0, minutes: 0,
+                start: Date(), end: nil,
+                text: "Task Due!",
+                duration: .allDay
+            )
+
+            var onboardTask = OCKTask(
+                id: Onboard.identifier(),
+                title: "Onboard",
+                carePlanUUID: carePlanUUID,
+                schedule: onboardSchedule
+            )
+            onboardTask.instructions = "You'll need to agree to some terms and conditions before we get started!"
+            onboardTask.impactsAdherence = false
+            onboardTask.card = .uiKitSurvey
+            onboardTask.uiKitSurvey = .onboard
+
+            return try await addTasksIfNotPresent([onboardTask])
+        }
+
+    func addUIKitSurveyTasks(_ carePlanUUID: UUID? = nil) async throws -> [OCKTask] {
+        let thisMorning = Calendar.current.startOfDay(for: Date())
+
+        let nextWeek = Calendar.current.date(
+            byAdding: .weekOfYear,
+            value: 1,
+            to: Date()
+        )!
+
+        let nextMonth = Calendar.current.date(
+            byAdding: .month,
+            value: 1,
+            to: thisMorning
+        )
+
+        let dailyElement = OCKScheduleElement(
+            start: thisMorning,
+            end: nextWeek,
+            interval: DateComponents(day: 1),
+            text: nil,
+            targetValues: [],
+            duration: .allDay
+        )
+
+        let weeklyElement = OCKScheduleElement(
+            start: nextWeek,
+            end: nextMonth,
+            interval: DateComponents(weekOfYear: 1),
+            text: nil,
+            targetValues: [],
+            duration: .allDay
+        )
+
+        let rangeOfMotionCheckSchedule = OCKSchedule(
+            composing: [dailyElement, weeklyElement]
+        )
+
+        var rangeOfMotionTask = OCKTask(
+            id: RangeOfMotion.identifier(),
+            title: "Range Of Motion",
+            carePlanUUID: carePlanUUID,
+            schedule: rangeOfMotionCheckSchedule
+        )
+        rangeOfMotionTask.priority = 2
+        rangeOfMotionTask.asset = "figure.walk.motion"
+        rangeOfMotionTask.card = .uiKitSurvey
+        rangeOfMotionTask.uiKitSurvey = .rangeOfMotion
+
+        return try await addTasksIfNotPresent([rangeOfMotionTask])
     }
 }
