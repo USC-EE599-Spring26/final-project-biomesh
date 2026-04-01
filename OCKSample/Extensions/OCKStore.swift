@@ -66,7 +66,12 @@ extension OCKStore {
                 id: CarePlanID.nutrition.rawValue,
                 title: "Nutrition",
                 patientUUID: patientUUID
-            )
+            ),
+            OCKCarePlan(
+                id: CarePlanID.study.rawValue,
+                title: "Study",
+                patientUUID: patientUUID
+            ),
         ]
 
         _ = try await addCarePlansIfNotPresent(carePlans)
