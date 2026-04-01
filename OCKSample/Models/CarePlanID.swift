@@ -10,8 +10,10 @@ import Foundation
 
 enum CarePlanID: String, CaseIterable, Identifiable {
     var id: Self { self }
-    case health // Add custom id's for your Care Plans, these are examples
+
+    case health
     case wellness
     case nutrition
     case study
+    case recovery
 }

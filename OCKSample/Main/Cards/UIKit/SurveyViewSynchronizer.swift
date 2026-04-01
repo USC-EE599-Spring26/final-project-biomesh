@@ -1,17 +1,10 @@
-//
-//  SurveyViewSynchronizer.swift
-//  OCKSample
-//
-//  Created by Corey Baker on 3/24/26.
-//  Copyright © 2026 Network Reconnaissance Lab. All rights reserved.
-//
-
 #if canImport(ResearchKit)
 
 import CareKit
 import CareKitStore
 import CareKitUI
 import ResearchKit
+import ResearchKitActiveTask
 import UIKit
 import os.log
 
@@ -31,13 +24,39 @@ final class SurveyViewSynchronizer: OCKSurveyTaskViewSynchronizer {
             return
         }
 
+        let taskID = event.task.id
         view.instructionsLabel.isHidden = false
 
-        let sleep = event.answer(kind: Surveys.checkinSleepItemIdentifier)
+        switch taskID {
 
-        view.instructionsLabel.text = """
-        Sleep: \(Int(sleep)) hours
-        """
+
+        case TaskID.rangeOfMotion:
+            let range = event.answer(kind: #keyPath(ORKRangeOfMotionResult.range))
+
+            view.instructionsLabel.text = """
+            Task ID: \(taskID)
+
+            Range of Motion: \(Int(range))°
+            """
+
+
+        case "\(TaskID.qualityOfLife)-stress":
+            let stress = event.answer(kind: TaskID.qualityOfLife)
+
+            view.instructionsLabel.text = """
+            Task ID: \(taskID)
+
+            Stress Level: \(Int(stress))/10
+            """
+
+
+        default:
+            view.instructionsLabel.text = """
+            Task ID: \(taskID)
+
+            Completed
+            """
+        }
     }
 }
 

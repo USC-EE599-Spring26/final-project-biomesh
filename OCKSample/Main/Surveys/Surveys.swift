@@ -26,54 +26,60 @@ struct Surveys {
         let welcomeStep = ORKInstructionStep(
             identifier: onboardingWelcomeIdentifier
         )
-        welcomeStep.title = "Welcome!"
-        welcomeStep.detailText = "Thank you for joining our study. Tap Next to learn more before signing up."
-        welcomeStep.image = UIImage(systemName: "hand.wave.fill")
+        welcomeStep.title = "Welcome to BioMesh"
+        welcomeStep.detailText = """
+        This study helps you track how caffeine intake may affect your anxiety and sleep quality.
+
+        You will log caffeinated drinks, record anxiety episodes, monitor hydration, and complete short study tasks so we can better understand the relationship between caffeine, sleep, and well-being.
+
+        Tap Next to learn what participation involves.
+        """
+        welcomeStep.image = UIImage(systemName: "cup.and.saucer.fill")
         welcomeStep.imageContentMode = .scaleAspectFit
 
         let overviewStep = ORKInstructionStep(
             identifier: onboardingOverviewIdentifier
         )
-        overviewStep.title = "Before You Join"
+        overviewStep.title = "What You'll Do"
         overviewStep.iconImage = UIImage(systemName: "checkmark.seal.fill")
 
-        let heartBodyItem = ORKBodyItem(
-            text: "The study will ask you to share some of your health data.",
-            detailText: nil,
-            image: UIImage(systemName: "heart.fill"),
+        let caffeineBodyItem = ORKBodyItem(
+            text: "Log your caffeine intake during the day.",
+            detailText: "Coffee, tea, energy drinks, soda, or other caffeinated beverages.",
+            image: UIImage(systemName: "cup.and.saucer.fill"),
             learnMoreItem: nil,
             bodyItemStyle: .image
         )
 
-        let completeTasksBodyItem = ORKBodyItem(
-            text: "You will be asked to complete various tasks over the duration of the study.",
-            detailText: nil,
-            image: UIImage(systemName: "checkmark.circle.fill"),
+        let anxietyBodyItem = ORKBodyItem(
+            text: "Record anxiety symptoms when they happen.",
+            detailText: "This helps connect the timing of caffeine intake with changes in mood and stress.",
+            image: UIImage(systemName: "brain.head.profile"),
             learnMoreItem: nil,
             bodyItemStyle: .image
         )
 
-        let signatureBodyItem = ORKBodyItem(
-            text: "Before joining, we will ask you to sign an informed consent document.",
-            detailText: nil,
-            image: UIImage(systemName: "signature"),
+        let sleepBodyItem = ORKBodyItem(
+            text: "Track sleep and nightly wind-down habits.",
+            detailText: "Sleep quality may explain part of the link between caffeine and anxiety.",
+            image: UIImage(systemName: "moon.zzz.fill"),
             learnMoreItem: nil,
             bodyItemStyle: .image
         )
 
-        let secureDataBodyItem = ORKBodyItem(
+        let privacyBodyItem = ORKBodyItem(
             text: "Your data is kept private and secure.",
-            detailText: nil,
+            detailText: "You can stop participating at any time.",
             image: UIImage(systemName: "lock.fill"),
             learnMoreItem: nil,
             bodyItemStyle: .image
         )
 
         overviewStep.bodyItems = [
-            heartBodyItem,
-            completeTasksBodyItem,
-            signatureBodyItem,
-            secureDataBodyItem
+            caffeineBodyItem,
+            anxietyBodyItem,
+            sleepBodyItem,
+            privacyBodyItem
         ]
 
         let consentStep = ORKWebViewStep(
@@ -115,13 +121,13 @@ struct Surveys {
             ]
         )
         permissionsStep.title = "Health Data Request"
-        permissionsStep.text = "Please review the health data types below and enable sharing to contribute to the study."
+        permissionsStep.text = "Please review the health data types below and enable sharing to support the caffeine, sleep, and anxiety study."
 
         let completionStep = ORKCompletionStep(
             identifier: onboardingCompletionIdentifier
         )
-        completionStep.title = "Enrollment Complete"
-        completionStep.text = "Thank you for enrolling in this study. Your participation will contribute to meaningful research!"
+        completionStep.title = "You're All Set"
+        completionStep.text = "Thanks for joining the BioMesh caffeine, sleep, and anxiety study. You can now begin logging your daily habits and completing study tasks."
 
         return ORKOrderedTask(
             identifier: onboardingIdentifier,

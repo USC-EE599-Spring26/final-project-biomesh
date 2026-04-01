@@ -72,6 +72,11 @@ extension OCKStore {
                 title: "Study",
                 patientUUID: patientUUID
             ),
+            OCKCarePlan(
+                id: CarePlanID.recovery.rawValue,
+                title: "Recovery",
+                patientUUID: patientUUID
+            )
         ]
 
         _ = try await addCarePlansIfNotPresent(carePlans)
@@ -98,9 +103,12 @@ extension OCKStore {
     ) async throws {
 
         let carePlanUUIDs = try await populateDefaultCarePlans(patientUUID: patientUUID)
-        let healthUUID = carePlanUUIDs[.health]
+        _ = carePlanUUIDs[.health]
         let wellnessUUID = carePlanUUIDs[.wellness]
         let nutritionUUID = carePlanUUIDs[.nutrition]
+        let studyUUID = carePlanUUIDs[.study]
+        let recoveryUUID = carePlanUUIDs[.recovery]
+        
 
         let calendar = Calendar.current
         let morning = calendar.startOfDay(for: startDate)
@@ -208,7 +216,7 @@ extension OCKStore {
         var onboarding = OCKTask(
             id: TaskID.onboarding,
             title: "Onboarding",
-            carePlanUUID: healthUUID,
+            carePlanUUID: studyUUID,
             schedule: OCKSchedule.dailyAtTime(
                 hour: 0,
                 minutes: 0,
@@ -236,7 +244,7 @@ extension OCKStore {
         var romTask = OCKTask(
             id: TaskID.rangeOfMotion,
             title: "Range of Motion",
-            carePlanUUID: healthUUID,
+            carePlanUUID: recoveryUUID,
             schedule: OCKSchedule(composing: [
                 OCKScheduleElement(
                     start: morning,
@@ -276,7 +284,7 @@ extension OCKStore {
             id: "biomesh.researcher",
             givenName: "BioMesh",
             familyName: "Research Team",
-            carePlanUUID: healthUUID
+            carePlanUUID: studyUUID
         )
         researcher.title = "Study Coordinator"
         researcher.role = "Contact us with questions about your data or the study protocol."
