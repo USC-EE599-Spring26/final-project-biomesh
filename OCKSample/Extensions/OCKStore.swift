@@ -138,7 +138,11 @@ extension OCKStore {
             carePlanUUID: nutritionUUID,
             schedule: allDay
         )
-        caffeine.instructions = "Tap Log each time you have a caffeinated drink (coffee, tea, energy drink). Note: >400 mg/day is linked to higher anxiety risk."
+        caffeine.instructions = """
+        Task ID: \(caffeine.id)
+
+        Tap Log each time you have a caffeinated drink (coffee, tea, energy drink). Note: >400 mg/day is linked to higher anxiety risk.
+        """
         caffeine.asset = "cup.and.saucer.fill"
         caffeine.card = .button
         caffeine.priority = 0
@@ -150,7 +154,11 @@ extension OCKStore {
             carePlanUUID: nutritionUUID,
             schedule: allDay
         )
-        water.instructions = "Tap Log each time you drink a glass of water. Staying hydrated helps separate caffeine effects from dehydration."
+        water.instructions = """
+        Task ID: \(water.id)
+
+        Tap Log each time you drink a glass of water. Staying hydrated helps separate caffeine effects from dehydration.
+        """
         water.asset = "drop.fill"
         water.card = .button
         water.priority = 1
@@ -163,7 +171,11 @@ extension OCKStore {
             carePlanUUID: wellnessUUID,
             schedule: allDay
         )
-        anxiety.instructions = "Tap Log whenever you notice an anxiety episode. Try to note how long ago you last had caffeine — this helps trace the caffeine → anxiety relationship your app is studying."
+        anxiety.instructions = """
+        Task ID: \(anxiety.id)
+
+        Tap Log whenever you notice an anxiety episode. Try to note how long ago you last had caffeine — this helps trace the caffeine → anxiety relationship your app is studying.
+        """
         anxiety.asset = "brain.head.profile"
         anxiety.card = .button
         anxiety.priority = 2
@@ -175,7 +187,16 @@ extension OCKStore {
             carePlanUUID: wellnessUUID,
             schedule: eveningSchedule
         )
-        windDown.instructions = "Complete your wind-down routine before bed:\n• No caffeine after 2 PM\n• Dim lights 30 min before sleep\n• Put your phone face-down\nGood sleep quality is the mediator between caffeine and next-day anxiety."
+        windDown.instructions = """
+        Task ID: \(windDown.id)
+
+        Complete your wind-down routine before bed:
+        • No caffeine after 2 PM
+        • Dim lights 30 min before sleep
+        • Put your phone face-down
+
+        Good sleep quality is the mediator between caffeine and next-day anxiety.
+        """
         windDown.asset = "moon.zzz.fill"
         windDown.card = .custom
         windDown.priority = 3
@@ -198,7 +219,11 @@ extension OCKStore {
                 targetValues: []
             )
         )
-        onboarding.instructions = "Complete the onboarding to enroll in the BioMesh study."
+        onboarding.instructions = """
+        Task ID: \(onboarding.id)
+
+        Complete the onboarding to enroll in the BioMesh study.
+        """
         onboarding.impactsAdherence = false
         onboarding.priority = -1
         #if os(iOS)
@@ -223,7 +248,11 @@ extension OCKStore {
                 )
             ])
         )
-        romTask.instructions = "Measure your left knee range of motion."
+        romTask.instructions = """
+        Task ID: \(romTask.id)
+
+        Measure your left knee range of motion.
+        """
         romTask.impactsAdherence = true
         romTask.priority = 1
         #if os(iOS)
@@ -295,7 +324,11 @@ extension OCKStore {
             carePlanUUID: carePlanUUID,
             schedule: qualityOfLifeSchedule
         )
-        qualityOfLife.instructions = "Answer a few quick questions about your stress and time management since using BioMesh."
+        qualityOfLife.instructions = """
+        Task ID: \(qualityOfLife.id)
+
+        Answer a few quick questions about your stress and time management since using BioMesh.
+        """
         qualityOfLife.impactsAdherence = true
         qualityOfLife.asset = "list.clipboard"
         qualityOfLife.priority = 1
