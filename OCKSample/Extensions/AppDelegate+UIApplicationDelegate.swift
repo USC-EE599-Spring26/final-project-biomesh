@@ -91,7 +91,7 @@ private extension AppDelegate {
         do {
             try await setupRemotes()
 
-            var query = OCKPatientQuery(for: Date())
+            let query = OCKPatientQuery(for: Date())
             if let patient = try? await store.fetchPatients(query: query).first {
                 try await store.populateDefaultCarePlansTasksContacts(
                     patientUUID: patient.uuid
