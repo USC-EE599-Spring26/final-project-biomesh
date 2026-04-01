@@ -261,7 +261,7 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
                 let card = SurveyCardViewController(
                     query: query,
                     store: self.store,
-                    survey: Surveys.onboardingSurvey(),
+                    survey: Onboard().createSurvey(),
                     presenter: self
                 )
                 return [card]
@@ -269,7 +269,7 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
                 let card = SurveyCardViewController(
                     query: query,
                     store: self.store,
-                    survey: Surveys.rangeOfMotionCheck(),
+                    survey: RangeOfMotion().createSurvey(),
                     presenter: self
                 )
                 return [card]
@@ -450,8 +450,8 @@ extension CareViewController: ORKTaskViewControllerDelegate {
 
             let values: [OCKOutcomeValue]
             switch taskID {
-            case Surveys.rangeOfMotionIdentifier:
-                values = Surveys.extractRangeOfMotionOutcome(result)
+            case RangeOfMotion.identifier():
+                values = RangeOfMotion().extractAnswers(result) ?? [OCKOutcomeValue(Date())]
             default:
                 values = [OCKOutcomeValue(Date())]
             }
