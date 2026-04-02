@@ -24,7 +24,7 @@ extension OCKStore {
 
         var query = OCKCarePlanQuery(for: Date())
         query.ids = [
-            CarePlanID.health.rawValue
+            CarePlanID.habits.rawValue
         ]
 
         let foundCarePlans = try await store.fetchCarePlans(query: query)
@@ -105,8 +105,8 @@ extension OCKStore {
     func populateCarePlans(patientUUID: UUID? = nil) async throws {
             // TODO: Add at least 2 more CarePlans.
             let healthCarePlan = OCKCarePlan(
-                id: CarePlanID.health.rawValue,
-                title: "Health Care Plan",
+                id: CarePlanID.habits.rawValue,
+                title: "Daily Habits",
                 patientUUID: patientUUID
             )
             try await addCarePlansIfNotPresent(
@@ -162,8 +162,8 @@ extension OCKStore {
         caffeine.priority = 0
         caffeine.impactsAdherence = false
 
-        _ = try await addOnboardingTask(carePlanUUIDs[.health])
-        _ = try await addUIKitSurveyTasks(carePlanUUIDs[.health])
+        _ = try await addOnboardingTask(carePlanUUIDs[.habits])
+        _ = try await addUIKitSurveyTasks(carePlanUUIDs[.habits])
         // Water Intake
         // Tracks hydration as a control variable.
         var water = OCKTask(
