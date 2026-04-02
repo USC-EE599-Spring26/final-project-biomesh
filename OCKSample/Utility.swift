@@ -134,12 +134,14 @@ class Utility {
 					value: -30,
 					to: Date()
 				)!
+                #if os(iOS) || os(visionOS)
                 try? await store.populateDefaultCarePlansTasksContacts(
-					startDate: startDate
-				)
-				try? await store.populateSampleOutcomes(
-					startDate: startDate
-				)
+                    startDate: startDate
+                )
+                try? await store.populateSampleOutcomes(
+                    startDate: startDate
+                )
+                #endif
             }
         }
         return store
@@ -206,6 +208,28 @@ class Utility {
 		AppDelegateKey.defaultValue?.resetAppToInitialState()
 		PCKUtility.removeCache()
 	}
+    
+    @MainActor
+    class func checkIfOnboardingIsComplete() async -> Bool {
+        #if os(watchOS)
+        return true
+        #else
+        var query = OCKOutcomeQuery()
+        query.taskIDs = [Onboard.identifier()]
+
+        guard let store = AppDelegateKey.defaultValue?.store else {
+            Logger.feed.error("CareKit store could not be unwrapped")
+            return false
+        }
+
+        do {
+            let outcomes = try await store.fetchAnyOutcomes(query: query)
+            return !outcomes.isEmpty
+        } catch {
+            return false
+        }
+        #endif
+    }
 
     #if os(iOS) || os(visionOS)
 	@MainActor

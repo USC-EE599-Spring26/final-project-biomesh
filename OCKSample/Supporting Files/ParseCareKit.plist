@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>ApplicationID</key>
-	<string>biomesh-app-id-2026</string>
+	<string>618ccfba2829d68e60fba09a76ad8090ddeabfebd1bf38b86a5b1e47fff59f9c</string>
 	<key>Server</key>
-	<string>https://biomesh-39c047338116.herokuapp.com/parse</string>
+	<string>https://justanapp-8b2be8405168.herokuapp.com/parse</string>
 	<key>LiveQueryServer</key>
 	<string></string>
 	<key>UseTransactions</key>
