@@ -254,14 +254,15 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
 
             guard let tasksWithPriority = tasks as? [CareTask] else {
                 Logger.feed.warning("Could not cast all tasks to \"CareTask\"")
-                return tasks
+                return tasks.filter { $0.id != Onboard.identifier() }
             }
+
             let orderedPriorityTasks = tasksWithPriority.sortedByPriority()
-            // TODO: Modify array to remove the Onboarding task
-            // so it doesn't show after onboarding.
+
             let orderedTasks = orderedPriorityTasks.compactMap { orderedPriorityTask in
                 tasks.first(where: { $0.id == orderedPriorityTask.id })
-            }
+            }.filter { $0.id != Onboard.identifier() }
+
             return orderedTasks
         } catch {
             Logger.feed.error("Could not fetch tasks: \(error, privacy: .public)")
