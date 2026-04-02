@@ -207,7 +207,7 @@ class Utility {
 		PCKUtility.removeCache()
 	}
 
-	#if !os(watchOS)
+	#if os(iOS)
 	@MainActor
 	class func checkIfOnboardingIsComplete() async -> Bool {
 		var query = OCKOutcomeQuery()

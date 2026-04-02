@@ -12,7 +12,7 @@ import CareKitStore
 extension OCKTask: CareTask {}
 
 extension OCKTask {
-    #if !os(watchOS)
+    #if os(iOS)
     var uiKitSurvey: Survey? {
         get {
             guard let surveyInfo = userInfo?[Constants.uiKitSurvey],

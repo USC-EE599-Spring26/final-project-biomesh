@@ -66,6 +66,12 @@
 		3F73F9662F7DB978007D4222 /* CarePlanID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F73F9642F7DB6BB007D4222 /* CarePlanID.swift */; };
 		3F73F9692F7E030A007D4222 /* CareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F73F9672F7E030A007D4222 /* CareViewController.swift */; };
 		3F73F96A2F7E030A007D4222 /* CareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F73F9672F7E030A007D4222 /* CareViewController.swift */; };
+		3F73F98C2F7E3E66007D4222 /* CarePlanID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F73F9642F7DB6BB007D4222 /* CarePlanID.swift */; };
+		3F73F9942F7E3E75007D4222 /* Consent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F73F9562F7CE1B1007D4222 /* Consent.swift */; };
+		3F73F9952F7E3E7B007D4222 /* Onboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F73F9572F7CE1B1007D4222 /* Onboard.swift */; };
+		3F73F9962F7E3E7F007D4222 /* RangeOfMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F73F9592F7CE1B1007D4222 /* RangeOfMotion.swift */; };
+		3F73F9972F7E3E84007D4222 /* Survey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F73F95A2F7CE1B1007D4222 /* Survey.swift */; };
+		3F73F9982F7E3E8A007D4222 /* Surveyable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F73F95B2F7CE1B1007D4222 /* Surveyable.swift */; };
 		5173CB8A23C3A846007655A0 /* OCKSampleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5173CB8923C3A846007655A0 /* OCKSampleUITests.swift */; };
 		70077597252228E900EC0EDA /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70077596252228E900EC0EDA /* User.swift */; };
 		7007759B252229C900EC0EDA /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70077596252228E900EC0EDA /* User.swift */; };
@@ -1219,6 +1225,7 @@
 				707D29492DCBE68500980253 /* MainView.swift in Sources */,
 				707D294A2DCBE68500980253 /* CustomStylerKey.swift in Sources */,
 				707D294B2DCBE68500980253 /* TipView.swift in Sources */,
+				3F73F9962F7E3E7F007D4222 /* RangeOfMotion.swift in Sources */,
 				707D29712DCBE6A000980253 /* OCKLocalization.swift in Sources */,
 				707D294C2DCBE68500980253 /* StoreCoordinatorKey.swift in Sources */,
 				707D294D2DCBE68500980253 /* InsightsView.swift in Sources */,
@@ -1233,6 +1240,7 @@
 				707D29532DCBE68500980253 /* Logger.swift in Sources */,
 				707D29542DCBE68500980253 /* TintColorFlipKey.swift in Sources */,
 				707D29552DCBE68500980253 /* Installation.swift in Sources */,
+				3F73F98C2F7E3E66007D4222 /* CarePlanID.swift in Sources */,
 				3F3C42052F7127B400A0FEAB /* CareTask.swift in Sources */,
 				707D29562DCBE68500980253 /* SplashScreenView.swift in Sources */,
 				707D29572DCBE68500980253 /* OCKStore.swift in Sources */,
@@ -1244,6 +1252,7 @@
 				707D295C2DCBE68500980253 /* AppDelegate.swift in Sources */,
 				3F3C43852F7251E000A0FEAB /* OCKAnyEvent+Answer.swift in Sources */,
 				3F3C42402F712AD400A0FEAB /* CareKitTaskViewModel.swift in Sources */,
+				3F73F9942F7E3E75007D4222 /* Consent.swift in Sources */,
 				707D295D2DCBE68500980253 /* LoginViewModel.swift in Sources */,
 				3F3C42362F7129A700A0FEAB /* OCKHealthKitTask+Card.swift in Sources */,
 				70B8E0A62F0EC1CA00440FCA /* Mutex.swift in Sources */,
@@ -1253,6 +1262,7 @@
 				707D29602DCBE68500980253 /* SessionDelegate.swift in Sources */,
 				707D29612DCBE68500980253 /* Styler.swift in Sources */,
 				707D29622DCBE68500980253 /* ProfileViewModel.swift in Sources */,
+				3F73F9952F7E3E7B007D4222 /* Onboard.swift in Sources */,
 				707D29632DCBE68500980253 /* AppDelegate+UIApplicationDelegate.swift in Sources */,
 				3F3C42452F712B9E00A0FEAB /* CareKitCard.swift in Sources */,
 				707D29652DCBE68500980253 /* PCKUtility.swift in Sources */,
@@ -1260,6 +1270,7 @@
 				3F3C42472F7225D400A0FEAB /* CardEnabledEnvironmentKey.swift in Sources */,
 				3F3C423A2F7129CF00A0FEAB /* OCKTask+CardTask.swift in Sources */,
 				707D29672DCBE68500980253 /* ContactView.swift in Sources */,
+				3F73F9972F7E3E84007D4222 /* Survey.swift in Sources */,
 				707D29682DCBE68500980253 /* NoHighlightStyle.swift in Sources */,
 				707D29692DCBE68500980253 /* LocalSyncSessionDelegate.swift in Sources */,
 				707D296A2DCBE68500980253 /* Constants.swift in Sources */,
@@ -1269,6 +1280,7 @@
 				FE38C33E2F560B34000864F1 /* ColorStyler.swift in Sources */,
 				707D296D2DCBE68500980253 /* OCKPatient+Parse.swift in Sources */,
 				3F73F96A2F7E030A007D4222 /* CareViewController.swift in Sources */,
+				3F73F9982F7E3E8A007D4222 /* Surveyable.swift in Sources */,
 				3F4A120C2F54F6EA00068C65 /* AddTaskView.swift in Sources */,
 				3F4A120D2F54F6EA00068C65 /* AddTaskViewModel.swift in Sources */,
 			);
