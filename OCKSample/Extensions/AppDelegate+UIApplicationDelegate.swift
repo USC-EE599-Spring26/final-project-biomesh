@@ -51,10 +51,6 @@ extension AppDelegate: UIApplicationDelegate {
                     try await setupRemotes()
                     try await store.populateDefaultCarePlansTasksContacts()
                     try await healthKitStore.populateDefaultHealthKitTasks()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        NotificationCenter.default.post(.init(name: Notification.Name(rawValue: Constants.requestSync)))
-                        Utility.requestHealthKitPermissions()
-                    }
                 } catch {
                     Logger.appDelegate.error("""
                         Could not populate
