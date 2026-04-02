@@ -22,71 +22,71 @@ struct Onboard: Surveyable {
 #if canImport(ResearchKit)
 extension Onboard {
     /*
-     TODO: Modify the onboarding so it properly represents the
-     usecase of your application. Changes should be made to
-     each of the steps in this type method. For example, you
-     should change: title, detailText, image, and imageContentMode,
-     and learnMoreItem.
+     Updated for the BioMesh onboarding experience.
+     The onboarding now explains the app's purpose:
+     tracking caffeine intake, sleep, movement, and anxiety.
      */
     func createSurvey() -> ORKTask {
-        // The Welcome Instruction step.
+        // Welcome step
         let welcomeInstructionStep = ORKInstructionStep(
             identifier: "\(identifier()).welcome"
         )
 
-        welcomeInstructionStep.title = "Welcome!"
-        welcomeInstructionStep.detailText = "Thank you for joining our study. Tap Next to learn more before signing up."
-        welcomeInstructionStep.image = UIImage(named: "welcome-image")
-        welcomeInstructionStep.imageContentMode = .scaleAspectFill
+        welcomeInstructionStep.title = "Welcome to BioMesh"
+        welcomeInstructionStep.detailText = """
+        BioMesh helps you understand how your daily habits—especially caffeine intake, sleep, activity, and anxiety—connect over time. Tap Next to learn more before getting started.
+        """
+        welcomeInstructionStep.image = UIImage(systemName: "waveform.path.ecg")
+        welcomeInstructionStep.imageContentMode = .scaleAspectFit
 
-        // The Informed Consent Instruction step.
+        // Study / app overview step
         let studyOverviewInstructionStep = ORKInstructionStep(
             identifier: "\(identifier()).overview"
         )
 
-        studyOverviewInstructionStep.title = "Before You Join"
-        studyOverviewInstructionStep.iconImage = UIImage(systemName: "checkmark.seal.fill")
+        studyOverviewInstructionStep.title = "How BioMesh Works"
+        studyOverviewInstructionStep.iconImage = UIImage(systemName: "bed.double.fill")
 
-        let heartBodyItem = ORKBodyItem(
-            text: "The study will ask you to share some of your health data.",
+        let caffeineBodyItem = ORKBodyItem(
+            text: "Log your caffeine intake so you can observe how it may affect your sleep and anxiety.",
             detailText: nil,
-            image: UIImage(systemName: "heart.fill"),
+            image: UIImage(systemName: "cup.and.saucer.fill"),
             learnMoreItem: nil,
             bodyItemStyle: .image
         )
 
-        let completeTasksBodyItem = ORKBodyItem(
-            text: "You will be asked to complete various tasks over the duration of the study.",
+        let sleepBodyItem = ORKBodyItem(
+            text: "BioMesh can read sleep-related data and daily activity data from HealthKit, such as sleep duration and steps.",
+            detailText: nil,
+            image: UIImage(systemName: "moon.zzz.fill"),
+            learnMoreItem: nil,
+            bodyItemStyle: .image
+        )
+
+        let checkInBodyItem = ORKBodyItem(
+            text: "Complete short check-ins about anxiety, hydration, and daily routines to build a clearer picture of your well-being.",
             detailText: nil,
             image: UIImage(systemName: "checkmark.circle.fill"),
             learnMoreItem: nil,
             bodyItemStyle: .image
         )
 
-        let signatureBodyItem = ORKBodyItem(
-            text: "Before joining, we will ask you to sign an informed consent document.",
+        let privacyBodyItem = ORKBodyItem(
+            text: "Your information is stored securely and used only to support your care experience and app-based tracking.",
             detailText: nil,
-            image: UIImage(systemName: "signature"),
-            learnMoreItem: nil,
-            bodyItemStyle: .image
-        )
-
-        let secureDataBodyItem = ORKBodyItem(
-            text: "Your data is kept private and secure.",
-            detailText: nil,
-            image: UIImage(systemName: "lock.fill"),
+            image: UIImage(systemName: "lock.shield.fill"),
             learnMoreItem: nil,
             bodyItemStyle: .image
         )
 
         studyOverviewInstructionStep.bodyItems = [
-            heartBodyItem,
-            completeTasksBodyItem,
-            signatureBodyItem,
-            secureDataBodyItem
+            caffeineBodyItem,
+            sleepBodyItem,
+            checkInBodyItem,
+            privacyBodyItem
         ]
 
-        // The Signature step (using WebView).
+        // Consent / signature step
         let webViewStep = ORKWebViewStep(
             identifier: "\(identifier()).signatureCapture",
             html: informedConsentHTML
@@ -94,20 +94,15 @@ extension Onboard {
 
         webViewStep.showSignatureAfterContent = true
 
-        // The Request Permissions step.
-        // TODO: Set these to HealthKit info you want to display
-        // by default.
+        // HealthKit permissions step
         let healthKitTypesToWrite: Set<HKSampleType> = [
-            .quantityType(forIdentifier: .bodyMassIndex)!,
-            .quantityType(forIdentifier: .activeEnergyBurned)!,
             .workoutType()
         ]
 
         let healthKitTypesToRead: Set<HKObjectType> = [
-            .characteristicType(forIdentifier: .dateOfBirth)!,
-            .workoutType(),
-            .quantityType(forIdentifier: .appleStandTime)!,
-            .quantityType(forIdentifier: .appleExerciseTime)!
+            .quantityType(forIdentifier: .stepCount)!,
+            .categoryType(forIdentifier: .sleepAnalysis)!,
+            .workoutType()
         ]
 
         let healthKitPermissionType = ORKHealthKitPermissionType(
@@ -130,18 +125,20 @@ extension Onboard {
             ]
         )
 
-        requestPermissionsStep.title = "Health Data Request"
-        // swiftlint:disable:next line_length
-        requestPermissionsStep.text = "Please review the health data types below and enable sharing to contribute to the study."
+        requestPermissionsStep.title = "Allow BioMesh Permissions"
+        requestPermissionsStep.text = """
+        BioMesh requests access to selected HealthKit, motion, and notification data so it can track sleep, activity, and reminders more accurately.
+        """
 
-        // Completion Step
+        // Completion step
         let completionStep = ORKCompletionStep(
             identifier: "\(identifier()).completionStep"
         )
 
-        completionStep.title = "Enrollment Complete"
-        // swiftlint:disable:next line_length
-        completionStep.text = "Thank you for enrolling in this study. Your participation will contribute to meaningful research!"
+        completionStep.title = "You're All Set"
+        completionStep.text = """
+        Welcome to BioMesh. Your onboarding is complete, and you can now begin tracking caffeine, sleep, activity, and anxiety patterns.
+        """
 
         let surveyTask = ORKOrderedTask(
             identifier: identifier(),
