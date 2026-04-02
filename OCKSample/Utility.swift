@@ -207,6 +207,26 @@ class Utility {
 		PCKUtility.removeCache()
 	}
 
+	#if !os(watchOS)
+	@MainActor
+	class func checkIfOnboardingIsComplete() async -> Bool {
+		var query = OCKOutcomeQuery()
+		query.taskIDs = [Onboard.identifier()]
+
+		guard let store = AppDelegateKey.defaultValue?.store else {
+			Logger.feed.error("CareKit store could not be unwrapped")
+			return false
+		}
+
+		do {
+			let outcomes = try await store.fetchAnyOutcomes(query: query)
+			return !outcomes.isEmpty
+		} catch {
+			return false
+		}
+	}
+	#endif
+
     #if os(iOS) || os(visionOS)
 	@MainActor
 	static func requestHealthKitPermissions() {

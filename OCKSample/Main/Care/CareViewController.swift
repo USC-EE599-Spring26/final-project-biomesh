@@ -34,7 +34,7 @@ import CareKitEssentials
 import CareKitStore
 import CareKitUI
 import os.log
-#if os(iOS)
+#if canImport(ResearchKit) && canImport(ResearchKitUI)
 import ResearchKit
 import ResearchKitUI
 #endif
@@ -154,25 +154,54 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
         for date: Date
     ) {
         self.isLoading = true
-        let date = modifyDateIfNeeded(date)
-        let isCurrentDay = isSameDay(as: date)
 
-        #if os(iOS)
-        if isCurrentDay {
-            if Calendar.current.isDate(date, inSameDayAs: Date()) {
-                // Add a non-CareKit view into the list
-                let tipTitle = "Caffeine & Your Health"
-                let tipText = "High caffeine intake (>400 mg/day) is linked to increased anxiety"
-                let tipView = TipView()
-                tipView.headerView.titleLabel.text = tipTitle
-                tipView.headerView.detailLabel.text = tipText
-                tipView.imageView.image = UIImage(named: "exercise.jpg")
-                tipView.customStyle = CustomStylerKey.defaultValue
-                listViewController.appendView(tipView, animated: false)
+        Task {
+            guard await Utility.checkIfOnboardingIsComplete() else {
+                let onboardSurvey = Onboard()
+                var query = OCKEventQuery(for: Date())
+                query.taskIDs = [Onboard.identifier()]
+
+                #if canImport(ResearchKit) && canImport(ResearchKitUI)
+                let onboardCard = OCKSurveyTaskViewController(
+                    eventQuery: query,
+                    store: self.store,
+                    survey: onboardSurvey.createSurvey(),
+                    extractOutcome: { _ in
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                            self.reload()
+                        }
+                        return [OCKOutcomeValue(Date())]
+                    }
+                )
+                onboardCard.surveyDelegate = self
+                listViewController.clear()
+                listViewController.appendViewController(onboardCard, animated: false)
+                #endif
+
+                self.isLoading = false
+                return
             }
+
+            let date = modifyDateIfNeeded(date)
+
+            #if os(iOS)
+            let isCurrentDay = isSameDay(as: date)
+            if isCurrentDay {
+                if Calendar.current.isDate(date, inSameDayAs: Date()) {
+                    let tipTitle = "Caffeine & Your Health"
+                    let tipText = "High caffeine intake (>400 mg/day) is linked to increased anxiety"
+                    let tipView = TipView()
+                    tipView.headerView.titleLabel.text = tipTitle
+                    tipView.headerView.detailLabel.text = tipText
+                    tipView.imageView.image = UIImage(named: "exercise.jpg")
+                    tipView.customStyle = CustomStylerKey.defaultValue
+                    listViewController.appendView(tipView, animated: false)
+                }
+            }
+            #endif
+
+            await fetchAndDisplayTasks(on: listViewController, for: date)
         }
-        #endif
-        fetchAndDisplayTasks(on: listViewController, for: date)
     }
     private func isSameDay(as date: Date) -> Bool {
         Calendar.current.isDate(
@@ -192,37 +221,11 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
     private func fetchAndDisplayTasks(
         on listViewController: OCKListViewController,
         for date: Date
-    ) {
-        Task {
-            let tasks = await self.fetchTasks(on: date)
-
-            let isOnboarded = await checkIfOnboardingIsComplete()
-            if isOnboarded {
-                // Show all tasks except onboarding
-                let filtered = tasks.filter { $0.id != TaskID.onboarding }
-                appendTasks(filtered, to: listViewController, date: date)
-            } else {
-                // Only show the onboarding card
-                let onboardingOnly = tasks.filter { $0.id == TaskID.onboarding }
-                appendTasks(onboardingOnly, to: listViewController, date: date)
-            }
-        }
+    ) async {
+        let tasks = await self.fetchTasks(on: date)
+        appendTasks(tasks, to: listViewController, date: date)
     }
 
-    private func checkIfOnboardingIsComplete() async -> Bool {
-        var query = OCKEventQuery(for: Date())
-        query.taskIDs = [TaskID.onboarding]
-        do {
-            let events = try await store.fetchAnyEvents(query: query)
-            // If no onboarding events exist (task not seeded yet), not onboarded
-            guard let event = events.first else { return false }
-            // Onboarded if the event has an outcome
-            return event.outcome != nil
-        } catch {
-            Logger.feed.error("Failed to check onboarding status: \(error, privacy: .public)")
-            return false
-        }
-    }
     private func fetchTasks(on date: Date) async -> [any OCKAnyTask] {
         var query = OCKTaskQuery(for: date)
         query.excludesTasksWithNoEvents = true
@@ -234,9 +237,10 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
                 return tasks
             }
             let orderedPriorityTasks = tasksWithPriority.sortedByPriority()
+            // Remove the onboarding task so it doesn't show after onboarding
             let orderedTasks = orderedPriorityTasks.compactMap { orderedPriorityTask in
                 tasks.first(where: { $0.id == orderedPriorityTask.id })
-            }
+            }.filter { $0.id != Onboard.identifier() }
             return orderedTasks
         } catch {
             Logger.feed.error("Could not fetch tasks: \(error, privacy: .public)")
@@ -254,33 +258,28 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
 
         if let standardTask = task as? OCKTask {
 
-            #if os(iOS)
-            // Classic ResearchKit (ORK) tasks — instruction cards that launch ORK surveys
-            switch standardTask.id {
-            case TaskID.onboarding:
-                let card = SurveyCardViewController(
-                    query: query,
-                    store: self.store,
-                    survey: Surveys.onboardingSurvey(),
-                    presenter: self
-                )
-                return [card]
-            case TaskID.rangeOfMotion:
-                let card = SurveyCardViewController(
-                    query: query,
-                    store: self.store,
-                    survey: Surveys.rangeOfMotionCheck(),
-                    presenter: self
-                )
-                return [card]
-            default:
-                break
-            }
-            #endif
-
             switch standardTask.card {
 
             #if os(iOS)
+            case .uiKitSurvey:
+                guard let surveyType = standardTask.uiKitSurvey else {
+                    return nil
+                }
+                let survey = surveyType.type()
+                #if canImport(ResearchKit) && canImport(ResearchKitUI)
+                let card = OCKSurveyTaskViewController(
+                    eventQuery: query,
+                    store: self.store,
+                    survey: survey.createSurvey(),
+                    viewSynchronizer: SurveyViewSynchronizer(),
+                    extractOutcome: survey.extractAnswers
+                )
+                card.surveyDelegate = self
+                return [card]
+                #else
+                return nil
+                #endif
+
             case .button:
                 let card = OCKButtonLogTaskViewController(
                     query: query,
@@ -430,90 +429,10 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
 		self.isLoading = false
     }
 }
-#if os(iOS)
-// MARK: - ORKTaskViewControllerDelegate
+#if canImport(ResearchKit) && canImport(ResearchKitUI)
+// MARK: - OCKSurveyTaskViewControllerDelegate
 
-extension CareViewController: ORKTaskViewControllerDelegate {
-
-    nonisolated func taskViewController(
-        _ taskViewController: ORKTaskViewController,
-        didFinishWith reason: ORKTaskFinishReason,
-        error: Error?
-    ) {
-        Task { @MainActor in
-            taskViewController.dismiss(animated: true)
-
-            guard reason == .completed else { return }
-
-            let taskID = taskViewController.task?.identifier ?? ""
-            let result = taskViewController.result
-
-            let values: [OCKOutcomeValue]
-            switch taskID {
-            case Surveys.rangeOfMotionIdentifier:
-                values = Surveys.extractRangeOfMotionOutcome(result)
-            default:
-                values = [OCKOutcomeValue(Date())]
-            }
-
-            var eventQuery = OCKEventQuery(for: Date())
-            eventQuery.taskIDs = [taskID]
-            guard let event = try? await self.store.fetchAnyEvents(
-                query: eventQuery
-            ).first else { return }
-
-            let outcome = OCKOutcome(
-                taskUUID: event.task.uuid,
-                taskOccurrenceIndex: event.scheduleEvent.occurrence,
-                values: values
-            )
-            try? await self.store.addAnyOutcome(outcome)
-            self.reload()
-        }
-    }
-
-    func presentSurvey(_ survey: ORKTask) {
-        let surveyVC = ORKTaskViewController(task: survey, taskRun: nil)
-        let directory = FileManager.default.urls(
-            for: .documentDirectory,
-            in: .userDomainMask
-        ).last!.appendingPathComponent("ResearchKit", isDirectory: true)
-        surveyVC.outputDirectory = directory
-        surveyVC.delegate = self
-        present(surveyVC, animated: true)
-    }
-}
-
-// MARK: - SurveyCardViewController
-
-final class SurveyCardViewController: OCKInstructionsTaskViewController {
-
-    private let survey: ORKTask
-    private weak var presenter: CareViewController?
-
-    init(
-        query: OCKEventQuery,
-        store: OCKAnyStoreProtocol,
-        survey: ORKTask,
-        presenter: CareViewController
-    ) {
-        self.survey = survey
-        self.presenter = presenter
-        super.init(query: query, store: store)
-    }
-
-    override func taskView(
-        _ taskView: UIView & OCKTaskDisplayable,
-        didCompleteEvent isComplete: Bool,
-        at indexPath: IndexPath,
-        sender: Any?
-    ) {
-        guard isComplete else {
-            super.taskView(taskView, didCompleteEvent: isComplete, at: indexPath, sender: sender)
-            return
-        }
-        presenter?.presentSurvey(survey)
-    }
+extension CareViewController: OCKSurveyTaskViewControllerDelegate {
 }
 #endif
 
