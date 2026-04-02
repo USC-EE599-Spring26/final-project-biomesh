@@ -23,34 +23,59 @@ let informedConsentHTML = """
         <meta name="viewport" content="width=400, user-scalable=no">
         <meta charset="utf-8" />
         <style type="text/css">
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+                padding: 8px;
+            }
             ul, p, h1, h3 {
                 text-align: left;
             }
         </style>
     </head>
     <body>
-        <h1>Informed Consent</h1>
-        <h3>Study Expectations</h3>
+        <h1>BioMesh Informed Consent</h1>
+
+        <h3>Purpose of BioMesh</h3>
+        <p>
+            BioMesh is designed to help users better understand how daily habits and health patterns
+            are connected. In this app, you may track caffeine intake, hydration, anxiety check-ins,
+            sleep-related habits, and activity data such as steps and sleep duration.
+        </p>
+
+        <h3>What You Will Be Asked to Do</h3>
         <ul>
-            <li>You will be asked to complete various study tasks such as surveys.</li>
-            <li>The study will send you notifications to remind you to complete these study tasks.</li>
-            <li>You will be asked to share various health data types to support the study goals.</li>
-            <li>The study is expected to last 4 years.</li>
-            <li>The study may reach out to you for future research opportunities.</li>
-            <li>Your information will be kept private and secure.</li>
-            <li>You can withdraw from the study at any time.</li>
+            <li>You will be asked to complete short surveys and daily check-ins in the app.</li>
+            <li>You may log information such as caffeine intake, water intake, and anxiety level.</li>
+            <li>You may allow the app to read selected HealthKit data, such as steps and sleep data.</li>
+            <li>You may receive notifications reminding you to complete tasks and maintain your routine.</li>
+            <li>Your participation is voluntary, and you may stop using the app at any time.</li>
         </ul>
+
+        <h3>Privacy and Data Use</h3>
+        <ul>
+            <li>Your information will be stored securely within the app system.</li>
+            <li>Your data will only be used to support your care experience, self-tracking, and app-related research or evaluation purposes.</li>
+            <li>Only the minimum necessary information should be collected to support the goals of BioMesh.</li>
+            <li>You can withdraw your participation at any time.</li>
+        </ul>
+
         <h3>Eligibility Requirements</h3>
         <ul>
             <li>Must be 18 years or older.</li>
             <li>Must be able to read and understand English.</li>
-            <li>Must be the only user of the device on which you are participating in the study.</li>
-            <li>Must be able to sign your own consent form.</li>
+            <li>Must be the primary user of the device used for BioMesh.</li>
+            <li>Must be able to provide consent independently.</li>
         </ul>
-        <p>By signing below, I acknowledge that I have read this consent carefully, that I understand all of its terms, and that I enter into this study voluntarily. I understand that my information will only be used and disclosed for the purposes described in the consent and I can withdraw from the study at any time.</p>
-        <p>Please sign using your finger below.</p>
+
+        <p>
+            By signing below, I confirm that I have read and understood this consent form.
+            I understand that BioMesh may collect the information described above to support
+            tracking, care, and evaluation purposes. I understand that my participation is voluntary
+            and that I may withdraw at any time.
+        </p>
+
+        <p>Please sign below using your finger.</p>
         <br>
     </body>
     </html>
     """
-
