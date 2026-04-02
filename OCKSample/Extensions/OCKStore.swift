@@ -243,6 +243,19 @@ extension OCKStore {
         onboarding.impactsAdherence = false
         onboarding.priority = -1
         onboarding.card = .instruction
+        
+        // Check in survey
+        var checkInSurvey = OCKTask(
+            id: CheckIn.identifier(),
+            title: "Daily Check-in",
+            carePlanUUID: carePlanUUIDs[.anxiety],
+            schedule: allDay
+        )
+        checkInSurvey.instructions = "Complete a short daily check-in about stress and sleep."
+        checkInSurvey.card = .uiKitSurvey
+        checkInSurvey.uiKitSurvey = .checkIn
+        checkInSurvey.priority = 2
+        checkInSurvey.impactsAdherence = true
 
         // Range of Motion — weekly
         var romTask = OCKTask(
@@ -267,7 +280,7 @@ extension OCKStore {
 
         _ = try await addTasksIfNotPresent([
             onboarding, romTask,
-            caffeine, water, anxiety, windDown, qualityOfLife
+            caffeine, water, anxiety, windDown, qualityOfLife,checkInSurvey
         ])
 
         // Contacts

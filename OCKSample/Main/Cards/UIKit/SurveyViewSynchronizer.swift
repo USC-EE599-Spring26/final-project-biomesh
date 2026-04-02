@@ -42,6 +42,11 @@ final class SurveyViewSynchronizer: OCKSurveyTaskViewSynchronizer {
             case Onboard.identifier():
                 labelText = "Enrollment completed."
 
+            case CheckIn.identifier():
+                let stress = event.answer(kind: CheckIn.stressItemIdentifier)
+                let sleep = event.answer(kind: CheckIn.sleepItemIdentifier)
+                labelText = "Stress: \(Int(stress))/10, Sleep: \(Int(sleep)) hrs"
+
             default:
                 labelText = "Survey completed."
             }

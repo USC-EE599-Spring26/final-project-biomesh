@@ -222,6 +222,8 @@
 		FEBDEBA72F7D9664001ADB01 /* Survey.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBDEBA02F7D9592001ADB01 /* Survey.swift */; };
 		FEBDEBA82F7D9664001ADB01 /* RangeOfMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBDEB9E2F7D9528001ADB01 /* RangeOfMotion.swift */; };
 		FEBDEBA92F7D9664001ADB01 /* Surveyable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBDEBA22F7D95AD001ADB01 /* Surveyable.swift */; };
+		FEC7A1692F7EA26200689E63 /* CheckIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEC7A1612F7EA25D00689E63 /* CheckIn.swift */; };
+		FEC7A16A2F7EA26200689E63 /* CheckIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEC7A1612F7EA25D00689E63 /* CheckIn.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -453,6 +455,7 @@
 		FEBDEB9E2F7D9528001ADB01 /* RangeOfMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RangeOfMotion.swift; sourceTree = "<group>"; };
 		FEBDEBA02F7D9592001ADB01 /* Survey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Survey.swift; sourceTree = "<group>"; };
 		FEBDEBA22F7D95AD001ADB01 /* Surveyable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Surveyable.swift; sourceTree = "<group>"; };
+		FEC7A1612F7EA25D00689E63 /* CheckIn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckIn.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -561,6 +564,7 @@
 		3F3C43872F72522100A0FEAB /* Surveys */ = {
 			isa = PBXGroup;
 			children = (
+				FEC7A1612F7EA25D00689E63 /* CheckIn.swift */,
 				FEBDEBA22F7D95AD001ADB01 /* Surveyable.swift */,
 				FEBDEBA02F7D9592001ADB01 /* Survey.swift */,
 				FEBDEB9E2F7D9528001ADB01 /* RangeOfMotion.swift */,
@@ -1242,6 +1246,7 @@
 				707D294A2DCBE68500980253 /* CustomStylerKey.swift in Sources */,
 				707D294B2DCBE68500980253 /* TipView.swift in Sources */,
 				707D29712DCBE6A000980253 /* OCKLocalization.swift in Sources */,
+				FEC7A16A2F7EA26200689E63 /* CheckIn.swift in Sources */,
 				707D294C2DCBE68500980253 /* StoreCoordinatorKey.swift in Sources */,
 				707D294D2DCBE68500980253 /* InsightsView.swift in Sources */,
 				707D294E2DCBE68500980253 /* OCKHealthKitPassthroughStore.swift in Sources */,
@@ -1406,6 +1411,7 @@
 				918FDEB7271B41FF0045A0EF /* Logger.swift in Sources */,
 				3F4A120E2F54F6EA00068C65 /* AddTaskView.swift in Sources */,
 				3F4A120F2F54F6EA00068C65 /* AddTaskViewModel.swift in Sources */,
+				FEC7A1692F7EA26200689E63 /* CheckIn.swift in Sources */,
 				70221F2A28D7BE0600971195 /* AppDelegate+ParseRemoteDelegate.swift in Sources */,
 				3F3C42352F7129A700A0FEAB /* OCKHealthKitTask+Card.swift in Sources */,
 				7036E4D3256EBE35006E9A3C /* MainView.swift in Sources */,
