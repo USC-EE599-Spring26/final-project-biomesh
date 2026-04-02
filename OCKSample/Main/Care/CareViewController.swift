@@ -156,6 +156,7 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
         self.isLoading = true
 
         Task {
+            #if os(iOS)
             guard await Utility.checkIfOnboardingIsComplete() else {
                 let onboardSurvey = Onboard()
                 var query = OCKEventQuery(for: Date())
@@ -181,6 +182,7 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
                 self.isLoading = false
                 return
             }
+            #endif
 
             let date = modifyDateIfNeeded(date)
 
@@ -238,9 +240,13 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
             }
             let orderedPriorityTasks = tasksWithPriority.sortedByPriority()
             // Remove the onboarding task so it doesn't show after onboarding
-            let orderedTasks = orderedPriorityTasks.compactMap { orderedPriorityTask in
+            var filteredTasks = orderedPriorityTasks.compactMap { orderedPriorityTask in
                 tasks.first(where: { $0.id == orderedPriorityTask.id })
-            }.filter { $0.id != Onboard.identifier() }
+            }
+            #if os(iOS)
+            filteredTasks = filteredTasks.filter { $0.id != Onboard.identifier() }
+            #endif
+            let orderedTasks = filteredTasks
             return orderedTasks
         } catch {
             Logger.feed.error("Could not fetch tasks: \(error, privacy: .public)")
