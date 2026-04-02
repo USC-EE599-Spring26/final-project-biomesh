@@ -16,24 +16,23 @@ import ResearchKitSwiftUI
 extension OCKStore {
     @MainActor
     class func getCarePlanUUIDs() async throws -> [CarePlanID: UUID] {
-        var results = [CarePlanID: UUID]()
-
         guard let store = AppDelegateKey.defaultValue?.store else {
-            return results
+            return [:]
         }
 
         var query = OCKCarePlanQuery(for: Date())
-        query.ids = [
-            CarePlanID.habits.rawValue
-        ]
+        query.ids = CarePlanID.allCases.map(\.rawValue)
 
         let foundCarePlans = try await store.fetchCarePlans(query: query)
-        // Populate the dictionary for all CarePlan's
-        CarePlanID.allCases.forEach { carePlanID in
-            results[carePlanID] = foundCarePlans
-                .first(where: { $0.id == carePlanID.rawValue })?.uuid
-        }
-        return results
+
+        return Dictionary(
+            uniqueKeysWithValues: CarePlanID.allCases.compactMap { carePlanID in
+                guard let uuid = foundCarePlans.first(where: { $0.id == carePlanID.rawValue })?.uuid else {
+                    return nil
+                }
+                return (carePlanID, uuid)
+            }
+        )
     }
     // TODO: Rewrite this method in a functional programming way.
         /**
@@ -48,34 +47,32 @@ extension OCKStore {
         _ carePlans: [OCKAnyCarePlan],
         patientUUID: UUID? = nil
     ) async throws {
-        let carePlanIdsToAdd = carePlans.compactMap { $0.id }
+        let idsToAdd = carePlans.map(\.id)
 
-        // Prepare query to see if Care Plan are already added
         var query = OCKCarePlanQuery(for: Date())
-        query.ids = carePlanIdsToAdd
-        let foundCarePlans = try await self.fetchAnyCarePlans(query: query)
-        var carePlanNotInStore = [OCKAnyCarePlan]()
-        // Check results to see if there's a missing Care Plan
-        carePlans.forEach { potentialCarePlan in
-            if foundCarePlans.first(where: { $0.id == potentialCarePlan.id }) == nil {
-                // Check if can be casted to OCKCarePlan to add patientUUID
-                guard var mutableCarePlan = potentialCarePlan as? OCKCarePlan else {
-                    carePlanNotInStore.append(potentialCarePlan)
-                    return
-                }
+        query.ids = idsToAdd
+
+        let existingCarePlans = try await fetchAnyCarePlans(query: query)
+        let existingIDs = Set(existingCarePlans.map(\.id))
+
+        let missingCarePlans: [OCKAnyCarePlan] = carePlans.compactMap { carePlan in
+            guard !existingIDs.contains(carePlan.id) else { return nil }
+
+            if var mutableCarePlan = carePlan as? OCKCarePlan {
                 mutableCarePlan.patientUUID = patientUUID
-                carePlanNotInStore.append(mutableCarePlan)
+                return mutableCarePlan
+            } else {
+                return carePlan
             }
         }
 
-        // Only add if there's a new Care Plan
-        if carePlanNotInStore.count > 0 {
-            do {
-                _ = try await self.addAnyCarePlans(carePlanNotInStore)
-                Logger.ockStore.info("Added Care Plans into OCKStore!")
-            } catch {
-                Logger.ockStore.error("Error adding Care Plans: \(error.localizedDescription)")
-            }
+        guard !missingCarePlans.isEmpty else { return }
+
+        do {
+            _ = try await addAnyCarePlans(missingCarePlans)
+            Logger.ockStore.info("Added Care Plans into OCKStore!")
+        } catch {
+            Logger.ockStore.error("Error adding Care Plans: \(error.localizedDescription)")
         }
     }
 
@@ -103,17 +100,29 @@ extension OCKStore {
     }
     
     func populateCarePlans(patientUUID: UUID? = nil) async throws {
-            // TODO: Add at least 2 more CarePlans.
-            let healthCarePlan = OCKCarePlan(
-                id: CarePlanID.habits.rawValue,
-                title: "Daily Habits",
-                patientUUID: patientUUID
-            )
-            try await addCarePlansIfNotPresent(
-                [healthCarePlan],
-                patientUUID: patientUUID
-            )
-        }
+        let habitsCarePlan = OCKCarePlan(
+            id: CarePlanID.habits.rawValue,
+            title: "Daily Habits",
+            patientUUID: patientUUID
+        )
+
+        let sleepCarePlan = OCKCarePlan(
+            id: CarePlanID.sleep.rawValue,
+            title: "Sleep",
+            patientUUID: patientUUID
+        )
+
+        let anxietyCarePlan = OCKCarePlan(
+            id: CarePlanID.anxiety.rawValue,
+            title: "Anxiety & Wellness",
+            patientUUID: patientUUID
+        )
+
+        try await addCarePlansIfNotPresent(
+            [habitsCarePlan, sleepCarePlan, anxietyCarePlan],
+            patientUUID: patientUUID
+        )
+    }
     
     /// Seeds the store with BioMesh default tasks and contacts on first sign-up.
     func populateDefaultCarePlansTasksContacts(_ patientUUID: UUID? = nil, startDate: Date = Date()) async throws {
@@ -152,7 +161,7 @@ extension OCKStore {
         var caffeine = OCKTask(
             id: TaskID.caffeineIntake,
             title: "Caffeine Intake",
-            carePlanUUID: nil,
+            carePlanUUID: carePlanUUIDs[.habits],
             schedule: allDay
         )
         caffeine.instructions = "Tap Log each time you have a caffeinated drink " +
@@ -169,7 +178,7 @@ extension OCKStore {
         var water = OCKTask(
             id: TaskID.waterIntake,
             title: "Water Intake",
-            carePlanUUID: nil,
+            carePlanUUID: carePlanUUIDs[.habits],
             schedule: allDay
         )
         water.instructions = "Tap Log each time you drink a glass of water. " +
@@ -184,7 +193,7 @@ extension OCKStore {
         var anxiety = OCKTask(
             id: TaskID.anxietyCheck,
             title: "Anxiety Check-in",
-            carePlanUUID: nil,
+            carePlanUUID: carePlanUUIDs[.anxiety],
             schedule: allDay
         )
         anxiety.instructions = "Tap Log whenever you notice an anxiety episode. " +
@@ -200,7 +209,7 @@ extension OCKStore {
         var windDown = OCKTask(
             id: TaskID.sleepHygiene,
             title: "Evening Wind-Down",
-            carePlanUUID: nil,
+            carePlanUUID: carePlanUUIDs[.sleep],
             schedule: eveningSchedule
         )
         windDown.instructions = "Complete your wind-down routine before bed:\n" +
@@ -213,13 +222,15 @@ extension OCKStore {
         windDown.priority = 3
         windDown.impactsAdherence = true
 
-        let qualityOfLife = createQualityOfLifeSurveyTask(carePlanUUID: nil)
+        let qualityOfLife = createQualityOfLifeSurveyTask(
+            carePlanUUID: carePlanUUIDs[.anxiety]
+        )
 
         // Onboarding — one-time, all-day
         var onboarding = OCKTask(
             id: TaskID.onboarding,
             title: "Onboarding",
-            carePlanUUID: nil,
+            carePlanUUID: carePlanUUIDs[.habits],
             schedule: OCKSchedule.dailyAtTime(
                 hour: 0, minutes: 0,
                 start: morning, end: nil,
@@ -237,7 +248,7 @@ extension OCKStore {
         var romTask = OCKTask(
             id: TaskID.rangeOfMotion,
             title: "Range of Motion",
-            carePlanUUID: nil,
+            carePlanUUID: carePlanUUIDs[.sleep],
             schedule: OCKSchedule(composing: [
                 OCKScheduleElement(
                     start: morning,
