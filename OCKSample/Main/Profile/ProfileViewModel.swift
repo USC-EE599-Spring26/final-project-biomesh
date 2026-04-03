@@ -67,11 +67,11 @@ final class ProfileViewModel: ObservableObject {
         self.contact = contact
 
         if let address = contact.address {
-            street = address.street ?? ""
-            city = address.city ?? ""
-            state = address.state ?? ""
-            zipcode = address.postalCode ?? ""
-            country = address.country ?? ""
+            street = address.street
+            city = address.city
+            state = address.state
+            zipcode = address.postalCode
+            country = address.country
         } else {
             street = ""
             city = ""

@@ -6,6 +6,7 @@
 //  Copyright © 2026 Network Reconnaissance Lab. All rights reserved.
 //
 
+#if os(iOS) && !os(visionOS)
 
 import UIKit
 import CareKit
@@ -18,9 +19,7 @@ final class MyContactViewController: OCKListViewController {
 
     private var contacts = [OCKAnyContact]()
     private let store: OCKAnyStoreProtocol
-    #if os(iOS) && !os(visionOS)
     private let viewSynchronizer = OCKDetailedContactViewSynchronizer()
-    #endif
 
     init(store: OCKAnyStoreProtocol) {
         self.store = store
@@ -43,23 +42,31 @@ final class MyContactViewController: OCKListViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+
         Task {
             try? await fetchMyContact()
         }
     }
 
-    override func appendViewController(_ viewController: UIViewController, animated: Bool) {
+    override func appendViewController(
+        _ viewController: UIViewController,
+        animated: Bool
+    ) {
         super.appendViewController(viewController, animated: animated)
+
         if let careKitView = viewController.view as? OCKView {
             careKitView.customStyle = CustomStylerKey.defaultValue
         }
     }
 
     func fetchMyContact() async throws {
-        guard (try? await User.current()) != nil,
-              let personUUIDString = try? await Utility.getRemoteClockUUID().uuidString else {
+        guard
+            (try? await User.current()) != nil,
+            let personUUIDString = try? await Utility.getRemoteClockUUID().uuidString
+        else {
             Logger.myContact.error("User not logged in")
             contacts.removeAll()
+            clear()
             return
         }
 
@@ -88,3 +95,5 @@ final class MyContactViewController: OCKListViewController {
         }
     }
 }
+
+#endif
