@@ -19,16 +19,21 @@ struct CareView: UIViewControllerRepresentable {
     @Environment(\.appDelegate) private var appDelegate
     @Environment(\.careStore) private var careStore
 
-    func makeUIViewController(
-        context: Context
-    ) -> some UIViewController {
+    func makeUIViewController(context: Context) -> some UIViewController {
         let viewController = createViewController()
-        let navigationController = UINavigationController(
-            rootViewController: viewController
-        )
-        navigationController.navigationBar.backgroundColor = UIColor {
-            $0.userInterfaceStyle == .light ? #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1): #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
+        let navigationController = UINavigationController(rootViewController: viewController)
+
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor {
+            $0.userInterfaceStyle == .light ? .white : .black
         }
+
+        navigationController.navigationBar.standardAppearance = appearance
+        navigationController.navigationBar.scrollEdgeAppearance = appearance
+        navigationController.navigationBar.compactAppearance = appearance
+        navigationController.navigationBar.isTranslucent = false
+
         return navigationController
     }
 
@@ -40,21 +45,22 @@ struct CareView: UIViewControllerRepresentable {
               let careViewController = navigationController.viewControllers.first as? CareViewController else {
             fatalError("CareView should have been a UINavigationController")
         }
+
         guard careViewController.store !== careStore ||
                 appDelegate?.isFirstTimeLogin == true else {
             return
         }
+
         let newCareViewController = createViewController()
-        navigationController.setViewControllers(
-            [newCareViewController],
-            animated: false
-        )
+        navigationController.setViewControllers([newCareViewController], animated: false)
     }
 
     func createViewController() -> UIViewController {
-        CareViewController(
-            store: careStore
-        )
+        let controller = CareViewController(store: careStore)
+        controller.edgesForExtendedLayout = []
+        controller.extendedLayoutIncludesOpaqueBars = false
+        controller.additionalSafeAreaInsets.top = 0
+        return controller
     }
 }
 
@@ -63,6 +69,6 @@ struct CareView_Previews: PreviewProvider {
         CareView()
             .environment(\.appDelegate, AppDelegate())
             .environment(\.careStore, Utility.createPreviewStore())
-			.careKitStyle(Styler())
+            .careKitStyle(Styler())
     }
 }
