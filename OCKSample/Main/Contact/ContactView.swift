@@ -7,45 +7,68 @@
 //
 
 import CareKit
+import CareKitEssentials
 import CareKitStore
 import os.log
 import SwiftUI
 import UIKit
 
+#if os(iOS) && !os(visionOS)
 struct ContactView: UIViewControllerRepresentable {
-    @Environment(\.careStore) var careStore
+    @Environment(\.careStore) private var careStore
+    @CareStoreFetchRequest(query: Self.query()) private var contacts
 
-    func makeUIViewController(context: Context) -> some UIViewController {
-        let viewController = createViewController()
-        return UINavigationController(rootViewController: viewController)
+    func makeUIViewController(context: Context) -> UINavigationController {
+        UINavigationController(rootViewController: createViewController())
     }
 
-    func updateUIViewController(_ uiViewController: UIViewControllerType,
-                                context: Context) {
-        guard let navigationController = uiViewController as? UINavigationController else {
-            Logger.feed.error("ContactView should have been a UINavigationController")
-            return
-        }
-        navigationController.setViewControllers([createViewController()], animated: false)
+    func updateUIViewController(
+        _ uiViewController: UINavigationController,
+        context: Context
+    ) {
+        uiViewController.setViewControllers([createViewController()], animated: false)
     }
 
-    func createViewController() -> UIViewController {
-        #if os(iOS)
-        return OCKContactsListViewController(
+    private func createViewController() -> UIViewController {
+        let currentContacts = contacts.latest
+
+        return CustomContactViewController(
             store: careStore,
-            contactViewSynchronizer: OCKDetailedContactViewSynchronizer()
+            contacts: currentContacts,
+            viewSynchronizer: OCKSimpleContactViewSynchronizer()
         )
-        #else
-        return UIViewController()
-        #endif
+    }
+
+    static func query() -> OCKContactQuery {
+        OCKContactQuery(for: Date())
     }
 }
 
 struct ContactView_Previews: PreviewProvider {
-
     static var previews: some View {
         ContactView()
             .environment(\.careStore, Utility.createPreviewStore())
-			.careKitStyle(Styler())
+            .careKitStyle(Styler())
     }
 }
+#else
+struct ContactView: View {
+    var body: some View {
+        NavigationStack {
+            ContentUnavailableView(
+                "Contacts Unavailable",
+                systemImage: "person.2.slash",
+                description: Text("This contact interface is only available on iOS.")
+            )
+            .navigationTitle("Contacts")
+        }
+    }
+}
+
+struct ContactView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContactView()
+            .careKitStyle(Styler())
+    }
+}
+#endif
