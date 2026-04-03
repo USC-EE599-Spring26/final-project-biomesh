@@ -7,45 +7,64 @@
 //
 
 import CareKit
+import CareKitEssentials
 import CareKitStore
 import os.log
 import SwiftUI
 import UIKit
 
 struct ContactView: UIViewControllerRepresentable {
-    @Environment(\.careStore) var careStore
+    @Environment(\.careStore) private var careStore
+    @CareStoreFetchRequest(query: Self.query()) private var contacts
 
     func makeUIViewController(context: Context) -> some UIViewController {
         let viewController = createViewController()
         return UINavigationController(rootViewController: viewController)
     }
 
-    func updateUIViewController(_ uiViewController: UIViewControllerType,
-                                context: Context) {
+    func updateUIViewController(
+        _ uiViewController: UIViewControllerType,
+        context: Context
+    ) {
         guard let navigationController = uiViewController as? UINavigationController else {
             Logger.feed.error("ContactView should have been a UINavigationController")
             return
         }
+
         navigationController.setViewControllers([createViewController()], animated: false)
     }
 
-    func createViewController() -> UIViewController {
+    private func createViewController() -> UIViewController {
         #if os(iOS)
-        return OCKContactsListViewController(
+        let currentContacts = contacts.latest
+        let viewController = CustomContactViewController(
             store: careStore,
-            contactViewSynchronizer: OCKDetailedContactViewSynchronizer()
+            contacts: currentContacts,
+            viewSynchronizer: OCKSimpleContactViewSynchronizer()
         )
+        return viewController
         #else
         return UIViewController()
         #endif
     }
+
+    static func query() -> OCKContactQuery {
+        let query = OCKContactQuery(for: Date())
+
+        // Appears to be buggy in some CareKit versions, so leaving sorting off for now.
+        /*
+        query.sortDescriptors.append(.familyName(ascending: true))
+        query.sortDescriptors.append(.givenName(ascending: true))
+        */
+
+        return query
+    }
 }
 
 struct ContactView_Previews: PreviewProvider {
-
     static var previews: some View {
         ContactView()
             .environment(\.careStore, Utility.createPreviewStore())
-			.careKitStyle(Styler())
+            .careKitStyle(Styler())
     }
 }

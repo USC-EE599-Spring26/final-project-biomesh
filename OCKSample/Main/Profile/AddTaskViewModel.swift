@@ -14,15 +14,11 @@ import UIKit
 @MainActor
 final class AddTaskViewModel: ObservableObject {
 
-    // Task kind
-
     enum TaskKind: String, CaseIterable, Identifiable {
         case regular   = "Regular Task"
         case healthKit = "HealthKit Task"
         var id: String { rawValue }
     }
-
-    // Card type
 
     enum CardType: String, CaseIterable, Identifiable {
         case button          = "Button Log"
@@ -36,7 +32,21 @@ final class AddTaskViewModel: ObservableObject {
         case featuredContent = "Featured Content"
         var id: String { rawValue }
 
-        /// The tag value written into task.tags
+        var careKitCard: CareKitCard {
+            switch self {
+            case .button:          return .button
+            case .checklist:       return .checklist
+            case .instructions:    return .instruction
+            case .simple:          return .simple
+            case .numericProgress: return .numericProgress
+            case .labeledValue:    return .labeledValue
+            case .grid:            return .grid
+            case .link:            return .link
+            case .featuredContent: return .featured
+            }
+        }
+
+        /// Optional metadata only — not used for rendering.
         var tagValue: String {
             switch self {
             case .button:          return "buttonLog"
@@ -52,12 +62,11 @@ final class AddTaskViewModel: ObservableObject {
         }
     }
 
-    // Frequency
-
     enum Frequency: String, CaseIterable, Identifiable {
         case daily  = "Daily"
         case weekly = "Weekly"
         var id: String { rawValue }
+
         var interval: DateComponents {
             switch self {
             case .daily:  return DateComponents(day: 1)
@@ -66,34 +75,26 @@ final class AddTaskViewModel: ObservableObject {
         }
     }
 
-    // HealthKit metrics available for user-created tasks
-
     enum HealthKitMetric: String, CaseIterable, Identifiable {
         case steps      = "Steps"
         case heartRate  = "Heart Rate"
         var id: String { rawValue }
     }
 
-    // Published form fields
+    @Published var taskKind: TaskKind = .regular
+    @Published var title: String = ""
+    @Published var instructions: String = ""
+    @Published var startDate: Date = .now
+    @Published var timeOfDay: Date = .now
+    @Published var frequency: Frequency = .daily
+    @Published var cardType: CardType = .button
+    @Published var assetName: String = ""
 
-    @Published var taskKind: TaskKind     = .regular
-    @Published var title: String          = ""
-    @Published var instructions: String   = ""
-    @Published var startDate: Date        = .now
-    @Published var timeOfDay: Date        = .now
-    @Published var frequency: Frequency  = .daily
-    @Published var cardType: CardType    = .button
-    @Published var assetName: String     = ""
-
-    // HealthKit-specific
     @Published var healthKitMetric: HealthKitMetric = .steps
     @Published var stepsGoal: Double = 8000
 
-    // UI state
     @Published private(set) var isSaving = false
     @Published var errorMessage: String?
-
-    // Quick-select SF Symbol suggestions
 
     static let suggestedSymbols: [String] = [
         "cup.and.saucer.fill",
@@ -118,8 +119,6 @@ final class AddTaskViewModel: ObservableObject {
         "book.fill"
     ]
 
-    // Validation
-
     var canSave: Bool {
         !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         && isValidSymbol
@@ -127,11 +126,9 @@ final class AddTaskViewModel: ObservableObject {
 
     var isValidSymbol: Bool {
         let trimmed = assetName.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return true } // optional field
+        guard !trimmed.isEmpty else { return true }
         return UIImage(systemName: trimmed) != nil
     }
-
-    // Intents
 
     func save() async -> Bool {
         guard canSave else { return false }
@@ -170,12 +167,10 @@ final class AddTaskViewModel: ObservableObject {
         }
     }
 
-    // Private builders
-
     private func buildSchedule() -> OCKSchedule {
-        let hour   = Calendar.current.component(.hour, from: timeOfDay)
+        let hour = Calendar.current.component(.hour, from: timeOfDay)
         let minute = Calendar.current.component(.minute, from: timeOfDay)
-        let start  = Calendar.current.date(
+        let start = Calendar.current.date(
             bySettingHour: hour, minute: minute, second: 0, of: startDate
         ) ?? startDate
 
@@ -198,8 +193,15 @@ final class AddTaskViewModel: ObservableObject {
             carePlanUUID: nil,
             schedule: buildSchedule()
         )
+
         task.instructions = instructions.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // This is what CareViewController uses to decide how to render the task.
+        task.card = cardType.careKitCard
+
+        // Optional metadata only.
         task.tags = ["cardType:\(cardType.tagValue)"]
+
         applyAsset(to: &task)
         return task
     }
@@ -210,7 +212,7 @@ final class AddTaskViewModel: ObservableObject {
 
         switch healthKitMetric {
         case .steps:
-            let unit      = HKUnit.count()
+            let unit = HKUnit.count()
             let goalValue = OCKOutcomeValue(stepsGoal, units: unit.unitString)
             let scheduleWithGoal = OCKSchedule(composing: schedule.elements.map {
                 OCKScheduleElement(
@@ -222,6 +224,7 @@ final class AddTaskViewModel: ObservableObject {
                     duration: $0.duration
                 )
             })
+
             var task = OCKHealthKitTask(
                 id: id,
                 title: title.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -233,13 +236,21 @@ final class AddTaskViewModel: ObservableObject {
                     unit: unit
                 )
             )
+
             task.instructions = instructions.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            // This is what CareViewController expects.
+            task.card = .numericProgress
+
+            // Optional metadata only.
             task.tags = ["cardType:numericProgress"]
+
             applyAsset(to: &task)
             return task
 
         case .heartRate:
             let unit = HKUnit.count().unitDivided(by: .minute())
+
             var task = OCKHealthKitTask(
                 id: id,
                 title: title.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -251,8 +262,15 @@ final class AddTaskViewModel: ObservableObject {
                     unit: unit
                 )
             )
+
             task.instructions = instructions.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            // This is what CareViewController expects.
+            task.card = .labeledValue
+
+            // Optional metadata only.
             task.tags = ["cardType:labeledValue"]
+
             applyAsset(to: &task)
             return task
         }

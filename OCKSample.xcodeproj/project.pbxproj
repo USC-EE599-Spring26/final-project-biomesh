@@ -218,6 +218,8 @@
 		E72B2C14226939E4009A9438 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E72B2C12226939E4009A9438 /* LaunchScreen.storyboard */; };
 		E7C37849228F887800E982D8 /* TipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7C37848228F887800E982D8 /* TipView.swift */; };
 		E7C4CA0B22809AD500ECC3D7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E7C4CA0A22809AD500ECC3D7 /* Assets.xcassets */; };
+		EE3F52E22F7F6639007E5993 /* CustomContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3F52DA2F7F6637007E5993 /* CustomContactViewController.swift */; };
+		EE3F52E32F7F6639007E5993 /* CustomContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3F52DA2F7F6637007E5993 /* CustomContactViewController.swift */; };
 		FE38C33C2F560B34000864F1 /* ColorStyler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE38C33B2F560B34000864F1 /* ColorStyler.swift */; };
 		FE38C33D2F560B34000864F1 /* ColorStyler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE38C33B2F560B34000864F1 /* ColorStyler.swift */; };
 		FE38C33E2F560B34000864F1 /* ColorStyler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE38C33B2F560B34000864F1 /* ColorStyler.swift */; };
@@ -445,6 +447,7 @@
 		E72B2C15226939E4009A9438 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E7C37848228F887800E982D8 /* TipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipView.swift; sourceTree = "<group>"; };
 		E7C4CA0A22809AD500ECC3D7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		EE3F52DA2F7F6637007E5993 /* CustomContactViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomContactViewController.swift; sourceTree = "<group>"; };
 		FE38C33B2F560B34000864F1 /* ColorStyler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorStyler.swift; sourceTree = "<group>"; };
 		FE38C33F2F560F19000864F1 /* OCKDimensionStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCKDimensionStyle.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -659,6 +662,7 @@
 		7030887D258272F400FFABB6 /* Contact */ = {
 			isa = PBXGroup;
 			children = (
+				EE3F52DA2F7F6637007E5993 /* CustomContactViewController.swift */,
 				7036E4CD256E9A0C006E9A3C /* ContactView.swift */,
 			);
 			path = Contact;
@@ -1270,6 +1274,7 @@
 				3F3C42472F7225D400A0FEAB /* CardEnabledEnvironmentKey.swift in Sources */,
 				3F3C423A2F7129CF00A0FEAB /* OCKTask+CardTask.swift in Sources */,
 				707D29672DCBE68500980253 /* ContactView.swift in Sources */,
+				EE3F52E32F7F6639007E5993 /* CustomContactViewController.swift in Sources */,
 				3F73F9972F7E3E84007D4222 /* Survey.swift in Sources */,
 				707D29682DCBE68500980253 /* NoHighlightStyle.swift in Sources */,
 				707D29692DCBE68500980253 /* LocalSyncSessionDelegate.swift in Sources */,
@@ -1410,6 +1415,7 @@
 				7036E4C9256E1A6F006E9A3C /* ProfileView.swift in Sources */,
 				FE38C33C2F560B34000864F1 /* ColorStyler.swift in Sources */,
 				7083A856279CA40A00B3832E /* PCKUtility.swift in Sources */,
+				EE3F52E22F7F6639007E5993 /* CustomContactViewController.swift in Sources */,
 				3F3C42412F712AD400A0FEAB /* CareKitTaskViewModel.swift in Sources */,
 				70B8E0A52F0EC1CA00440FCA /* Mutex.swift in Sources */,
 				70F921AE27CABE7700368CEC /* RemoteSessionDelegate.swift in Sources */,
