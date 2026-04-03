@@ -13,16 +13,14 @@ import os.log
 import SwiftUI
 import UIKit
 
+#if os(iOS) && !os(visionOS)
 struct ContactView: UIViewControllerRepresentable {
-    @Environment(\.careStore) private var careStore
+    @Environment(\.careStore) var careStore
     @CareStoreFetchRequest(query: Self.query()) private var contacts
 
     func makeUIViewController(context: Context) -> some UIViewController {
         let viewController = createViewController()
-        let navigationController = UINavigationController(
-            rootViewController: viewController
-        )
-        return navigationController
+        return UINavigationController(rootViewController: viewController)
     }
 
     func updateUIViewController(
@@ -37,7 +35,7 @@ struct ContactView: UIViewControllerRepresentable {
         navigationController.setViewControllers([createViewController()], animated: false)
     }
 
-    func createViewController() -> UIViewController {
+    private func createViewController() -> UIViewController {
         let currentContacts = contacts.latest
         let viewController = CustomContactViewController(
             store: careStore,
@@ -52,6 +50,20 @@ struct ContactView: UIViewControllerRepresentable {
         return query
     }
 }
+#else
+struct ContactView: View {
+    var body: some View {
+        NavigationView {
+            ContentUnavailableView(
+                "Contacts Unavailable",
+                systemImage: "person.2.slash",
+                description: Text("This contact interface is only available on iOS.")
+            )
+            .navigationTitle("Contacts")
+        }
+    }
+}
+#endif
 
 struct ContactView_Previews: PreviewProvider {
     static var previews: some View {

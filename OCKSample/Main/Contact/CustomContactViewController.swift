@@ -15,6 +15,7 @@ import ParseSwift
 import ParseCareKit
 import os.log
 
+#if os(iOS) && !os(visionOS)
 class CustomContactViewController: OCKListViewController, @unchecked Sendable {
 
     fileprivate var allContacts = [OCKContact]()
@@ -25,16 +26,9 @@ class CustomContactViewController: OCKListViewController, @unchecked Sendable {
         }
     }
 
-    /// The store the view controller uses for synchronization.
     fileprivate let store: OCKAnyStoreProtocol
     fileprivate let viewSynchronizer: OCKSimpleContactViewSynchronizer
 
-    /// Create an instance of the view controller.
-    ///
-    /// - Parameters:
-    ///   - store: The store from which to query contacts.
-    ///   - contacts: The current contacts queried.
-    ///   - viewSynchronizer: The type of view to show.
     init(
         store: OCKAnyStoreProtocol,
         contacts: [CareStoreFetchedResult<OCKAnyContact>]? = nil,
@@ -86,10 +80,6 @@ class CustomContactViewController: OCKListViewController, @unchecked Sendable {
         present(contactPicker, animated: true)
     }
 
-    @objc private func dismissViewController() {
-        dismiss(animated: true)
-    }
-
     func clearAndKeepSearchBar() {
         clear()
     }
@@ -118,29 +108,16 @@ class CustomContactViewController: OCKListViewController, @unchecked Sendable {
         }
 
         let filteredContacts = contacts.filter { fetchedContact in
-            let shouldExclude = shouldExcludeContact(
-                fetchedContact.result,
-                personUUIDString: personUUIDString
-            )
-
+            let include = fetchedContact.id != personUUIDString
             Logger.contact.info(
-                "Contact \(fetchedContact.id, privacy: .private) included: \(!shouldExclude)"
+                "Contact \(fetchedContact.id, privacy: .private) included: \(include)"
             )
-
-            return !shouldExclude
+            return include
         }
 
         clearAndKeepSearchBar()
         allContacts = filteredContacts.compactMap { $0.result as? OCKContact }
         displayContacts(allContacts)
-    }
-
-    private func shouldExcludeContact(
-        _ contact: OCKAnyContact,
-        personUUIDString: String
-    ) -> Bool {
-        // Exclude the logged-in user's own contact if it uses the same UUID-based id.
-        return contact.id == personUUIDString
     }
 
     @MainActor
@@ -208,7 +185,6 @@ class CustomContactViewController: OCKListViewController, @unchecked Sendable {
 }
 
 extension CustomContactViewController: UISearchBarDelegate {
-
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         Logger.contact.debug("Searching text is '\(searchText)'")
 
@@ -245,7 +221,6 @@ extension CustomContactViewController: UISearchBarDelegate {
 }
 
 extension CustomContactViewController: @MainActor CNContactPickerDelegate {
-
     func contactPicker(
         _ picker: CNContactPickerViewController,
         didSelect contact: CNContact
@@ -298,3 +273,4 @@ extension CustomContactViewController: @MainActor CNContactPickerDelegate {
         }
     }
 }
+#endif
