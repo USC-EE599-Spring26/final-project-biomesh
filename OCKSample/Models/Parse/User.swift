@@ -10,7 +10,6 @@ import Foundation
 import ParseSwift
 
 struct User: ParseUser {
-    // Required properties
     var authData: [String: [String: String]?]?
     var username: String?
     var email: String?
@@ -22,23 +21,27 @@ struct User: ParseUser {
     var ACL: ParseACL?
     var originalData: Data?
 
-    // Custom properties
     var lastTypeSelected: String?
     var userTypeUUIDs: [String: UUID]?
+    var profilePicture: ParseFile?
 }
 
-// MARK: Default Implementation
 extension User {
     func merge(with object: Self) throws -> Self {
         var updated = try mergeParse(with: object)
-        if updated.shouldRestoreKey(\.lastTypeSelected,
-                                     original: object) {
+
+        if updated.shouldRestoreKey(\.lastTypeSelected, original: object) {
             updated.lastTypeSelected = object.lastTypeSelected
         }
-        if updated.shouldRestoreKey(\.userTypeUUIDs,
-                                     original: object) {
+
+        if updated.shouldRestoreKey(\.userTypeUUIDs, original: object) {
             updated.userTypeUUIDs = object.userTypeUUIDs
         }
+
+        if updated.shouldRestoreKey(\.profilePicture, original: object) {
+            updated.profilePicture = object.profilePicture
+        }
+
         return updated
     }
 }
