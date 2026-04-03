@@ -15,45 +15,46 @@ import UIKit
 
 #if os(iOS) && !os(visionOS)
 struct ContactView: UIViewControllerRepresentable {
-    @Environment(\.careStore) var careStore
+    @Environment(\.careStore) private var careStore
     @CareStoreFetchRequest(query: Self.query()) private var contacts
 
-    func makeUIViewController(context: Context) -> some UIViewController {
-        let viewController = createViewController()
-        return UINavigationController(rootViewController: viewController)
+    func makeUIViewController(context: Context) -> UINavigationController {
+        UINavigationController(rootViewController: createViewController())
     }
 
     func updateUIViewController(
-        _ uiViewController: UIViewControllerType,
+        _ uiViewController: UINavigationController,
         context: Context
     ) {
-        guard let navigationController = uiViewController as? UINavigationController else {
-            Logger.feed.error("ContactView should have been a UINavigationController")
-            return
-        }
-
-        navigationController.setViewControllers([createViewController()], animated: false)
+        uiViewController.setViewControllers([createViewController()], animated: false)
     }
 
     private func createViewController() -> UIViewController {
         let currentContacts = contacts.latest
-        let viewController = CustomContactViewController(
+
+        return CustomContactViewController(
             store: careStore,
             contacts: currentContacts,
             viewSynchronizer: OCKSimpleContactViewSynchronizer()
         )
-        return viewController
     }
 
     static func query() -> OCKContactQuery {
-        let query = OCKContactQuery(for: Date())
-        return query
+        OCKContactQuery(for: Date())
+    }
+}
+
+struct ContactView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContactView()
+            .environment(\.careStore, Utility.createPreviewStore())
+            .careKitStyle(Styler())
     }
 }
 #else
 struct ContactView: View {
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ContentUnavailableView(
                 "Contacts Unavailable",
                 systemImage: "person.2.slash",
@@ -63,12 +64,11 @@ struct ContactView: View {
         }
     }
 }
-#endif
 
 struct ContactView_Previews: PreviewProvider {
     static var previews: some View {
         ContactView()
-            .environment(\.careStore, Utility.createPreviewStore())
             .careKitStyle(Styler())
     }
 }
+#endif

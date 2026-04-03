@@ -18,7 +18,9 @@ final class MyContactViewController: OCKListViewController {
 
     private var contacts = [OCKAnyContact]()
     private let store: OCKAnyStoreProtocol
+    #if os(iOS) && !os(visionOS)
     private let viewSynchronizer = OCKDetailedContactViewSynchronizer()
+    #endif
 
     init(store: OCKAnyStoreProtocol) {
         self.store = store
