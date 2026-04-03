@@ -19,7 +19,10 @@ struct ContactView: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> some UIViewController {
         let viewController = createViewController()
-        return UINavigationController(rootViewController: viewController)
+        let navigationController = UINavigationController(
+            rootViewController: viewController
+        )
+        return navigationController
     }
 
     func updateUIViewController(
@@ -34,8 +37,7 @@ struct ContactView: UIViewControllerRepresentable {
         navigationController.setViewControllers([createViewController()], animated: false)
     }
 
-    private func createViewController() -> UIViewController {
-        #if os(iOS)
+    func createViewController() -> UIViewController {
         let currentContacts = contacts.latest
         let viewController = CustomContactViewController(
             store: careStore,
@@ -43,20 +45,10 @@ struct ContactView: UIViewControllerRepresentable {
             viewSynchronizer: OCKSimpleContactViewSynchronizer()
         )
         return viewController
-        #else
-        return UIViewController()
-        #endif
     }
 
     static func query() -> OCKContactQuery {
         let query = OCKContactQuery(for: Date())
-
-        // Appears to be buggy in some CareKit versions, so leaving sorting off for now.
-        /*
-        query.sortDescriptors.append(.familyName(ascending: true))
-        query.sortDescriptors.append(.givenName(ascending: true))
-        */
-
         return query
     }
 }

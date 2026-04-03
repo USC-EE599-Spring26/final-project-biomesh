@@ -106,10 +106,10 @@ class LoginViewModel: ObservableObject {
     }
 
     private func savePatientAfterSignUp(
-		_ type: UserType,
-		firstName: String,
-		lastName: String
-	) async throws -> OCKPatient {
+        _ type: UserType,
+        firstName: String,
+        lastName: String
+    ) async throws -> OCKPatient {
 
         let remoteUUID = UUID()
         do {
@@ -121,39 +121,50 @@ class LoginViewModel: ObservableObject {
         guard let appDelegate = AppDelegateKey.defaultValue else {
             throw AppError.couldntBeUnwrapped
         }
+
         try await appDelegate.setupRemotes(uuid: remoteUUID)
 
         var newPatient = OCKPatient(
-			remoteUUID: remoteUUID,
-			id: remoteUUID.uuidString,
-			givenName: firstName,
-			familyName: lastName
-		)
+            remoteUUID: remoteUUID,
+            id: remoteUUID.uuidString,
+            givenName: firstName,
+            familyName: lastName
+        )
         newPatient.userType = type
+
         let savedPatient = try await appDelegate.store.addPatient(newPatient)
 
-		let currentDate = Date()
-		let startDate = daysInThePastToGenerateSampleData < 0 ? Calendar.current.date(
-			byAdding: .day,
-			value: daysInThePastToGenerateSampleData,
-			to: currentDate
-		)! : currentDate
+        let currentDate = Date()
+        let startDate = daysInThePastToGenerateSampleData < 0
+            ? Calendar.current.date(
+                byAdding: .day,
+                value: daysInThePastToGenerateSampleData,
+                to: currentDate
+            )!
+            : currentDate
+
         try await appDelegate.store.populateDefaultCarePlansTasksContacts(
-			startDate: startDate
-		)
+            startDate: startDate
+        )
+
         try await appDelegate.healthKitStore.populateDefaultHealthKitTasks(
-			startDate: startDate
-		)
-		if startDate < currentDate {
-			try await appDelegate.store.populateSampleOutcomes(
-				startDate: startDate
-			)
-		}
+            savedPatient.uuid,
+            startDate: startDate
+        )
+
+        if startDate < currentDate {
+            try await appDelegate.store.populateSampleOutcomes(
+                startDate: startDate
+            )
+        }
+
         appDelegate.parseRemote.automaticallySynchronizes = true
 
-        // Post notification to sync
-        NotificationCenter.default.post(.init(name: Notification.Name(rawValue: Constants.requestSync)))
+        NotificationCenter.default.post(
+            .init(name: Notification.Name(rawValue: Constants.requestSync))
+        )
         Logger.login.info("Successfully added a new Patient")
+
         return savedPatient
     }
 
