@@ -25,6 +25,7 @@ struct User: ParseUser {
     // Custom properties
     var lastTypeSelected: String?
     var userTypeUUIDs: [String: UUID]?
+    var profilePicture: ParseFile?
 }
 
 // MARK: Default Implementation
@@ -39,6 +40,10 @@ extension User {
                                      original: object) {
             updated.userTypeUUIDs = object.userTypeUUIDs
         }
+        if updated.shouldRestoreKey(\.profilePicture,
+                                             original: object) {
+                    updated.profilePicture = object.profilePicture
+                }
         return updated
     }
 }

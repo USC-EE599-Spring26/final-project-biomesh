@@ -19,7 +19,10 @@ struct ContactView: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> some UIViewController {
         let viewController = createViewController()
-        return UINavigationController(rootViewController: viewController)
+        let navigationController = UINavigationController(
+                    rootViewController: viewController
+                )
+                return navigationController
     }
 
     func updateUIViewController(_ uiViewController: UIViewControllerType,
@@ -32,7 +35,6 @@ struct ContactView: UIViewControllerRepresentable {
     }
 
     func createViewController() -> UIViewController {
-        #if os(iOS)
         let currentContacts = contacts.latest
                 let viewController = CustomContactViewController(
                     store: careStore,
@@ -40,10 +42,6 @@ struct ContactView: UIViewControllerRepresentable {
                     viewSynchronizer: OCKSimpleContactViewSynchronizer()
                 )
                 return viewController
-        
-        #else
-        return UIViewController()
-        #endif
     }
 
     static func query() -> OCKContactQuery {
