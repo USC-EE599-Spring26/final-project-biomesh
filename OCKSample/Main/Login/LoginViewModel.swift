@@ -170,8 +170,13 @@ class LoginViewModel: ObservableObject {
             _ = try await appDelegate.store.updateCarePlan(updatedCarePlan)
         }
 
-        let carePlanUUIDs = try await OCKStore.getCarePlanUUIDs()
-        let dailyTrackingUUID = carePlanUUIDs[.dailyTracking]
+        let allCarePlans = try await appDelegate.store.fetchCarePlans(query: carePlanQuery)
+
+        guard let dailyTrackingUUID = allCarePlans.first(where: {
+            $0.id == CarePlanID.dailyTracking.rawValue
+        })?.uuid else {
+            throw AppError.couldntBeUnwrapped
+        }
 
         try await appDelegate.healthKitStore.populateDefaultHealthKitTasks(
             savedPatient.uuid,

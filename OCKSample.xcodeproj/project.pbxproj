@@ -44,8 +44,6 @@
 		3F3C43832F7251E000A0FEAB /* OCKAnyEvent+Answer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C43822F7251E000A0FEAB /* OCKAnyEvent+Answer.swift */; };
 		3F3C43842F7251E000A0FEAB /* OCKAnyEvent+Answer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C43822F7251E000A0FEAB /* OCKAnyEvent+Answer.swift */; };
 		3F3C43852F7251E000A0FEAB /* OCKAnyEvent+Answer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C43822F7251E000A0FEAB /* OCKAnyEvent+Answer.swift */; };
-		3F4A120C2F54F6EA00068C65 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4A120A2F54F6EA00068C65 /* AddTaskView.swift */; };
-		3F4A120D2F54F6EA00068C65 /* AddTaskViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4A120B2F54F6EA00068C65 /* AddTaskViewModel.swift */; };
 		3F4A120E2F54F6EA00068C65 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4A120A2F54F6EA00068C65 /* AddTaskView.swift */; };
 		3F4A120F2F54F6EA00068C65 /* AddTaskViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4A120B2F54F6EA00068C65 /* AddTaskViewModel.swift */; };
 		3F4A12112F54F6FC00068C65 /* ManageTasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4A12102F54F6FC00068C65 /* ManageTasksView.swift */; };
@@ -223,7 +221,6 @@
 		FE38C3412F560F45000864F1 /* OCKDimensionStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE38C33F2F560F19000864F1 /* OCKDimensionStyle.swift */; };
 		FE38C3422F560F45000864F1 /* OCKDimensionStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE38C33F2F560F19000864F1 /* OCKDimensionStyle.swift */; };
 		FEC7B5A92F8616E000689E63 /* CustomContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEC7B5A12F8616DE00689E63 /* CustomContactViewController.swift */; };
-		FEC7B5AC2F8619DF00689E63 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEC7B5AB2F8619DE00689E63 /* ImagePicker.swift */; };
 		FEC7B5AD2F8619DF00689E63 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEC7B5AB2F8619DE00689E63 /* ImagePicker.swift */; };
 		FEC7B5B02F861A2E00689E63 /* MyContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEC7B5AF2F861A2300689E63 /* MyContactView.swift */; };
 		FEC7B5B42F861A5300689E63 /* MyContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEC7B5B22F861A5200689E63 /* MyContactViewController.swift */; };
@@ -1278,7 +1275,6 @@
 				707D295D2DCBE68500980253 /* LoginViewModel.swift in Sources */,
 				3F3C42362F7129A700A0FEAB /* OCKHealthKitTask+Card.swift in Sources */,
 				70B8E0A62F0EC1CA00440FCA /* Mutex.swift in Sources */,
-				FEC7B5AC2F8619DF00689E63 /* ImagePicker.swift in Sources */,
 				3F3C424C2F72266400A0FEAB /* MyCustomCardView.swift in Sources */,
 				707D295E2DCBE68500980253 /* Utility.swift in Sources */,
 				707D295F2DCBE68500980253 /* OCKSampleApp.swift in Sources */,
@@ -1304,8 +1300,6 @@
 				3F73F96A2F7E030A007D4222 /* CareViewController.swift in Sources */,
 				FEC7B5B62F861A7D00689E63 /* ProfileImageView.swift in Sources */,
 				3F73F9982F7E3E8A007D4222 /* Surveyable.swift in Sources */,
-				3F4A120C2F54F6EA00068C65 /* AddTaskView.swift in Sources */,
-				3F4A120D2F54F6EA00068C65 /* AddTaskViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
