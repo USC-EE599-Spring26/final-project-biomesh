@@ -44,6 +44,10 @@
 		3F3C43832F7251E000A0FEAB /* OCKAnyEvent+Answer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C43822F7251E000A0FEAB /* OCKAnyEvent+Answer.swift */; };
 		3F3C43842F7251E000A0FEAB /* OCKAnyEvent+Answer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C43822F7251E000A0FEAB /* OCKAnyEvent+Answer.swift */; };
 		3F3C43852F7251E000A0FEAB /* OCKAnyEvent+Answer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C43822F7251E000A0FEAB /* OCKAnyEvent+Answer.swift */; };
+		3FA1B0012F96A00000PROFILE /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA1B0002F96A00000IMGPKR /* ImagePicker.swift */; };
+		3FA1B0022F96A00000PROFILE /* ProfileImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA1B0032F96A00000PIMGVW /* ProfileImageView.swift */; };
+		3FA1B0042F96A00000PROFILE /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA1B0002F96A00000IMGPKR /* ImagePicker.swift */; };
+		3FA1B0052F96A00000PROFILE /* ProfileImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA1B0032F96A00000PIMGVW /* ProfileImageView.swift */; };
 		3F4A120C2F54F6EA00068C65 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4A120A2F54F6EA00068C65 /* AddTaskView.swift */; };
 		3F4A120D2F54F6EA00068C65 /* AddTaskViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4A120B2F54F6EA00068C65 /* AddTaskViewModel.swift */; };
 		3F4A120E2F54F6EA00068C65 /* AddTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4A120A2F54F6EA00068C65 /* AddTaskView.swift */; };
@@ -356,6 +360,8 @@
 		3F3C42462F7225D400A0FEAB /* CardEnabledEnvironmentKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEnabledEnvironmentKey.swift; sourceTree = "<group>"; };
 		3F3C424A2F72266400A0FEAB /* MyCustomCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyCustomCardView.swift; sourceTree = "<group>"; };
 		3F3C43822F7251E000A0FEAB /* OCKAnyEvent+Answer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OCKAnyEvent+Answer.swift"; sourceTree = "<group>"; };
+		3FA1B0002F96A00000IMGPKR /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
+		3FA1B0032F96A00000PIMGVW /* ProfileImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageView.swift; sourceTree = "<group>"; };
 		3F4A120A2F54F6EA00068C65 /* AddTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTaskView.swift; sourceTree = "<group>"; };
 		3F4A120B2F54F6EA00068C65 /* AddTaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTaskViewModel.swift; sourceTree = "<group>"; };
 		3F4A12102F54F6FC00068C65 /* ManageTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTasksView.swift; sourceTree = "<group>"; };
@@ -650,6 +656,8 @@
 			children = (
 				3F4A120A2F54F6EA00068C65 /* AddTaskView.swift */,
 				3F4A120B2F54F6EA00068C65 /* AddTaskViewModel.swift */,
+				3FA1B0002F96A00000IMGPKR /* ImagePicker.swift */,
+				3FA1B0032F96A00000PIMGVW /* ProfileImageView.swift */,
 				7036E4C8256E1A6F006E9A3C /* ProfileView.swift */,
 				7036E516256F2413006E9A3C /* ProfileViewModel.swift */,
 			);
@@ -1283,6 +1291,8 @@
 				3F73F9982F7E3E8A007D4222 /* Surveyable.swift in Sources */,
 				3F4A120C2F54F6EA00068C65 /* AddTaskView.swift in Sources */,
 				3F4A120D2F54F6EA00068C65 /* AddTaskViewModel.swift in Sources */,
+				3FA1B0012F96A00000PROFILE /* ImagePicker.swift in Sources */,
+				3FA1B0022F96A00000PROFILE /* ProfileImageView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1392,6 +1402,8 @@
 				918FDEB7271B41FF0045A0EF /* Logger.swift in Sources */,
 				3F4A120E2F54F6EA00068C65 /* AddTaskView.swift in Sources */,
 				3F4A120F2F54F6EA00068C65 /* AddTaskViewModel.swift in Sources */,
+				3FA1B0042F96A00000PROFILE /* ImagePicker.swift in Sources */,
+				3FA1B0052F96A00000PROFILE /* ProfileImageView.swift in Sources */,
 				70221F2A28D7BE0600971195 /* AppDelegate+ParseRemoteDelegate.swift in Sources */,
 				3F73F9652F7DB6BB007D4222 /* CarePlanID.swift in Sources */,
 				3F3C42352F7129A700A0FEAB /* OCKHealthKitTask+Card.swift in Sources */,

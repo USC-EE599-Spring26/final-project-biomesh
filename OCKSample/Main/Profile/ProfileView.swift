@@ -14,7 +14,8 @@ import SwiftUI
 
 struct ProfileView: View {
 
-    @CareStoreFetchRequest(query: query()) private var patients
+    @CareStoreFetchRequest(query: ProfileViewModel.queryPatient()) private var patients
+    @CareStoreFetchRequest(query: ProfileViewModel.queryContacts()) private var contacts
     @StateObject private var viewModel = ProfileViewModel()
     @ObservedObject var loginViewModel: LoginViewModel
 
@@ -30,7 +31,38 @@ struct ProfileView: View {
     var body: some View {
         NavigationView {
             VStack {
-                profileFields
+                VStack {
+                    ProfileImageView(viewModel: viewModel)
+                    Form {
+                        Section(header: Text("About")) {
+                            TextField("First Name",
+                                      text: $viewModel.firstName)
+                            .padding()
+                            .cornerRadius(20.0)
+                            .shadow(radius: 10.0, x: 20, y: 10)
+
+                            TextField("Last Name",
+                                      text: $viewModel.lastName)
+                            .padding()
+                            .cornerRadius(20.0)
+                            .shadow(radius: 10.0, x: 20, y: 10)
+
+                            DatePicker("Birthday",
+                                       selection: $viewModel.birthday,
+                                       displayedComponents: [DatePickerComponents.date])
+                            .padding()
+                            .cornerRadius(20.0)
+                            .shadow(radius: 10.0, x: 20, y: 10)
+                        }
+
+                        Section(header: Text("Contact")) {
+                            TextField("Street", text: $viewModel.street)
+                            TextField("City", text: $viewModel.city)
+                            TextField("State", text: $viewModel.state)
+                            TextField("Postal code", text: $viewModel.zipcode)
+                        }
+                    }
+                }
 
                 saveProfileButton
                 logoutButton
@@ -40,8 +72,21 @@ struct ProfileView: View {
             .sheet(item: $activeSheet) { sheet in
                 sheetView(for: sheet)
             }
+            .sheet(isPresented: $viewModel.isPresentingImagePicker) {
+                ImagePicker(image: $viewModel.profileUIImage)
+            }
+            .alert(isPresented: $viewModel.isShowingSaveAlert) {
+                Alert(title: Text("Update"),
+                      message: Text(viewModel.alertMessage),
+                      dismissButton: .default(Text("Ok"), action: {
+                          viewModel.isShowingSaveAlert = false
+                      }))
+            }
             .onReceive(patients.publisher) { publishedPatient in
                 viewModel.updatePatient(publishedPatient.result)
+            }
+            .onReceive(contacts.publisher) { publishedContact in
+                viewModel.updateContact(publishedContact.result)
             }
         }
     }
@@ -51,40 +96,13 @@ struct ProfileView: View {
 
 private extension ProfileView {
 
-    var profileFields: some View {
-        VStack(alignment: .leading) {
-            TextField("GIVEN_NAME", text: $viewModel.firstName)
-                .padding()
-                .cornerRadius(20.0)
-                .shadow(radius: 10.0, x: 20, y: 10)
-
-            TextField("FAMILY_NAME", text: $viewModel.lastName)
-                .padding()
-                .cornerRadius(20.0)
-                .shadow(radius: 10.0, x: 20, y: 10)
-
-            DatePicker(
-                "BIRTHDAY",
-                selection: $viewModel.birthday,
-                displayedComponents: [.date]
-            )
-            .padding()
-            .cornerRadius(20.0)
-            .shadow(radius: 10.0, x: 20, y: 10)
-        }
-    }
-
     var saveProfileButton: some View {
         Button {
             Task {
-                do {
-                    try await viewModel.saveProfile()
-                } catch {
-                    Logger.profile.error("Error saving profile: \(error)")
-                }
+                await viewModel.saveProfile()
             }
         } label: {
-            Text("SAVE_PROFILE")
+            Text("Save Profile")
                 .font(.headline)
                 .foregroundColor(.white)
                 .padding()
@@ -98,7 +116,7 @@ private extension ProfileView {
         Button {
             Task { await loginViewModel.logout() }
         } label: {
-            Text("LOG_OUT")
+            Text("Log Out")
                 .font(.headline)
                 .foregroundColor(.white)
                 .padding()
@@ -133,13 +151,7 @@ private extension ProfileView {
     }
 }
 
-// MARK: - Queries
-
-private extension ProfileView {
-    static func query() -> OCKPatientQuery {
-        OCKPatientQuery(for: Date())
-    }
-}
+// MARK: - Previews
 
 struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
