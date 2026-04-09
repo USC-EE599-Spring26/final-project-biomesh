@@ -147,7 +147,19 @@ class ProfileViewModel: ObservableObject {
               contact.uuid != self.contact?.uuid else {
             return
         }
+
         self.contact = contact
+
+        street = contact.address?.street ?? ""
+        city = contact.address?.city ?? ""
+        state = contact.address?.state ?? ""
+        zipcode = contact.address?.postalCode ?? ""
+        country = contact.address?.country ?? ""
+
+        email = contact.emailAddresses?.first?.value ?? ""
+        messagingNumber = contact.messagingNumbers?.first?.value ?? ""
+        phoneNumber = contact.phoneNumbers?.first?.value ?? ""
+        otherContactInfo = contact.otherContactInfo?.first?.value ?? ""
     }
 
     @MainActor
