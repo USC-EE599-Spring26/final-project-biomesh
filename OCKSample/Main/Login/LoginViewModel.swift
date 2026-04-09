@@ -139,11 +139,13 @@ class LoginViewModel: ObservableObject {
 			to: currentDate
 		)! : currentDate
         try await appDelegate.store.populateDefaultCarePlansTasksContacts(
-			startDate: startDate
-		)
+            savedPatient.uuid,
+            startDate: startDate
+        )
         try await appDelegate.healthKitStore.populateDefaultHealthKitTasks(
-			startDate: startDate
-		)
+            savedPatient.uuid,
+            startDate: startDate
+        )
 		if startDate < currentDate {
 			try await appDelegate.store.populateSampleOutcomes(
 				startDate: startDate
@@ -175,6 +177,7 @@ class LoginViewModel: ObservableObject {
 		firstName: String,
 		lastName: String
 	) async {
+        self.loginError = nil
         do {
             guard try await PCKUtility.isServerAvailable() else {
                 Logger.login.error("Server health is not \"ok\"")
@@ -219,6 +222,7 @@ class LoginViewModel: ObservableObject {
 		username: String,
 		password: String
 	) async {
+        self.loginError = nil
         do {
             guard try await PCKUtility.isServerAvailable() else {
                 Logger.login.error("Server health is not \"ok\"")
@@ -249,6 +253,7 @@ class LoginViewModel: ObservableObject {
      Logs in the user anonymously *asynchronously*.
     */
     func loginAnonymously() async {
+        self.loginError = nil
         do {
             guard try await PCKUtility.isServerAvailable() else {
                 Logger.login.error("Server health is not \"ok\"")
@@ -277,6 +282,7 @@ class LoginViewModel: ObservableObject {
     */
     func logout() async {
 		await Utility.logoutAndResetAppState()
+        self.loginError = nil
         await self.checkStatus()
     }
 }

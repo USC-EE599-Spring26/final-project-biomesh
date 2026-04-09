@@ -14,7 +14,23 @@ import os.log
 
 extension OCKHealthKitPassthroughStore {
 
-    func populateDefaultHealthKitTasks(startDate: Date = Date()) async throws {
+    /*
+     Tie OCKHealthKitTasks to an OCKPatient / OCKCarePlan so that all
+     tasks persist to the logged-in patient on parse-hipaa.
+     */
+    func populateDefaultHealthKitTasks(
+        _ patientUUID: UUID? = nil,
+        startDate: Date = Date()
+    ) async throws {
+
+        #if os(iOS)
+        let carePlanUUIDs = try await OCKStore.getCarePlanUUIDs()
+        let dailyTrackingUUID = carePlanUUIDs[.dailyTracking]
+        let sleepWellnessUUID = carePlanUUIDs[.sleepWellness]
+        #else
+        let dailyTrackingUUID: UUID? = nil
+        let sleepWellnessUUID: UUID? = nil
+        #endif
 
         // Daily Steps
         // Physical activity as a control variable in the caffeine-anxiety model.
@@ -31,7 +47,7 @@ extension OCKHealthKitPassthroughStore {
         var steps = OCKHealthKitTask(
             id: TaskID.steps,
             title: "Daily Steps",
-            carePlanUUID: nil,
+            carePlanUUID: dailyTrackingUUID,
             schedule: stepSchedule,
             healthKitLinkage: OCKHealthKitLinkage(
                 quantityIdentifier: .stepCount,
@@ -59,7 +75,7 @@ extension OCKHealthKitPassthroughStore {
         var sleep = OCKHealthKitTask(
             id: TaskID.sleepDuration,
             title: "Sleep Duration",
-            carePlanUUID: nil,
+            carePlanUUID: sleepWellnessUUID,
             schedule: sleepSchedule,
             healthKitLinkage: OCKHealthKitLinkage(
                 categoryIdentifier: .sleepAnalysis
