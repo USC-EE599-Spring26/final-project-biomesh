@@ -72,7 +72,7 @@ class MyContactViewController: OCKListViewController {
         }
 
         var query = OCKContactQuery(for: Date())
-        query.ids = [personUUIDString]
+        query.ids = [personUUIDString
         query.limit = 1
 
         self.contacts = try await store.fetchAnyContacts(query: query)
