@@ -114,11 +114,17 @@ class CustomContactViewController: OCKListViewController, @unchecked Sendable {
         }
 
         // TODO: Modify this filter to not show the contact info for this user
+        let myID = try? await Utility.getRemoteClockUUID().uuidString
+
         let filterdContacts = contacts.filter { convertedContact in
             Logger.contact.info("Contact filtered: \(convertedContact.id)")
+
+            if let myID = myID, convertedContact.id == myID {
+                return false
+            }
+
             return true
         }
-
         self.clearAndKeepSearchBar()
         // Map all filtered contacts to a direct contact.
         self.allContacts = filterdContacts.compactMap { $0.result as? OCKContact }
