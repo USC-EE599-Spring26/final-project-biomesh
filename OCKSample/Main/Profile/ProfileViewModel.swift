@@ -23,10 +23,15 @@ class ProfileViewModel: ObservableObject {
 	@Published var birthday = Date()
 	@Published var sex: OCKBiologicalSex = .other("other")
 	@Published var note = ""
+	@Published var allergies = ""
 	@Published var street = ""
 	@Published var city = ""
 	@Published var state = ""
 	@Published var zipcode = ""
+	@Published var emailAddress = ""
+	@Published var messagingNumber = ""
+	@Published var phoneNumber = ""
+	@Published var otherContactInfo = ""
 	@Published var isShowingSaveAlert = false
 	@Published var isPresentingContact = false
 	@Published var isPresentingImagePicker = false
@@ -89,6 +94,11 @@ class ProfileViewModel: ObservableObject {
 			} else {
 				note = ""
 			}
+			if let currentAllergies = newValue?.allergies, !currentAllergies.isEmpty {
+				allergies = currentAllergies.joined(separator: ", ")
+			} else {
+				allergies = ""
+			}
 		}
 	}
 
@@ -124,6 +134,10 @@ class ProfileViewModel: ObservableObject {
 			state = address.state
 			zipcode = address.postalCode
 		}
+		emailAddress = contact.emailAddresses?.first?.value ?? ""
+		messagingNumber = contact.messagingNumbers?.first?.value ?? ""
+		phoneNumber = contact.phoneNumbers?.first?.value ?? ""
+		otherContactInfo = contact.otherContactInfo?.first?.value ?? ""
 	}
 
 	@MainActor
@@ -195,6 +209,15 @@ class ProfileViewModel: ObservableObject {
 				patientToUpdate.notes = notes
 			}
 
+			let allergyList = allergies.isEmpty ? [] : allergies
+				.split(separator: ",")
+				.map { $0.trimmingCharacters(in: .whitespaces) }
+				.filter { !$0.isEmpty }
+			if patient?.allergies != allergyList {
+				patientHasBeenUpdated = true
+				patientToUpdate.allergies = allergyList
+			}
+
 			if patientHasBeenUpdated {
 				_ = try await AppDelegateKey.defaultValue?.store.updateAnyPatient(patientToUpdate)
 				Logger.profile.info("Successfully updated patient")
@@ -218,9 +241,6 @@ class ProfileViewModel: ObservableObject {
 
 	@MainActor
 	func saveContact() async throws {
-		// Fetch user email from Parse to populate contact email
-		let userEmail = try? await User.current().email
-
 		if var contactToUpdate = contact {
 			var contactHasBeenUpdated = false
 
@@ -228,6 +248,12 @@ class ProfileViewModel: ObservableObject {
 				contact?.name != patient?.name {
 				contactHasBeenUpdated = true
 				contactToUpdate.name = patientName
+			}
+
+			let fullName = "\(firstName) \(lastName)".trimmingCharacters(in: .whitespaces)
+			if !fullName.isEmpty, contactToUpdate.title != fullName {
+				contactHasBeenUpdated = true
+				contactToUpdate.title = fullName
 			}
 
 			let potentialAddress = OCKPostalAddress(
@@ -242,12 +268,28 @@ class ProfileViewModel: ObservableObject {
 				contactToUpdate.address = potentialAddress
 			}
 
-			if let email = userEmail, !email.isEmpty {
-				let emailValues = [OCKLabeledValue(label: "email", value: email)]
-				if contactToUpdate.emailAddresses != emailValues {
-					contactHasBeenUpdated = true
-					contactToUpdate.emailAddresses = emailValues
-				}
+			let newEmails = emailAddress.isEmpty ? [] : [OCKLabeledValue(label: "email", value: emailAddress)]
+			if contactToUpdate.emailAddresses != newEmails {
+				contactHasBeenUpdated = true
+				contactToUpdate.emailAddresses = newEmails
+			}
+
+			let newMessaging = messagingNumber.isEmpty ? [] : [OCKLabeledValue(label: "messaging", value: messagingNumber)]
+			if contactToUpdate.messagingNumbers != newMessaging {
+				contactHasBeenUpdated = true
+				contactToUpdate.messagingNumbers = newMessaging
+			}
+
+			let newPhones = phoneNumber.isEmpty ? [] : [OCKLabeledValue(label: "phone", value: phoneNumber)]
+			if contactToUpdate.phoneNumbers != newPhones {
+				contactHasBeenUpdated = true
+				contactToUpdate.phoneNumbers = newPhones
+			}
+
+			let newOther = otherContactInfo.isEmpty ? [] : [OCKLabeledValue(label: "other", value: otherContactInfo)]
+			if contactToUpdate.otherContactInfo != newOther {
+				contactHasBeenUpdated = true
+				contactToUpdate.otherContactInfo = newOther
 			}
 
 			if contactToUpdate.role != note, !note.isEmpty {
@@ -277,6 +319,10 @@ class ProfileViewModel: ObservableObject {
 				name: patientName,
 				carePlanUUID: nil
 			)
+			let newFullName = "\(firstName) \(lastName)".trimmingCharacters(in: .whitespaces)
+			if !newFullName.isEmpty {
+				newContact.title = newFullName
+			}
 			newContact.address = OCKPostalAddress(
 				street: street,
 				city: city,
@@ -284,8 +330,17 @@ class ProfileViewModel: ObservableObject {
 				postalCode: zipcode,
 				country: ""
 			)
-			if let email = userEmail, !email.isEmpty {
-				newContact.emailAddresses = [OCKLabeledValue(label: "email", value: email)]
+			if !emailAddress.isEmpty {
+				newContact.emailAddresses = [OCKLabeledValue(label: "email", value: emailAddress)]
+			}
+			if !messagingNumber.isEmpty {
+				newContact.messagingNumbers = [OCKLabeledValue(label: "messaging", value: messagingNumber)]
+			}
+			if !phoneNumber.isEmpty {
+				newContact.phoneNumbers = [OCKLabeledValue(label: "phone", value: phoneNumber)]
+			}
+			if !otherContactInfo.isEmpty {
+				newContact.otherContactInfo = [OCKLabeledValue(label: "other", value: otherContactInfo)]
 			}
 			if !note.isEmpty {
 				newContact.role = note

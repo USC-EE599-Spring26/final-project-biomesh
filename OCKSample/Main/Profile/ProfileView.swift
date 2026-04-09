@@ -49,6 +49,8 @@ struct ProfileView: View {
                                 Text("Male").tag(OCKBiologicalSex.male)
                                 Text("Other").tag(OCKBiologicalSex.other("other"))
                             }
+                            TextField("Allergies",
+                                      text: $viewModel.allergies)
                         }
 
                         Section(header: Text("Contact")) {
@@ -56,6 +58,10 @@ struct ProfileView: View {
                             TextField("City", text: $viewModel.city)
                             TextField("State", text: $viewModel.state)
                             TextField("Postal code", text: $viewModel.zipcode)
+                            TextField("Email", text: $viewModel.emailAddress)
+                            TextField("Messaging Number", text: $viewModel.messagingNumber)
+                            TextField("Phone Number", text: $viewModel.phoneNumber)
+                            TextField("Other Info", text: $viewModel.otherContactInfo)
                         }
                     }
                 }
