@@ -45,6 +45,12 @@
 		3F3C43842F7251E000A0FEAB /* OCKAnyEvent+Answer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C43822F7251E000A0FEAB /* OCKAnyEvent+Answer.swift */; };
 		3F3C43852F7251E000A0FEAB /* OCKAnyEvent+Answer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3C43822F7251E000A0FEAB /* OCKAnyEvent+Answer.swift */; };
 		3FA1B0012F96A00000PROFILE /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA1B0002F96A00000IMGPKR /* ImagePicker.swift */; };
+		3FA1B0102F96B00000CCTVC1 /* CustomContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA1B0162F96B00000CCTVCR /* CustomContactViewController.swift */; };
+		3FA1B0112F96B00000CCTVC2 /* CustomContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA1B0162F96B00000CCTVCR /* CustomContactViewController.swift */; };
+		3FA1B0122F96B00000MYCVW1 /* MyContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA1B0172F96B00000MYCVWR /* MyContactView.swift */; };
+		3FA1B0132F96B00000MYCVW2 /* MyContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA1B0172F96B00000MYCVWR /* MyContactView.swift */; };
+		3FA1B0142F96B00000MYCVC1 /* MyContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA1B0182F96B00000MYCVCR /* MyContactViewController.swift */; };
+		3FA1B0152F96B00000MYCVC2 /* MyContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA1B0182F96B00000MYCVCR /* MyContactViewController.swift */; };
 		3FA1B0022F96A00000PROFILE /* ProfileImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA1B0032F96A00000PIMGVW /* ProfileImageView.swift */; };
 		3FA1B0042F96A00000PROFILE /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA1B0002F96A00000IMGPKR /* ImagePicker.swift */; };
 		3FA1B0052F96A00000PROFILE /* ProfileImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA1B0032F96A00000PIMGVW /* ProfileImageView.swift */; };
@@ -362,6 +368,9 @@
 		3F3C43822F7251E000A0FEAB /* OCKAnyEvent+Answer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OCKAnyEvent+Answer.swift"; sourceTree = "<group>"; };
 		3FA1B0002F96A00000IMGPKR /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		3FA1B0032F96A00000PIMGVW /* ProfileImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageView.swift; sourceTree = "<group>"; };
+		3FA1B0162F96B00000CCTVCR /* CustomContactViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomContactViewController.swift; sourceTree = "<group>"; };
+		3FA1B0172F96B00000MYCVWR /* MyContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyContactView.swift; sourceTree = "<group>"; };
+		3FA1B0182F96B00000MYCVCR /* MyContactViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyContactViewController.swift; sourceTree = "<group>"; };
 		3F4A120A2F54F6EA00068C65 /* AddTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTaskView.swift; sourceTree = "<group>"; };
 		3F4A120B2F54F6EA00068C65 /* AddTaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTaskViewModel.swift; sourceTree = "<group>"; };
 		3F4A12102F54F6FC00068C65 /* ManageTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTasksView.swift; sourceTree = "<group>"; };
@@ -651,12 +660,22 @@
 			path = Care;
 			sourceTree = "<group>";
 		};
+		3FA1B01A2F96B00000MYCTGP /* MyContact */ = {
+			isa = PBXGroup;
+			children = (
+				3FA1B0172F96B00000MYCVWR /* MyContactView.swift */,
+				3FA1B0182F96B00000MYCVCR /* MyContactViewController.swift */,
+			);
+			path = MyContact;
+			sourceTree = "<group>";
+		};
 		7030887C258272E700FFABB6 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
 				3F4A120A2F54F6EA00068C65 /* AddTaskView.swift */,
 				3F4A120B2F54F6EA00068C65 /* AddTaskViewModel.swift */,
 				3FA1B0002F96A00000IMGPKR /* ImagePicker.swift */,
+				3FA1B01A2F96B00000MYCTGP /* MyContact */,
 				3FA1B0032F96A00000PIMGVW /* ProfileImageView.swift */,
 				7036E4C8256E1A6F006E9A3C /* ProfileView.swift */,
 				7036E516256F2413006E9A3C /* ProfileViewModel.swift */,
@@ -668,6 +687,7 @@
 			isa = PBXGroup;
 			children = (
 				7036E4CD256E9A0C006E9A3C /* ContactView.swift */,
+				3FA1B0162F96B00000CCTVCR /* CustomContactViewController.swift */,
 			);
 			path = Contact;
 			sourceTree = "<group>";
@@ -1293,6 +1313,9 @@
 				3F4A120D2F54F6EA00068C65 /* AddTaskViewModel.swift in Sources */,
 				3FA1B0012F96A00000PROFILE /* ImagePicker.swift in Sources */,
 				3FA1B0022F96A00000PROFILE /* ProfileImageView.swift in Sources */,
+				3FA1B0102F96B00000CCTVC1 /* CustomContactViewController.swift in Sources */,
+				3FA1B0122F96B00000MYCVW1 /* MyContactView.swift in Sources */,
+				3FA1B0142F96B00000MYCVC1 /* MyContactViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1404,6 +1427,9 @@
 				3F4A120F2F54F6EA00068C65 /* AddTaskViewModel.swift in Sources */,
 				3FA1B0042F96A00000PROFILE /* ImagePicker.swift in Sources */,
 				3FA1B0052F96A00000PROFILE /* ProfileImageView.swift in Sources */,
+				3FA1B0112F96B00000CCTVC2 /* CustomContactViewController.swift in Sources */,
+				3FA1B0132F96B00000MYCVW2 /* MyContactView.swift in Sources */,
+				3FA1B0152F96B00000MYCVC2 /* MyContactViewController.swift in Sources */,
 				70221F2A28D7BE0600971195 /* AppDelegate+ParseRemoteDelegate.swift in Sources */,
 				3F73F9652F7DB6BB007D4222 /* CarePlanID.swift in Sources */,
 				3F3C42352F7129A700A0FEAB /* OCKHealthKitTask+Card.swift in Sources */,

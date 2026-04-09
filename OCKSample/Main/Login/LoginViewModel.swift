@@ -132,6 +132,21 @@ class LoginViewModel: ObservableObject {
         newPatient.userType = type
         let savedPatient = try await appDelegate.store.addPatient(newPatient)
 
+        // Create a contact for the signed-up user so "My Contact" has data.
+        // This won't show in the Contacts tab because CustomContactViewController
+        // filters out contacts matching the logged-in user's UUID.
+        var newContact = OCKContact(
+            id: remoteUUID.uuidString,
+            name: newPatient.name,
+            carePlanUUID: nil
+        )
+        newContact.title = type.rawValue.capitalized
+        newContact.role = "BioMesh participant"
+        if let email = try? await User.current().email, !email.isEmpty {
+            newContact.emailAddresses = [OCKLabeledValue(label: "email", value: email)]
+        }
+        _ = try await appDelegate.store.addAnyContact(newContact)
+
 		let currentDate = Date()
 		let startDate = daysInThePastToGenerateSampleData < 0 ? Calendar.current.date(
 			byAdding: .day,

@@ -21,6 +21,8 @@ class ProfileViewModel: ObservableObject {
 	@Published var firstName = ""
 	@Published var lastName = ""
 	@Published var birthday = Date()
+	@Published var sex: OCKBiologicalSex = .other("other")
+	@Published var note = ""
 	@Published var street = ""
 	@Published var city = ""
 	@Published var state = ""
@@ -57,7 +59,7 @@ class ProfileViewModel: ObservableObject {
 	}
 	@Published private(set) var error: Error?
 	private(set) var alertMessage = "All changes saved successfully!"
-	private var contact: OCKContact?
+	@Published private var contact: OCKContact?
 
 	// MARK: Private read/write properties
 	private var isSettingProfilePictureForFirstTime = true
@@ -78,6 +80,14 @@ class ProfileViewModel: ObservableObject {
 				birthday = currentBirthday
 			} else {
 				birthday = Date()
+			}
+			if let currentSex = newValue?.sex {
+				sex = currentSex
+			}
+			if let currentNote = newValue?.notes?.first?.content {
+				note = currentNote
+			} else {
+				note = ""
 			}
 		}
 	}
@@ -172,6 +182,19 @@ class ProfileViewModel: ObservableObject {
 				patientToUpdate.birthday = birthday
 			}
 
+			if patient?.sex != sex {
+				patientHasBeenUpdated = true
+				patientToUpdate.sex = sex
+			}
+
+			let notes = [OCKNote(author: firstName,
+								 title: "New Note",
+								 content: note)]
+			if patient?.notes != notes {
+				patientHasBeenUpdated = true
+				patientToUpdate.notes = notes
+			}
+
 			if patientHasBeenUpdated {
 				_ = try await AppDelegateKey.defaultValue?.store.updateAnyPatient(patientToUpdate)
 				Logger.profile.info("Successfully updated patient")
@@ -195,6 +218,8 @@ class ProfileViewModel: ObservableObject {
 
 	@MainActor
 	func saveContact() async throws {
+		// Fetch user email from Parse to populate contact email
+		let userEmail = try? await User.current().email
 
 		if var contactToUpdate = contact {
 			var contactHasBeenUpdated = false
@@ -209,12 +234,25 @@ class ProfileViewModel: ObservableObject {
 				street: street,
 				city: city,
 				state: state,
-                postalCode: zipcode,
-                country: ""
+				postalCode: zipcode,
+				country: ""
 			)
 			if contact?.address != potentialAddress {
 				contactHasBeenUpdated = true
 				contactToUpdate.address = potentialAddress
+			}
+
+			if let email = userEmail, !email.isEmpty {
+				let emailValues = [OCKLabeledValue(label: "email", value: email)]
+				if contactToUpdate.emailAddresses != emailValues {
+					contactHasBeenUpdated = true
+					contactToUpdate.emailAddresses = emailValues
+				}
+			}
+
+			if contactToUpdate.role != note, !note.isEmpty {
+				contactHasBeenUpdated = true
+				contactToUpdate.role = note
 			}
 
 			if contactHasBeenUpdated {
@@ -234,11 +272,24 @@ class ProfileViewModel: ObservableObject {
 				return
 			}
 
-			let newContact = OCKContact(
+			var newContact = OCKContact(
 				id: remoteUUID,
 				name: patientName,
 				carePlanUUID: nil
 			)
+			newContact.address = OCKPostalAddress(
+				street: street,
+				city: city,
+				state: state,
+				postalCode: zipcode,
+				country: ""
+			)
+			if let email = userEmail, !email.isEmpty {
+				newContact.emailAddresses = [OCKLabeledValue(label: "email", value: email)]
+			}
+			if !note.isEmpty {
+				newContact.role = note
+			}
 
 			_ = try await AppDelegateKey.defaultValue?.store.addAnyContact(newContact)
 			Logger.profile.info("Successfully saved new contact")

@@ -37,22 +37,18 @@ struct ProfileView: View {
                         Section(header: Text("About")) {
                             TextField("First Name",
                                       text: $viewModel.firstName)
-                            .padding()
-                            .cornerRadius(20.0)
-                            .shadow(radius: 10.0, x: 20, y: 10)
-
                             TextField("Last Name",
                                       text: $viewModel.lastName)
-                            .padding()
-                            .cornerRadius(20.0)
-                            .shadow(radius: 10.0, x: 20, y: 10)
-
+                            TextField("Note",
+                                      text: $viewModel.note)
                             DatePicker("Birthday",
                                        selection: $viewModel.birthday,
                                        displayedComponents: [DatePickerComponents.date])
-                            .padding()
-                            .cornerRadius(20.0)
-                            .shadow(radius: 10.0, x: 20, y: 10)
+                            Picker("Sex", selection: $viewModel.sex) {
+                                Text("Female").tag(OCKBiologicalSex.female)
+                                Text("Male").tag(OCKBiologicalSex.male)
+                                Text("Other").tag(OCKBiologicalSex.other("other"))
+                            }
                         }
 
                         Section(header: Text("Contact")) {
@@ -128,6 +124,14 @@ private extension ProfileView {
 
     @ToolbarContentBuilder
     var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarLeading) {
+            Button("My Contact") {
+                viewModel.isPresentingContact = true
+            }
+            .sheet(isPresented: $viewModel.isPresentingContact) {
+                MyContactView()
+            }
+        }
         ToolbarItemGroup(placement: .navigationBarTrailing) {
             Button { activeSheet = .addTask } label: {
                 Image(systemName: "plus.circle.fill")

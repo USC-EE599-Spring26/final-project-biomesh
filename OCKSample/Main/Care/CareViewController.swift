@@ -139,7 +139,7 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
                     // Re-run the daily page query so tasks/outcomes that were
                     // just pulled from parse (e.g. after re-login) appear in
                     // the Care tab without requiring the user to navigate away.
-                    self.reload()
+                    self.reloadView()
                 }
                 self.isSyncing = false
             }
