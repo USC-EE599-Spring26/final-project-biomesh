@@ -40,25 +40,70 @@ struct ProfileView: View {
                     ProfileImageView(viewModel: viewModel)
                     Form {
                         Section(header: Text("About")) {
-                            TextField("First Name",
-                                      text: $viewModel.firstName)
-                            .padding()
-                            .cornerRadius(20.0)
-                            .shadow(radius: 10.0, x: 20, y: 10)
+                            TextField("First Name", text: $viewModel.firstName)
+                                .padding()
+                                .cornerRadius(20.0)
+                                .shadow(radius: 10.0, x: 20, y: 10)
 
-                            TextField("Last Name",
-                                      text: $viewModel.lastName)
-                            .padding()
-                            .cornerRadius(20.0)
-                            .shadow(radius: 10.0, x: 20, y: 10)
+                            TextField("Last Name", text: $viewModel.lastName)
+                                .padding()
+                                .cornerRadius(20.0)
+                                .shadow(radius: 10.0, x: 20, y: 10)
 
-                            DatePicker("Birthday",
-                                       selection: $viewModel.birthday,
-                                       displayedComponents: [DatePickerComponents.date])
+                            TextField("Note", text: $viewModel.note)
+                                .padding()
+                                .cornerRadius(20.0)
+                                .shadow(radius: 10.0, x: 20, y: 10)
+
+                            DatePicker(
+                                "Birthday",
+                                selection: $viewModel.birthday,
+                                displayedComponents: [.date]
+                            )
+
+                            Picker(
+                                "Sex",
+                                selection: Binding<String>(
+                                    get: {
+                                        switch viewModel.sex {
+                                        case .male:
+                                            return "male"
+                                        case .female:
+                                            return "female"
+                                        case .other:
+                                            return "other"
+                                        @unknown default:
+                                            return "other"
+                                        }
+                                    },
+                                    set: { (newValue: String) in
+                                        switch newValue {
+                                        case "male":
+                                            viewModel.sex = .male
+                                        case "female":
+                                            viewModel.sex = .female
+                                        default:
+                                            viewModel.sex = .other(viewModel.sexOtherField)
+                                        }
+                                    }
+                                )
+                            ) {
+                                Text("Male").tag("male")
+                                Text("Female").tag("female")
+                                Text("Other").tag("other")
+                            }
+
+                            if case .other = viewModel.sex {
+                                TextField("Specify sex", text: $viewModel.sexOtherField)
+                                    .onChange(of: viewModel.sexOtherField) { newValue in
+                                        viewModel.sex = .other(newValue.isEmpty ? "other" : newValue)
+                                    }
+                            }
+
                             TextField("Allergies", text: $viewModel.allergies)
-                            .padding()
-                            .cornerRadius(20.0)
-                            .shadow(radius: 10.0, x: 20, y: 10)
+                                .padding()
+                                .cornerRadius(20.0)
+                                .shadow(radius: 10.0, x: 20, y: 10)
                         }
 
                         Section(header: Text("Contact")) {

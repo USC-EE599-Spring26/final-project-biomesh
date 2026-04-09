@@ -79,15 +79,41 @@ class ProfileViewModel: ObservableObject {
             } else {
                 firstName = ""
             }
+
             if let currentLastName = newValue?.name.familyName {
                 lastName = currentLastName
             } else {
                 lastName = ""
             }
+
             if let currentBirthday = newValue?.birthday {
                 birthday = currentBirthday
             } else {
                 birthday = Date()
+            }
+
+            if let currentSex = newValue?.sex {
+                sex = currentSex
+                if case let .other(otherValue) = currentSex {
+                    sexOtherField = otherValue
+                } else {
+                    sexOtherField = "other"
+                }
+            } else {
+                sex = .other("other")
+                sexOtherField = "other"
+            }
+
+            if let currentNote = newValue?.notes?.first?.content {
+                note = currentNote
+            } else {
+                note = ""
+            }
+
+            if let currentAllergy = newValue?.allergies?.first {
+                allergies = currentAllergy
+            } else {
+                allergies = ""
             }
         }
     }
