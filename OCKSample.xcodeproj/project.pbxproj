@@ -123,7 +123,6 @@
 		707D29552DCBE68500980253 /* Installation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 918FDEB4271B40590045A0EF /* Installation.swift */; };
 		707D29562DCBE68500980253 /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7055725A2DC33AAC008E5B0A /* SplashScreenView.swift */; };
 		707D29572DCBE68500980253 /* OCKStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F03A962786098F00E5AFB4 /* OCKStore.swift */; };
-		707D29582DCBE68500980253 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7036E4C8256E1A6F006E9A3C /* ProfileView.swift */; };
 		707D29592DCBE68500980253 /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7099D1FE29E98D900037CD8E /* AppError.swift */; };
 		707D295A2DCBE68500980253 /* InstallationChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7099D20A29E98E400037CD8E /* InstallationChannel.swift */; };
 		707D295B2DCBE68500980253 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70BD2B1E254B44DB0030B424 /* LoginView.swift */; };
@@ -137,7 +136,6 @@
 		707D29632DCBE68500980253 /* AppDelegate+UIApplicationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70221F3328D8ABBE00971195 /* AppDelegate+UIApplicationDelegate.swift */; };
 		707D29652DCBE68500980253 /* PCKUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7083A855279CA40A00B3832E /* PCKUtility.swift */; };
 		707D29662DCBE68500980253 /* UserType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7099D20729E98E200037CD8E /* UserType.swift */; };
-		707D29672DCBE68500980253 /* ContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7036E4CD256E9A0C006E9A3C /* ContactView.swift */; };
 		707D29682DCBE68500980253 /* NoHighlightStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70E3422E2DB06281005124F9 /* NoHighlightStyle.swift */; };
 		707D29692DCBE68500980253 /* LocalSyncSessionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F921AF27CABED600368CEC /* LocalSyncSessionDelegate.swift */; };
 		707D296A2DCBE68500980253 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7036E63F25717F85006E9A3C /* Constants.swift */; };
@@ -1274,7 +1272,6 @@
 				707D29562DCBE68500980253 /* SplashScreenView.swift in Sources */,
 				707D29572DCBE68500980253 /* OCKStore.swift in Sources */,
 				FE38C3422F560F45000864F1 /* OCKDimensionStyle.swift in Sources */,
-				707D29582DCBE68500980253 /* ProfileView.swift in Sources */,
 				707D29592DCBE68500980253 /* AppError.swift in Sources */,
 				707D295A2DCBE68500980253 /* InstallationChannel.swift in Sources */,
 				707D295B2DCBE68500980253 /* LoginView.swift in Sources */,
@@ -1300,7 +1297,6 @@
 				707D29662DCBE68500980253 /* UserType.swift in Sources */,
 				3F3C42472F7225D400A0FEAB /* CardEnabledEnvironmentKey.swift in Sources */,
 				3F3C423A2F7129CF00A0FEAB /* OCKTask+CardTask.swift in Sources */,
-				707D29672DCBE68500980253 /* ContactView.swift in Sources */,
 				FEC7B5AA2F8616E000689E63 /* CustomContactViewController.swift in Sources */,
 				3F73F9972F7E3E84007D4222 /* Survey.swift in Sources */,
 				707D29682DCBE68500980253 /* NoHighlightStyle.swift in Sources */,
