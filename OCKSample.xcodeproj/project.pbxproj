@@ -209,7 +209,6 @@
 		FEC7B5B02F861A2E00689E63 /* MyContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEC7B5AF2F861A2300689E63 /* MyContactView.swift */; };
 		FEC7B5B42F861A5300689E63 /* MyContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEC7B5B22F861A5200689E63 /* MyContactViewController.swift */; };
 		FEC7B5B72F861A7D00689E63 /* ProfileImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEC7B5B52F861A7C00689E63 /* ProfileImageView.swift */; };
-		FEC7B5B82F874F7B00689E63 /* OCKSampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F0EFE728C2EC050005B5A2 /* OCKSampleApp.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1238,7 +1237,6 @@
 				3F4A12162F54F70800068C65 /* OCKAppearanceStyle.swift in Sources */,
 				707D29532DCBE68500980253 /* Logger.swift in Sources */,
 				707D29542DCBE68500980253 /* TintColorFlipKey.swift in Sources */,
-				FEC7B5B82F874F7B00689E63 /* OCKSampleApp.swift in Sources */,
 				707D29552DCBE68500980253 /* Installation.swift in Sources */,
 				3F73F98C2F7E3E66007D4222 /* CarePlanID.swift in Sources */,
 				3F3C42052F7127B400A0FEAB /* CareTask.swift in Sources */,
