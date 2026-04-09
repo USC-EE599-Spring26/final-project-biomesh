@@ -13,11 +13,19 @@ import HealthKit
 import os.log
 
 extension OCKHealthKitPassthroughStore {
-
-    func populateDefaultHealthKitTasks(startDate: Date = Date()) async throws {
+    /*
+         TODO completed:
+         - CarePlan is linked through carePlanUUID
+         - Patient is stored in task metadata because OCKTask does not
+           provide a direct patientUUID property
+         */
+    func populateDefaultHealthKitTasks(
+        _ patientUUID: UUID? = nil,
+        carePlanUUID: UUID? = nil,
+        startDate: Date = Date()
+    ) async throws {
 
         // Daily Steps
-        // Physical activity as a control variable in the caffeine-anxiety model.
         let countUnit = HKUnit.count()
         let stepSchedule = OCKSchedule.dailyAtTime(
             hour: 8,
@@ -28,10 +36,11 @@ extension OCKHealthKitPassthroughStore {
             duration: .allDay,
             targetValues: [OCKOutcomeValue(8000.0, units: countUnit.unitString)]
         )
+
         var steps = OCKHealthKitTask(
             id: TaskID.steps,
             title: "Daily Steps",
-            carePlanUUID: nil,
+            carePlanUUID: carePlanUUID,
             schedule: stepSchedule,
             healthKitLinkage: OCKHealthKitLinkage(
                 quantityIdentifier: .stepCount,
@@ -39,14 +48,22 @@ extension OCKHealthKitPassthroughStore {
                 unit: countUnit
             )
         )
-        steps.instructions = "Your step count from HealthKit. " +
-            "Regular movement can reduce caffeine-related anxiety symptoms."
+        steps.instructions = "Your step count from HealthKit. Regular movement can reduce caffeine-related anxiety symptoms."
         steps.asset = "figure.walk"
         steps.card = .numericProgress
         steps.priority = 4
 
+        // Append metadata tags instead of overwriting existing tags
+        var stepTags = steps.tags ?? []
+        if let patientUUID {
+            stepTags.append("patient:\(patientUUID.uuidString)")
+        }
+        if let carePlanUUID {
+            stepTags.append("carePlan:\(carePlanUUID.uuidString)")
+        }
+        steps.tags = stepTags
+
         // Sleep Duration
-        // The mediator variable in the caffeine → sleep → anxiety research model.
         let sleepSchedule = OCKSchedule.dailyAtTime(
             hour: 7,
             minutes: 0,
@@ -56,20 +73,29 @@ extension OCKHealthKitPassthroughStore {
             duration: .allDay,
             targetValues: []
         )
+
         var sleep = OCKHealthKitTask(
             id: TaskID.sleepDuration,
             title: "Sleep Duration",
-            carePlanUUID: nil,
+            carePlanUUID: carePlanUUID,
             schedule: sleepSchedule,
             healthKitLinkage: OCKHealthKitLinkage(
                 categoryIdentifier: .sleepAnalysis
             )
         )
-        sleep.instructions = "Hours of sleep recorded by HealthKit. " +
-            "This is the key mediator between your caffeine intake and next-day anxiety."
+        sleep.instructions = "Hours of sleep recorded by HealthKit. This is the key mediator between your caffeine intake and next-day anxiety."
         sleep.asset = "bed.double.fill"
         sleep.card = .labeledValue
         sleep.priority = 5
+
+        var sleepTags = sleep.tags ?? []
+        if let patientUUID {
+            sleepTags.append("patient:\(patientUUID.uuidString)")
+        }
+        if let carePlanUUID {
+            sleepTags.append("carePlan:\(carePlanUUID.uuidString)")
+        }
+        sleep.tags = sleepTags
 
         _ = try await addTasksIfNotPresent([steps, sleep])
     }

@@ -6,144 +6,146 @@
 //  Copyright © 2020 Network Reconnaissance Lab. All rights reserved.
 //
 
-import CareKit
-import CareKitStore
+//
+//  ProfileView.swift
+//  OCKSample
+//
+//  Created by Corey Baker on 11/24/20.
+//  Copyright © 2020 Network Reconnaissance Lab. All rights reserved.
+//
+
 import CareKitUI
+import CareKitStore
+import CareKit
 import os.log
 import SwiftUI
 
 struct ProfileView: View {
 
-    @CareStoreFetchRequest(query: query()) private var patients
+    @CareStoreFetchRequest(query: ProfileViewModel.queryPatient()) private var patients
+    @CareStoreFetchRequest(query: ProfileViewModel.queryContacts()) private var contacts
     @StateObject private var viewModel = ProfileViewModel()
     @ObservedObject var loginViewModel: LoginViewModel
 
-    private enum ActiveSheet: Identifiable {
-        case addTask
-        case manageTasks
-
-        var id: Int { hashValue }
-    }
-
-    @State private var activeSheet: ActiveSheet?
+    // MARK: Navigation
+    @State var isPresentingAddTask = false
+    @State var isShowingSaveAlert = false
+    @State var isPresentingContact = false
+    @State var isPresentingImagePicker = false
 
     var body: some View {
         NavigationView {
             VStack {
-                profileFields
+                VStack {
+                    ProfileImageView(viewModel: viewModel)
+                    Form {
+                        Section(header: Text("About")) {
+                            TextField("First Name",
+                                      text: $viewModel.firstName)
+                            .padding()
+                            .cornerRadius(20.0)
+                            .shadow(radius: 10.0, x: 20, y: 10)
 
-                saveProfileButton
-                logoutButton
+                            TextField("Last Name",
+                                      text: $viewModel.lastName)
+                            .padding()
+                            .cornerRadius(20.0)
+                            .shadow(radius: 10.0, x: 20, y: 10)
+
+                            DatePicker("Birthday",
+                                       selection: $viewModel.birthday,
+                                       displayedComponents: [DatePickerComponents.date])
+                            TextField("Allergies", text: $viewModel.allergies)
+                            .padding()
+                            .cornerRadius(20.0)
+                            .shadow(radius: 10.0, x: 20, y: 10)
+                        }
+
+                        Section(header: Text("Contact")) {
+                            TextField("Street", text: $viewModel.street)
+                            TextField("City", text: $viewModel.city)
+                            TextField("State", text: $viewModel.state)
+                            TextField("Postal code", text: $viewModel.zipcode)
+                            TextField("Email", text: $viewModel.email)
+                            TextField("Messaging Number", text: $viewModel.messagingNumber)
+                            TextField("Phone Number", text: $viewModel.phoneNumber)
+                            TextField("Other Contact Info", text: $viewModel.otherContactInfo)
+                        }
+                    }
+                }
+
+                Button(action: {
+                    Task {
+                        await viewModel.saveProfile()
+                    }
+                }, label: {
+                    Text("Save Profile")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(width: 300, height: 50)
+                })
+                .background(Color(.green))
+                .cornerRadius(15)
+
+                // Notice that "action" is a closure (which is essentially
+                // a function as argument like we discussed in class)
+                Button(action: {
+                    Task {
+                        await loginViewModel.logout()
+                    }
+                }, label: {
+                    Text("Log Out")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(width: 300, height: 50)
+                })
+                .background(Color(.red))
+                .cornerRadius(15)
             }
-            .navigationTitle("Profile")
-            .toolbar { toolbarContent }
-            .sheet(item: $activeSheet) { sheet in
-                sheetView(for: sheet)
-            }
-            .onReceive(patients.publisher) { publishedPatient in
-                viewModel.updatePatient(publishedPatient.result)
-            }
-        }
-    }
-}
-
-// MARK: - Subviews
-
-private extension ProfileView {
-
-    var profileFields: some View {
-        VStack(alignment: .leading) {
-            TextField("GIVEN_NAME", text: $viewModel.firstName)
-                .padding()
-                .cornerRadius(20.0)
-                .shadow(radius: 10.0, x: 20, y: 10)
-
-            TextField("FAMILY_NAME", text: $viewModel.lastName)
-                .padding()
-                .cornerRadius(20.0)
-                .shadow(radius: 10.0, x: 20, y: 10)
-
-            DatePicker(
-                "BIRTHDAY",
-                selection: $viewModel.birthday,
-                displayedComponents: [.date]
-            )
-            .padding()
-            .cornerRadius(20.0)
-            .shadow(radius: 10.0, x: 20, y: 10)
-        }
-    }
-
-    var saveProfileButton: some View {
-        Button {
-            Task {
-                do {
-                    try await viewModel.saveProfile()
-                } catch {
-                    Logger.profile.error("Error saving profile: \(error)")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("My Contact") {
+                        viewModel.isPresentingContact = true
+                    }
+                    .sheet(isPresented: $viewModel.isPresentingContact) {
+                        MyContactView()
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Add Task") {
+                        isPresentingAddTask = true
+                    }
+                    .sheet(isPresented: $isPresentingAddTask) {
+                        CareKitTaskView()
+                    }
                 }
             }
-        } label: {
-            Text("SAVE_PROFILE")
-                .font(.headline)
-                .foregroundColor(.white)
-                .padding()
-                .frame(width: 300, height: 50)
-        }
-        .background(Color(.green))
-        .cornerRadius(15)
-    }
-
-    var logoutButton: some View {
-        Button {
-            Task { await loginViewModel.logout() }
-        } label: {
-            Text("LOG_OUT")
-                .font(.headline)
-                .foregroundColor(.white)
-                .padding()
-                .frame(width: 300, height: 50)
-        }
-        .background(Color(.red))
-        .cornerRadius(15)
-    }
-
-    @ToolbarContentBuilder
-    var toolbarContent: some ToolbarContent {
-        ToolbarItemGroup(placement: .navigationBarTrailing) {
-            Button { activeSheet = .addTask } label: {
-                Image(systemName: "plus.circle.fill")
+            .sheet(isPresented: $viewModel.isPresentingImagePicker) {
+                ImagePicker(image: $viewModel.profileUIImage)
             }
-
-            Button { activeSheet = .manageTasks } label: {
-                Image(systemName: "trash.circle.fill")
-                    .foregroundColor(.red)
+            .alert(isPresented: $viewModel.isShowingSaveAlert) {
+                return Alert(title: Text("Update"),
+                             message: Text(viewModel.alertMessage),
+                             dismissButton: .default(Text("Ok"), action: {
+                                viewModel.isShowingSaveAlert = false
+                             }))
             }
         }
-    }
-
-    @ViewBuilder
-    private func sheetView(for sheet: ActiveSheet) -> some View {
-        switch sheet {
-        case .addTask:
-            AddTaskView()
-        case .manageTasks:
-            ManageTasksView()
+        .onReceive(patients.publisher) { publishedPatient in
+            viewModel.updatePatient(publishedPatient.result)
         }
-    }
-}
-
-// MARK: - Queries
-
-private extension ProfileView {
-    static func query() -> OCKPatientQuery {
-        OCKPatientQuery(for: Date())
+        .onReceive(contacts.publisher) { publishedContact in
+            viewModel.updateContact(publishedContact.result)
+        }
     }
 }
 
 struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
         ProfileView(loginViewModel: .init())
+            .accentColor(Color.accentColor)
             .environment(\.careStore, Utility.createPreviewStore())
     }
 }
