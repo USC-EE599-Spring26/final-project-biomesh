@@ -103,7 +103,6 @@
 		707D28CF2DCA8AAB00980253 /* OCKStore+SampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 707D28CE2DCA8AA500980253 /* OCKStore+SampleData.swift */; };
 		707D28D02DCA8AAB00980253 /* OCKStore+SampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 707D28CE2DCA8AA500980253 /* OCKStore+SampleData.swift */; };
 		707D292D2DCBE5E500980253 /* RealityKitContent in Frameworks */ = {isa = PBXBuildFile; productRef = 707D292C2DCBE5E500980253 /* RealityKitContent */; };
-		707D29462DCBE68500980253 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70221F2728D7809800971195 /* MainTabView.swift */; };
 		707D29472DCBE68500980253 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70077596252228E900EC0EDA /* User.swift */; };
 		707D29482DCBE68500980253 /* FontColorKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F03AA727860E7700E5AFB4 /* FontColorKey.swift */; };
 		707D29492DCBE68500980253 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7036E4D2256EBE35006E9A3C /* MainView.swift */; };
@@ -1239,7 +1238,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				707D29462DCBE68500980253 /* MainTabView.swift in Sources */,
 				707D29472DCBE68500980253 /* User.swift in Sources */,
 				707D29482DCBE68500980253 /* FontColorKey.swift in Sources */,
 				707D29492DCBE68500980253 /* MainView.swift in Sources */,
