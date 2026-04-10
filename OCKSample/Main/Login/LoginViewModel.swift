@@ -133,11 +133,22 @@ class LoginViewModel: ObservableObject {
         let savedPatient = try await appDelegate.store.addPatient(newPatient)
 
         // Added code to create a contact for the respective signed up user
-        let newContact = OCKContact(
+        var newContact = OCKContact(
             id: remoteUUID.uuidString,
             name: newPatient.name,
             carePlanUUID: nil
         )
+
+        newContact.title = "\(firstName) \(lastName)"
+        newContact.role = "Patient"
+
+        if let currentUser = try? await User.current(),
+           let email = currentUser.email,
+           !email.isEmpty {
+            newContact.emailAddresses = [
+                OCKLabeledValue(label: "email", value: email)
+            ]
+        }
 
         // This is new contact that has never been saved before
         _ = try await appDelegate.store.addAnyContact(newContact)
