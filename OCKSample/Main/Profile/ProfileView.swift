@@ -41,19 +41,10 @@ struct ProfileView: View {
                     Form {
                         Section(header: Text("About")) {
                             TextField("First Name", text: $viewModel.firstName)
-                                .padding()
-                                .cornerRadius(20.0)
-                                .shadow(radius: 10.0, x: 20, y: 10)
 
                             TextField("Last Name", text: $viewModel.lastName)
-                                .padding()
-                                .cornerRadius(20.0)
-                                .shadow(radius: 10.0, x: 20, y: 10)
 
                             TextField("Note", text: $viewModel.note)
-                                .padding()
-                                .cornerRadius(20.0)
-                                .shadow(radius: 10.0, x: 20, y: 10)
 
                             DatePicker(
                                 "Birthday",
@@ -101,10 +92,7 @@ struct ProfileView: View {
                             }
 
                             TextField("Allergies", text: $viewModel.allergies)
-                                .padding()
-                                .cornerRadius(20.0)
-                                .shadow(radius: 10.0, x: 20, y: 10)
-                        }
+                            }
 
                         Section(header: Text("Contact")) {
                             TextField("Street", text: $viewModel.street)
