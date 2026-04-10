@@ -279,6 +279,17 @@ class ProfileViewModel: ObservableObject {
                 contactHasBeenUpdated = true
                 contactToUpdate.name = patientName
             }
+            
+            let currentTitle = "\(firstName) \(lastName)"
+            if contact?.title != currentTitle {
+                contactHasBeenUpdated = true
+                contactToUpdate.title = currentTitle
+            }
+            
+            if contact?.role != "Patient" {
+                contactHasBeenUpdated = true
+                contactToUpdate.role = "Patient"
+            }
 
             let potentialAddress = OCKPostalAddress(
                 street: street,
