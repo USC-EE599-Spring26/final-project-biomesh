@@ -66,7 +66,7 @@ class ProfileViewModel: ObservableObject {
         }
     }
     @Published private(set) var error: Error?
-    private(set) var alertMessage = "All changs saved successfully!"
+    private(set) var alertMessage = "All changes saved successfully!"
     private var contact: OCKContact? // TODO: need to publish contact updates like patient
 
     // MARK: Private read/write properties
@@ -79,15 +79,42 @@ class ProfileViewModel: ObservableObject {
             } else {
                 firstName = ""
             }
+
             if let currentLastName = newValue?.name.familyName {
                 lastName = currentLastName
             } else {
                 lastName = ""
             }
+
             if let currentBirthday = newValue?.birthday {
                 birthday = currentBirthday
             } else {
                 birthday = Date()
+            }
+
+            if let currentSex = newValue?.sex {
+                sex = currentSex
+                if case let .other(otherValue) = currentSex {
+                    sexOtherField = otherValue
+                } else {
+                    sexOtherField = "other"
+                }
+            } else {
+                sex = .other("other")
+                sexOtherField = "other"
+            }
+
+            if let currentNote = newValue?.notes?.first?.content {
+                note = currentNote
+            } else {
+                note = ""
+            }
+
+            if let currentAllergies = newValue?.allergies,
+               !currentAllergies.isEmpty {
+                allergies = currentAllergies.joined(separator: ", ")
+            } else {
+                allergies = ""
             }
         }
     }
@@ -121,7 +148,19 @@ class ProfileViewModel: ObservableObject {
               contact.uuid != self.contact?.uuid else {
             return
         }
+
         self.contact = contact
+
+        street = contact.address?.street ?? ""
+        city = contact.address?.city ?? ""
+        state = contact.address?.state ?? ""
+        zipcode = contact.address?.postalCode ?? ""
+        country = contact.address?.country ?? ""
+
+        email = contact.emailAddresses?.first?.value ?? ""
+        messagingNumber = contact.messagingNumbers?.first?.value ?? ""
+        phoneNumber = contact.phoneNumbers?.first?.value ?? ""
+        otherContactInfo = contact.otherContactInfo?.first?.value ?? ""
     }
 
     @MainActor
@@ -154,7 +193,7 @@ class ProfileViewModel: ObservableObject {
 
     @MainActor
     func saveProfile() async {
-        alertMessage = "All changs saved successfully!"
+        alertMessage = "All changes saved successfully!"
         do {
             try await savePatient()
             try await saveContact()
@@ -197,9 +236,9 @@ class ProfileViewModel: ObservableObject {
                 patientToUpdate.notes = notes
             }
 
-            if patient?.allergies != [allergies] {
+            if patient?.allergies != parsedAllergies {
                 patientHasBeenUpdated = true
-                patientToUpdate.allergies = [allergies]
+                patientToUpdate.allergies = parsedAllergies
             }
 
             if patientHasBeenUpdated {
@@ -223,7 +262,7 @@ class ProfileViewModel: ObservableObject {
             newPatient.notes = [OCKNote(author: firstName,
                                         title: "New Note",
                                         content: note)]
-            newPatient.allergies = [allergies]
+            newPatient.allergies = parsedAllergies
 
             _ = try await AppDelegateKey.defaultValue?.store.addAnyPatient(newPatient)
             Logger.profile.info("Succesffully saved new patient")
@@ -240,6 +279,17 @@ class ProfileViewModel: ObservableObject {
                contact?.name != patient?.name {
                 contactHasBeenUpdated = true
                 contactToUpdate.name = patientName
+            }
+            
+            let currentTitle = "\(firstName) \(lastName)"
+            if contact?.title != currentTitle {
+                contactHasBeenUpdated = true
+                contactToUpdate.title = currentTitle
+            }
+            
+            if contact?.role != "Patient" {
+                contactHasBeenUpdated = true
+                contactToUpdate.role = "Patient"
             }
 
             let potentialAddress = OCKPostalAddress(
@@ -327,6 +377,13 @@ class ProfileViewModel: ObservableObject {
 
     private var otherContactInfoLabeledValues: [OCKLabeledValue] {
         otherContactInfo.isEmpty ? [] : [OCKLabeledValue(label: "other", value: otherContactInfo)]
+    }
+    
+    private var parsedAllergies: [String] {
+        allergies
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
     }
     
     static func queryPatient() -> OCKPatientQuery {

@@ -72,11 +72,7 @@ class MyContactViewController: OCKListViewController {
         }
 
         var query = OCKContactQuery(for: Date())
-        query.remoteIDs = [personUUIDString]
-        query.sortDescriptors = [
-            .familyName(ascending: true),
-            .givenName(ascending: true)
-        ]
+        query.ids = [personUUIDString]
         query.limit = 1
 
         self.contacts = try await store.fetchAnyContacts(query: query)
