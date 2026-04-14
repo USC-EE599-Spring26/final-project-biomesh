@@ -48,10 +48,10 @@ struct ManageTasksView: View {
         } else {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
-                    Color.clear.frame(height: 86)
                     Text("Manage Tasks")
                         .font(.system(size: 34, weight: .bold))
                         .padding(.horizontal, 20)
+                        .padding(.top, 12)
                     taskList
                 }
                 .padding(.vertical, 12)

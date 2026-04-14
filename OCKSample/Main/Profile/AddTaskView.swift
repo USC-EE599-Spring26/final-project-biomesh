@@ -16,11 +16,10 @@ struct AddTaskView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
-                    Color.clear.frame(height: 86)
-
                     Text("Add Task")
                         .font(.system(size: 34, weight: .bold))
                         .padding(.horizontal, 20)
+                        .padding(.top, 12)
 
                     addSection(title: "Task Type") {
                         Picker("Type", selection: $viewModel.taskKind) {
