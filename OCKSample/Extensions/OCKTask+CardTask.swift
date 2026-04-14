@@ -29,5 +29,19 @@ extension OCKTask {
         }
     }
     #endif
-}
 
+    var externalURL: URL? {
+        get {
+            guard let urlString = userInfo?[Constants.linkURL] else {
+                return nil
+            }
+            return URL(string: urlString)
+        }
+        set {
+            if userInfo == nil {
+                userInfo = .init()
+            }
+            userInfo?[Constants.linkURL] = newValue?.absoluteString
+        }
+    }
+}

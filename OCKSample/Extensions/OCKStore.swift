@@ -156,6 +156,36 @@ extension OCKStore {
                 duration: .allDay
             )
         ])
+        let morningReflectionSchedule = OCKSchedule(composing: [
+            OCKScheduleElement(
+                start: calendar.date(bySettingHour: 9, minute: 0, second: 0, of: morning) ?? morning,
+                end: nil,
+                interval: DateComponents(day: 1),
+                text: "Morning check-in",
+                targetValues: [],
+                duration: .allDay
+            )
+        ])
+        let middaySchedule = OCKSchedule(composing: [
+            OCKScheduleElement(
+                start: calendar.date(bySettingHour: 12, minute: 30, second: 0, of: morning) ?? morning,
+                end: nil,
+                interval: DateComponents(day: 1),
+                text: "Midday",
+                targetValues: [],
+                duration: .allDay
+            )
+        ])
+        let afternoonSchedule = OCKSchedule(composing: [
+            OCKScheduleElement(
+                start: calendar.date(bySettingHour: 15, minute: 30, second: 0, of: morning) ?? morning,
+                end: nil,
+                interval: DateComponents(day: 1),
+                text: "Afternoon",
+                targetValues: [],
+                duration: .allDay
+            )
+        ])
 
         // Caffeine Intake
         // Logs each caffeinated drink throughout the day.
@@ -233,10 +263,67 @@ extension OCKStore {
         windDown.priority = 3
         windDown.impactsAdherence = true
 
+        var hydrationGuide = OCKTask(
+            id: TaskID.hydrationGuide,
+            title: "Hydration Guide",
+            carePlanUUID: sleepWellnessUUID,
+            schedule: morningReflectionSchedule
+        )
+        hydrationGuide.instructions = "Read a quick reminder about why hydration matters before your first caffeinated drink."
+        hydrationGuide.asset = "drop.circle.fill"
+        hydrationGuide.card = .instruction
+        hydrationGuide.priority = 4
+        hydrationGuide.impactsAdherence = false
+
+        var energySnapshot = OCKTask(
+            id: TaskID.energySnapshot,
+            title: "Morning Energy Snapshot",
+            carePlanUUID: dailyTrackingUUID,
+            schedule: morningReflectionSchedule
+        )
+        energySnapshot.instructions = "Give yourself one quick tap to note whether you feel ready for the day before reaching for caffeine."
+        energySnapshot.asset = "sun.max.fill"
+        energySnapshot.card = .simple
+        energySnapshot.priority = 5
+        energySnapshot.impactsAdherence = false
+
+        var stretchChecklist = OCKTask(
+            id: TaskID.stretchChecklist,
+            title: "Desk Stretch Break",
+            carePlanUUID: sleepWellnessUUID,
+            schedule: afternoonSchedule
+        )
+        stretchChecklist.instructions = "Use this checklist to pause, reset posture, and reduce tension during the afternoon."
+        stretchChecklist.asset = "figure.cooldown"
+        stretchChecklist.card = .checklist
+        stretchChecklist.priority = 6
+        stretchChecklist.impactsAdherence = true
+
+        var studyResource = OCKTask(
+            id: TaskID.studyResource,
+            title: "Caffeine Research Resource",
+            carePlanUUID: assessmentUUID,
+            schedule: middaySchedule
+        )
+        studyResource.instructions = "Open this resource for a short explainer on caffeine timing, hydration, and recovery habits."
+        studyResource.asset = "link.circle.fill"
+        studyResource.card = .link
+        studyResource.externalURL = URL(string: "https://www.cdc.gov/sleep/about_sleep/sleep_hygiene.html")
+        studyResource.priority = 7
+        studyResource.impactsAdherence = false
+
         let weeklyReflection = createQualityOfLifeSurveyTask(carePlanUUID: assessmentUUID)
 
         _ = try await addTasksIfNotPresent([
-            caffeine, water, anxiety, windDown, weeklyReflection
+            caffeine,
+            water,
+            anxiety,
+            windDown,
+            hydrationGuide,
+            energySnapshot,
+            stretchChecklist,
+            studyResource,
+            weeklyReflection
         ])
 
         #if os(iOS)

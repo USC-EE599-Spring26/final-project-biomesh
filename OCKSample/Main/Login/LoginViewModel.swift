@@ -163,7 +163,8 @@ class LoginViewModel: ObservableObject {
             : currentDate
 
         // Create the default care plans, tasks, and contacts first.
-        try await appDelegate.store.populateDefaultCarePlansTasksContacts(
+        try await appDelegate.populateSampleData(
+            patientUUID: savedPatient.uuid,
             startDate: startDate
         )
 
@@ -180,20 +181,6 @@ class LoginViewModel: ObservableObject {
             updatedCarePlan.patientUUID = savedPatient.uuid
             _ = try await appDelegate.store.updateCarePlan(updatedCarePlan)
         }
-
-        let allCarePlans = try await appDelegate.store.fetchCarePlans(query: carePlanQuery)
-
-        guard let dailyTrackingUUID = allCarePlans.first(where: {
-            $0.id == CarePlanID.dailyTracking.rawValue
-        })?.uuid else {
-            throw AppError.couldntBeUnwrapped
-        }
-
-        try await appDelegate.healthKitStore.populateDefaultHealthKitTasks(
-            savedPatient.uuid,
-            carePlanUUID: dailyTrackingUUID,
-            startDate: startDate
-        )
 
         if startDate < currentDate {
             try await appDelegate.store.populateSampleOutcomes(

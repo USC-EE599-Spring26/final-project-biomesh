@@ -316,7 +316,12 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
                 return [card]
 
             case .link:
-                return nil
+                let card = EventQueryView<LinkView>(
+                    query: query
+                )
+                .padding(.vertical, swiftUIPadding)
+                .formattedHostingController()
+                return [card]
 
             case .simple:
                 let card = EventQueryView<SimpleTaskView>(
