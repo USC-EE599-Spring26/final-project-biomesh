@@ -31,7 +31,7 @@ let informedConsentHTML = """
             <li>You will log your daily caffeine and water intake using the app.</li>
             <li>You will record anxiety episodes as they occur throughout the day.</li>
             <li>You will complete a nightly sleep hygiene checklist.</li>
-            <li>You will share step count and sleep duration data from HealthKit.</li>
+            <li>You will share step count, sleep, heart rate, and resting heart rate data from HealthKit.</li>
             <li>You will complete periodic surveys about stress and quality of life.</li>
             <li>The study will send you reminders to complete daily tasks.</li>
             <li>The study is expected to last 8 weeks.</li>
