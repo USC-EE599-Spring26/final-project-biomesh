@@ -25,6 +25,12 @@ struct ManageTasksView: View {
                     Text(viewModel.errorMessage ?? "Unknown error")
                 }
                 .background(Color(.systemGroupedBackground))
+                .safeAreaInset(edge: .top, spacing: 0) {
+                    topBar
+                        .padding(.top, 6)
+                        .padding(.bottom, 10)
+                        .background(.ultraThinMaterial)
+                }
         }
     }
 
@@ -42,7 +48,7 @@ struct ManageTasksView: View {
         } else {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
-                    topBar
+                    Color.clear.frame(height: 86)
                     Text("Manage Tasks")
                         .font(.system(size: 34, weight: .bold))
                         .padding(.horizontal, 20)

@@ -159,9 +159,9 @@ struct ProfileView: View {
             Button("My Contact") {
                 viewModel.isPresentingContact = true
             }
-            .font(.system(size: 18, weight: .medium))
-            .padding(.horizontal, 18)
-            .padding(.vertical, 14)
+            .font(.system(size: 16, weight: .medium))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
             .background(.white)
             .clipShape(Capsule())
 
@@ -184,8 +184,8 @@ struct ProfileView: View {
                     isPresentingManageTasks = true
                 }
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
             .background(.white)
             .clipShape(Capsule())
         }
@@ -261,9 +261,9 @@ struct ProfileView: View {
     ) -> some View {
         Button(action: action) {
             Image(systemName: systemName)
-                .font(.system(size: 18, weight: .bold))
+                .font(.system(size: 15, weight: .bold))
                 .foregroundStyle(foreground)
-                .frame(width: 42, height: 42)
+                .frame(width: 36, height: 36)
                 .background(background)
                 .clipShape(Circle())
         }
