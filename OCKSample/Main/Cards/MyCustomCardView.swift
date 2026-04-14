@@ -76,7 +76,7 @@ struct MyCustomCardView: CareKitEssentialView {
                             }
                         }
                         .buttonStyle(NoHighlightStyle())
-                        .disabled(!allChecked && !isComplete)
+                        .disabled(!hasCheckedItem && !isComplete)
                     }
                 }
             }
@@ -123,6 +123,10 @@ struct MyCustomCardView: CareKitEssentialView {
 
     private var allChecked: Bool {
         noCaffeineChecked && dimLightsChecked && phoneFaceDownChecked
+    }
+
+    private var hasCheckedItem: Bool {
+        noCaffeineChecked || dimLightsChecked || phoneFaceDownChecked
     }
 
     private var buttonText: LocalizedStringKey {

@@ -281,14 +281,14 @@ extension OCKStore {
 
     func createQualityOfLifeSurveyTask(carePlanUUID: UUID?) -> OCKTask {
         let weeklyReflectionTaskID = TaskID.weeklyReflection
-
-        let thisMorning = Calendar.current.startOfDay(for: Date())
-        let sundayEvening = Calendar.current.date(
-            bySettingHour: 18,
-            minute: 0,
-            second: 0,
-            of: thisMorning
-        ) ?? thisMorning
+        let calendar = Calendar.current
+        let now = Date()
+        let sundayEvening = calendar.nextDate(
+            after: now,
+            matching: DateComponents(hour: 18, minute: 0, second: 0, weekday: 1),
+            matchingPolicy: .nextTime,
+            direction: .forward
+        ) ?? now
         let reflectionElement = OCKScheduleElement(
             start: sundayEvening,
             end: nil,
@@ -342,7 +342,7 @@ extension OCKStore {
         qualityOfLife.instructions = "Reflect once a week on your caffeine cutoff and how manageable your stress felt."
         qualityOfLife.impactsAdherence = true
         qualityOfLife.asset = "list.clipboard"
-        qualityOfLife.card = .survey
+        qualityOfLife.card = CareKitCard.survey
         qualityOfLife.surveySteps = [stepOne]
         qualityOfLife.priority = 4
 
