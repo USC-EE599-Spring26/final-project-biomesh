@@ -35,137 +35,108 @@ struct ProfileView: View {
     @State var isPresentingImagePicker = false
 
     var body: some View {
-        NavigationView {
-            VStack {
-                VStack {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    topBar
+                    Text("Profile")
+                        .font(.system(size: 34, weight: .bold))
+                        .padding(.horizontal, 20)
+
                     ProfileImageView(viewModel: viewModel)
-                    Form {
-                        Section(header: Text("About")) {
-                            TextField("First Name", text: $viewModel.firstName)
+                        .frame(maxWidth: .infinity)
 
-                            TextField("Last Name", text: $viewModel.lastName)
-
-                            TextField("Note", text: $viewModel.note)
-
-                            DatePicker(
-                                "Birthday",
-                                selection: $viewModel.birthday,
-                                displayedComponents: [.date]
+                    profileSection(title: "About") {
+                        profileRowField("First Name", text: $viewModel.firstName)
+                        Divider()
+                        profileRowField("Last Name", text: $viewModel.lastName)
+                        Divider()
+                        profileRowField("Note", text: $viewModel.note)
+                        Divider()
+                        DatePicker(
+                            "Birthday",
+                            selection: $viewModel.birthday,
+                            displayedComponents: [.date]
+                        )
+                        Divider()
+                        Picker(
+                            "Sex",
+                            selection: Binding<String>(
+                                get: {
+                                    switch viewModel.sex {
+                                    case .male:
+                                        return "male"
+                                    case .female:
+                                        return "female"
+                                    case .other:
+                                        return "other"
+                                    @unknown default:
+                                        return "other"
+                                    }
+                                },
+                                set: { (newValue: String) in
+                                    switch newValue {
+                                    case "male":
+                                        viewModel.sex = .male
+                                    case "female":
+                                        viewModel.sex = .female
+                                    default:
+                                        viewModel.sex = .other(viewModel.sexOtherField)
+                                    }
+                                }
                             )
-
-                            Picker(
-                                "Sex",
-                                selection: Binding<String>(
-                                    get: {
-                                        switch viewModel.sex {
-                                        case .male:
-                                            return "male"
-                                        case .female:
-                                            return "female"
-                                        case .other:
-                                            return "other"
-                                        @unknown default:
-                                            return "other"
-                                        }
-                                    },
-                                    set: { (newValue: String) in
-                                        switch newValue {
-                                        case "male":
-                                            viewModel.sex = .male
-                                        case "female":
-                                            viewModel.sex = .female
-                                        default:
-                                            viewModel.sex = .other(viewModel.sexOtherField)
-                                        }
-                                    }
-                                )
-                            ) {
-                                Text("Male").tag("male")
-                                Text("Female").tag("female")
-                                Text("Other").tag("other")
-                            }
-
-                            if case .other = viewModel.sex {
-                                TextField("Specify sex", text: $viewModel.sexOtherField)
-                                    .onChange(of: viewModel.sexOtherField) { newValue in
-                                        viewModel.sex = .other(newValue.isEmpty ? "other" : newValue)
-                                    }
-                            }
-
-                            TextField("Allergies", text: $viewModel.allergies)
-                            }
-
-                        Section(header: Text("Contact")) {
-                            TextField("Street", text: $viewModel.street)
-                            TextField("City", text: $viewModel.city)
-                            TextField("State", text: $viewModel.state)
-                            TextField("Postal code", text: $viewModel.zipcode)
-                            TextField("Email", text: $viewModel.email)
-                            TextField("Messaging Number", text: $viewModel.messagingNumber)
-                            TextField("Phone Number", text: $viewModel.phoneNumber)
-                            TextField("Other Contact Info", text: $viewModel.otherContactInfo)
+                        ) {
+                            Text("Male").tag("male")
+                            Text("Female").tag("female")
+                            Text("Other").tag("other")
                         }
-                    }
-                }
 
-                Button(action: {
-                    Task {
-                        await viewModel.saveProfile()
-                    }
-                }, label: {
-                    Text("Save Profile")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(width: 300, height: 50)
-                })
-                .background(Color(.green))
-                .cornerRadius(15)
+                        if case .other = viewModel.sex {
+                            Divider()
+                            profileRowField("Specify sex", text: $viewModel.sexOtherField)
+                                .onChange(of: viewModel.sexOtherField) { newValue in
+                                    viewModel.sex = .other(newValue.isEmpty ? "other" : newValue)
+                                }
+                        }
 
-                // Notice that "action" is a closure (which is essentially
-                // a function as argument like we discussed in class)
-                Button(action: {
-                    Task {
-                        await loginViewModel.logout()
+                        Divider()
+                        profileRowField("Allergies", text: $viewModel.allergies)
                     }
-                }, label: {
-                    Text("Log Out")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(width: 300, height: 50)
-                })
-                .background(Color(.red))
-                .cornerRadius(15)
+
+                    profileSection(title: "Contact") {
+                        profileRowField("Street", text: $viewModel.street)
+                        Divider()
+                        profileRowField("City", text: $viewModel.city)
+                        Divider()
+                        profileRowField("State", text: $viewModel.state)
+                        Divider()
+                        profileRowField("Postal code", text: $viewModel.zipcode)
+                        Divider()
+                        profileRowField("Email", text: $viewModel.email)
+                        Divider()
+                        profileRowField("Messaging Number", text: $viewModel.messagingNumber)
+                        Divider()
+                        profileRowField("Phone Number", text: $viewModel.phoneNumber)
+                        Divider()
+                        profileRowField("Other Contact Info", text: $viewModel.otherContactInfo)
+                    }
+
+                    actionButtons
+                }
+                .padding(.vertical, 12)
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("My Contact") {
-                        viewModel.isPresentingContact = true
-                    }
-                    .sheet(isPresented: $viewModel.isPresentingContact) {
-                        MyContactView()
-                    }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Manage Tasks") {
-                        isPresentingManageTasks = true
-                    }
-                    .sheet(isPresented: $isPresentingManageTasks) {
-                        ManageTasksView()
-                    }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Add Task") {
-                        isPresentingAddTask = true
-                    }
-                    .sheet(isPresented: $isPresentingAddTask) {
-                        CareKitTaskView()
-                    }
-                }
-            }
+            .background(Color(.systemGroupedBackground))
             .sheet(isPresented: $viewModel.isPresentingImagePicker) {
                 ImagePicker(image: $viewModel.profileUIImage)
+            }
+            .sheet(isPresented: $viewModel.isPresentingContact) {
+                MyContactView()
+            }
+            .sheet(isPresented: $isPresentingManageTasks) {
+                ManageTasksView()
+            }
+            .sheet(isPresented: $isPresentingAddTask) {
+                AddTaskView()
             }
             .alert(isPresented: $viewModel.isShowingSaveAlert) {
                 return Alert(title: Text("Update"),
@@ -180,6 +151,121 @@ struct ProfileView: View {
         }
         .onReceive(contacts.publisher) { publishedContact in
             viewModel.updateContact(publishedContact.result)
+        }
+    }
+
+    private var topBar: some View {
+        HStack {
+            Button("My Contact") {
+                viewModel.isPresentingContact = true
+            }
+            .font(.system(size: 18, weight: .medium))
+            .padding(.horizontal, 18)
+            .padding(.vertical, 14)
+            .background(.white)
+            .clipShape(Capsule())
+
+            Spacer()
+
+            HStack(spacing: 12) {
+                circleIconButton(
+                    systemName: "plus",
+                    foreground: .white,
+                    background: .black
+                ) {
+                    isPresentingAddTask = true
+                }
+
+                circleIconButton(
+                    systemName: "trash",
+                    foreground: .white,
+                    background: .red
+                ) {
+                    isPresentingManageTasks = true
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(.white)
+            .clipShape(Capsule())
+        }
+        .padding(.horizontal, 20)
+    }
+
+    private func profileSection<Content: View>(
+        title: String,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(title)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(.secondary)
+            VStack(spacing: 0) {
+                content()
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 10)
+            .background(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        }
+        .padding(.horizontal, 20)
+    }
+
+    private func profileRowField(
+        _ title: String,
+        text: Binding<String>
+    ) -> some View {
+        TextField(title, text: text)
+            .textFieldStyle(.plain)
+            .padding(.vertical, 14)
+    }
+
+    private var actionButtons: some View {
+        VStack(spacing: 14) {
+            Button {
+                Task {
+                    await viewModel.saveProfile()
+                }
+            } label: {
+                Text("Save Profile")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.green)
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            }
+
+            Button {
+                Task {
+                    await loginViewModel.logout()
+                }
+            } label: {
+                Text("Log Out")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.red)
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            }
+        }
+        .padding(.horizontal, 20)
+    }
+
+    private func circleIconButton(
+        systemName: String,
+        foreground: Color,
+        background: Color,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(foreground)
+                .frame(width: 42, height: 42)
+                .background(background)
+                .clipShape(Circle())
         }
     }
 }

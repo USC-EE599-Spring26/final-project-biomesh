@@ -18,14 +18,13 @@ struct ManageTasksView: View {
     var body: some View {
         NavigationStack {
             content
-                .navigationTitle("Manage Tasks")
-                .toolbar { toolbarContent }
                 .task { await viewModel.load() }
                 .alert("Could not delete task", isPresented: $viewModel.showError) {
                     Button("OK", role: .cancel) {}
                 } message: {
                     Text(viewModel.errorMessage ?? "Unknown error")
                 }
+                .background(Color(.systemGroupedBackground))
         }
     }
 
@@ -41,38 +40,58 @@ struct ManageTasksView: View {
                 description: Text("Add a task from the Profile screen first.")
             )
         } else {
-            taskList
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    topBar
+                    Text("Manage Tasks")
+                        .font(.system(size: 34, weight: .bold))
+                        .padding(.horizontal, 20)
+                    taskList
+                }
+                .padding(.vertical, 12)
+            }
         }
     }
 
     private var taskList: some View {
-        List {
+        LazyVStack(spacing: 14) {
             ForEach(viewModel.tasks.indices, id: \.self) { index in
                 let task = viewModel.tasks[index]
                 TaskRowView(
                     title: viewModel.displayTitle(for: task),
                     taskID: task.id,
-                    assetName: task.asset
+                    assetName: task.asset,
+                    onDelete: {
+                        Task { await viewModel.delete(at: IndexSet(integer: index)) }
+                    }
                 )
             }
-            .onDelete { offsets in
-                Task { await viewModel.delete(at: offsets) }
-            }
         }
+        .padding(.horizontal, 20)
     }
 
-    @ToolbarContentBuilder
-    private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .cancellationAction) {
+    private var topBar: some View {
+        HStack {
             Button("Done") { dismiss() }
-        }
-        ToolbarItem(placement: .topBarTrailing) {
+                .font(.system(size: 18, weight: .medium))
+                .padding(.horizontal, 20)
+                .padding(.vertical, 14)
+                .background(.white)
+                .clipShape(Capsule())
+
+            Spacer()
+
             Button {
                 Task { await viewModel.load() }
             } label: {
                 Image(systemName: "arrow.clockwise")
+                    .font(.system(size: 22, weight: .medium))
+                    .frame(width: 50, height: 50)
+                    .background(.white)
+                    .clipShape(Circle())
             }
         }
+        .padding(.horizontal, 20)
     }
 }
 
@@ -80,6 +99,7 @@ private struct TaskRowView: View {
     let title: String
     let taskID: String
     let assetName: String?
+    let onDelete: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
@@ -101,8 +121,21 @@ private struct TaskRowView: View {
             }
 
             Spacer()
+
+            Button(role: .destructive, action: onDelete) {
+                Image(systemName: "trash")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 36, height: 36)
+                    .background(Color.red)
+                    .clipShape(Circle())
+            }
+            .buttonStyle(.plain)
         }
-        .padding(.vertical, 4)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 20)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
     }
 
     private func validatedSFSymbolName(_ name: String?) -> String? {

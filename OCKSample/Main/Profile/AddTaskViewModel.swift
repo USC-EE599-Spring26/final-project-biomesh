@@ -50,6 +50,29 @@ final class AddTaskViewModel: ObservableObject {
             case .featuredContent: return "featuredContent"
             }
         }
+
+        var careKitCard: CareKitCard {
+            switch self {
+            case .button:
+                return .button
+            case .checklist:
+                return .checklist
+            case .instructions:
+                return .instruction
+            case .simple:
+                return .simple
+            case .numericProgress:
+                return .numericProgress
+            case .labeledValue:
+                return .labeledValue
+            case .grid:
+                return .grid
+            case .link:
+                return .link
+            case .featuredContent:
+                return .featured
+            }
+        }
     }
 
     // Frequency
@@ -199,7 +222,8 @@ final class AddTaskViewModel: ObservableObject {
             schedule: buildSchedule()
         )
         task.instructions = instructions.trimmingCharacters(in: .whitespacesAndNewlines)
-        task.tags = ["cardType:\(cardType.tagValue)"]
+        task.card = cardType.careKitCard
+        task.priority = 50
         applyAsset(to: &task)
         return task
     }
@@ -234,7 +258,8 @@ final class AddTaskViewModel: ObservableObject {
                 )
             )
             task.instructions = instructions.trimmingCharacters(in: .whitespacesAndNewlines)
-            task.tags = ["cardType:numericProgress"]
+            task.card = .numericProgress
+            task.priority = 50
             applyAsset(to: &task)
             return task
 
@@ -252,7 +277,8 @@ final class AddTaskViewModel: ObservableObject {
                 )
             )
             task.instructions = instructions.trimmingCharacters(in: .whitespacesAndNewlines)
-            task.tags = ["cardType:labeledValue"]
+            task.card = .labeledValue
+            task.priority = 50
             applyAsset(to: &task)
             return task
         }
