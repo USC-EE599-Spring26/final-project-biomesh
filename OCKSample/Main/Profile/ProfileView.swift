@@ -29,6 +29,7 @@ struct ProfileView: View {
 
     // MARK: Navigation
     @State var isPresentingAddTask = false
+    @State var isPresentingManageTasks = false
     @State var isShowingSaveAlert = false
     @State var isPresentingContact = false
     @State var isPresentingImagePicker = false
@@ -144,6 +145,14 @@ struct ProfileView: View {
                     }
                     .sheet(isPresented: $viewModel.isPresentingContact) {
                         MyContactView()
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Manage Tasks") {
+                        isPresentingManageTasks = true
+                    }
+                    .sheet(isPresented: $isPresentingManageTasks) {
+                        ManageTasksView()
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
