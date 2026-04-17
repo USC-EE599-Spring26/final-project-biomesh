@@ -287,10 +287,15 @@ extension OCKStore {
             integerRange: 0...10,
             sliderStepValue: 1
         )
-
+        let questions = [questionOne, questionTwo]
+        let taskAsset = "brain.head.profile"
+        let taskTitle = String(localized: "QUALITY_OF_LIFE")
         let stepOne = SurveyStep(
             id: "\(qualityOfLifeTaskId)-step-1",
-            questions: [questionOne, questionTwo]
+            questions: questions,
+                        asset: taskAsset,
+                        title: taskTitle,
+                        subtitle: String(localized: "ANSWER_HONESTLY")
         )
 
         var qualityOfLife = OCKTask(
