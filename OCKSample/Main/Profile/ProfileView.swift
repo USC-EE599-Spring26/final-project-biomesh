@@ -123,7 +123,7 @@ struct ProfileView: View {
                 ImagePicker(image: $viewModel.profileUIImage)
             }
             .sheet(isPresented: $viewModel.isPresentingContact) {
-                .padding(.vertical, 12)
+                MyContactView()
             }
             .sheet(isPresented: $isPresentingManageTasks) {
                 ManageTasksView()

@@ -189,18 +189,12 @@ final class AppDelegate: UIResponder, ObservableObject {
         startDate: Date = Date()
     ) async throws {
         try await store.populateDefaultCarePlansTasksContacts(
+            patientUUID,
             startDate: startDate
         )
 
-        let carePlanQuery = OCKCarePlanQuery(for: startDate)
-        let carePlans = try await store.fetchCarePlans(query: carePlanQuery)
-        let dailyTrackingUUID = carePlans.first(where: {
-            $0.id == CarePlanID.dailyTracking.rawValue
-        })?.uuid
-
         try await healthKitStore.populateDefaultHealthKitTasks(
             patientUUID,
-            carePlanUUID: dailyTrackingUUID,
             startDate: startDate
         )
     }

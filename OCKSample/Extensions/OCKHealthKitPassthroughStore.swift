@@ -91,8 +91,8 @@ extension OCKHealthKitPassthroughStore {
         if let patientUUID {
             sleepTags.append("patient:\(patientUUID.uuidString)")
         }
-        if let carePlanUUID {
-            sleepTags.append("carePlan:\(carePlanUUID.uuidString)")
+        if let sleepWellnessUUID {
+            sleepTags.append("carePlan:\(sleepWellnessUUID.uuidString)")
         }
         sleep.tags = sleepTags
 
@@ -111,7 +111,7 @@ extension OCKHealthKitPassthroughStore {
         var heartRate = OCKHealthKitTask(
             id: TaskID.heartRate,
             title: "Heart Rate Trend",
-            carePlanUUID: carePlanUUID,
+            carePlanUUID: dailyTrackingUUID,
             schedule: heartRateSchedule,
             healthKitLinkage: OCKHealthKitLinkage(
                 quantityIdentifier: .heartRate,
@@ -128,8 +128,8 @@ extension OCKHealthKitPassthroughStore {
         if let patientUUID {
             heartRateTags.append("patient:\(patientUUID.uuidString)")
         }
-        if let carePlanUUID {
-            heartRateTags.append("carePlan:\(carePlanUUID.uuidString)")
+        if let dailyTrackingUUID {
+            heartRateTags.append("carePlan:\(dailyTrackingUUID.uuidString)")
         }
         heartRate.tags = heartRateTags
 
@@ -147,7 +147,7 @@ extension OCKHealthKitPassthroughStore {
         var restingHeartRate = OCKHealthKitTask(
             id: TaskID.restingHeartRate,
             title: "Resting Heart Rate",
-            carePlanUUID: carePlanUUID,
+            carePlanUUID: dailyTrackingUUID,
             schedule: restingHeartRateSchedule,
             healthKitLinkage: OCKHealthKitLinkage(
                 quantityIdentifier: .restingHeartRate,
@@ -164,8 +164,8 @@ extension OCKHealthKitPassthroughStore {
         if let patientUUID {
             restingHeartRateTags.append("patient:\(patientUUID.uuidString)")
         }
-        if let carePlanUUID {
-            restingHeartRateTags.append("carePlan:\(carePlanUUID.uuidString)")
+        if let dailyTrackingUUID {
+            restingHeartRateTags.append("carePlan:\(dailyTrackingUUID.uuidString)")
         }
         restingHeartRate.tags = restingHeartRateTags
 

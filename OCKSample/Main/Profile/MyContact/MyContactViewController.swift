@@ -96,5 +96,4 @@ class MyContactViewController: OCKListViewController {
             self.appendViewController(contactViewController, animated: false)
         }
     }
-    }
 }
