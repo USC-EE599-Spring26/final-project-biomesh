@@ -2,7 +2,7 @@
 //  MyContactViewController.swift
 //  OCKSample
 //
-//  Created by Ray on 07/04/2026.
+//  Created by Corey Baker on 4/2/26.
 //  Copyright © 2026 Network Reconnaissance Lab. All rights reserved.
 //
 
@@ -95,5 +95,6 @@ class MyContactViewController: OCKListViewController {
 
             self.appendViewController(contactViewController, animated: false)
         }
+    }
     }
 }

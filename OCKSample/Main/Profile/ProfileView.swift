@@ -6,17 +6,9 @@
 //  Copyright © 2020 Network Reconnaissance Lab. All rights reserved.
 //
 
-//
-//  ProfileView.swift
-//  OCKSample
-//
-//  Created by Corey Baker on 11/24/20.
-//  Copyright © 2020 Network Reconnaissance Lab. All rights reserved.
-//
-
-import CareKitUI
-import CareKitStore
 import CareKit
+import CareKitStore
+import CareKitUI
 import os.log
 import SwiftUI
 
@@ -39,6 +31,7 @@ struct ProfileView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
                     topBar
+
                     Text("Profile")
                         .font(.system(size: 34, weight: .bold))
                         .padding(.horizontal, 20)
@@ -74,7 +67,7 @@ struct ProfileView: View {
                                         return "other"
                                     }
                                 },
-                                set: { (newValue: String) in
+                                set: { newValue in
                                     switch newValue {
                                     case "male":
                                         viewModel.sex = .male
@@ -112,7 +105,7 @@ struct ProfileView: View {
                         Divider()
                         profileRowField("Postal code", text: $viewModel.zipcode)
                         Divider()
-                        profileRowField("Email", text: $viewModel.email)
+                        profileRowField("Email", text: $viewModel.emailAddress)
                         Divider()
                         profileRowField("Messaging Number", text: $viewModel.messagingNumber)
                         Divider()
@@ -130,7 +123,7 @@ struct ProfileView: View {
                 ImagePicker(image: $viewModel.profileUIImage)
             }
             .sheet(isPresented: $viewModel.isPresentingContact) {
-                MyContactView()
+                .padding(.vertical, 12)
             }
             .sheet(isPresented: $isPresentingManageTasks) {
                 ManageTasksView()
@@ -139,11 +132,13 @@ struct ProfileView: View {
                 AddTaskView()
             }
             .alert(isPresented: $viewModel.isShowingSaveAlert) {
-                return Alert(title: Text("Update"),
-                             message: Text(viewModel.alertMessage),
-                             dismissButton: .default(Text("Ok"), action: {
-                                viewModel.isShowingSaveAlert = false
-                             }))
+                Alert(
+                    title: Text("Update"),
+                    message: Text(viewModel.alertMessage),
+                    dismissButton: .default(Text("Ok"), action: {
+                        viewModel.isShowingSaveAlert = false
+                    })
+                )
             }
         }
         .onReceive(patients.publisher) { publishedPatient in
@@ -200,6 +195,7 @@ struct ProfileView: View {
             Text(title)
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(.secondary)
+
             VStack(spacing: 0) {
                 content()
             }
@@ -270,10 +266,11 @@ struct ProfileView: View {
     }
 }
 
+// MARK: - Previews
+
 struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
         ProfileView(loginViewModel: .init())
-            .accentColor(Color.accentColor)
             .environment(\.careStore, Utility.createPreviewStore())
     }
 }

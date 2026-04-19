@@ -106,10 +106,10 @@ class LoginViewModel: ObservableObject {
     }
 
     private func savePatientAfterSignUp(
-        _ type: UserType,
-        firstName: String,
-        lastName: String
-    ) async throws -> OCKPatient {
+		_ type: UserType,
+		firstName: String,
+		lastName: String
+	) async throws -> OCKPatient {
 
         let remoteUUID = UUID()
         do {
@@ -124,11 +124,11 @@ class LoginViewModel: ObservableObject {
         try await appDelegate.setupRemotes(uuid: remoteUUID)
 
         var newPatient = OCKPatient(
-            remoteUUID: remoteUUID,
-            id: remoteUUID.uuidString,
-            givenName: firstName,
-            familyName: lastName
-        )
+			remoteUUID: remoteUUID,
+			id: remoteUUID.uuidString,
+			givenName: firstName,
+			familyName: lastName
+		)
         newPatient.userType = type
         let savedPatient = try await appDelegate.store.addPatient(newPatient)
 
@@ -216,6 +216,7 @@ class LoginViewModel: ObservableObject {
 		firstName: String,
 		lastName: String
 	) async {
+        self.loginError = nil
         do {
             guard try await PCKUtility.isServerAvailable() else {
                 Logger.login.error("Server health is not \"ok\"")
@@ -260,6 +261,7 @@ class LoginViewModel: ObservableObject {
 		username: String,
 		password: String
 	) async {
+        self.loginError = nil
         do {
             guard try await PCKUtility.isServerAvailable() else {
                 Logger.login.error("Server health is not \"ok\"")
@@ -290,6 +292,7 @@ class LoginViewModel: ObservableObject {
      Logs in the user anonymously *asynchronously*.
     */
     func loginAnonymously() async {
+        self.loginError = nil
         do {
             guard try await PCKUtility.isServerAvailable() else {
                 Logger.login.error("Server health is not \"ok\"")
@@ -318,6 +321,7 @@ class LoginViewModel: ObservableObject {
     */
     func logout() async {
 		await Utility.logoutAndResetAppState()
+        self.loginError = nil
         await self.checkStatus()
     }
 }

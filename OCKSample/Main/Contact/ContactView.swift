@@ -15,14 +15,14 @@ import UIKit
 
 struct ContactView: UIViewControllerRepresentable {
     @Environment(\.careStore) var careStore
-    @CareStoreFetchRequest(query: query()) private var contacts
+	@CareStoreFetchRequest(query: query()) private var contacts
 
     func makeUIViewController(context: Context) -> some UIViewController {
         let viewController = createViewController()
-        let navigationController = UINavigationController(
-                    rootViewController: viewController
-                )
-                return navigationController
+		let navigationController = UINavigationController(
+			rootViewController: viewController
+		)
+		return navigationController
     }
 
     func updateUIViewController(_ uiViewController: UIViewControllerType,
@@ -35,26 +35,19 @@ struct ContactView: UIViewControllerRepresentable {
     }
 
     func createViewController() -> UIViewController {
-        let currentContacts = contacts.latest
-                let viewController = CustomContactViewController(
-                    store: careStore,
-                    contacts: currentContacts,
-                    viewSynchronizer: OCKSimpleContactViewSynchronizer()
-                )
-                return viewController
+		let currentContacts = contacts.latest
+		let viewController = CustomContactViewController(
+			store: careStore,
+			contacts: currentContacts,
+			viewSynchronizer: OCKSimpleContactViewSynchronizer()
+		)
+		return viewController
     }
 
-    static func query() -> OCKContactQuery {
-            let query = OCKContactQuery(for: Date())
-            // BAKER: Appears to be a bug in CareKit, commenting these out for now
-            /*query.sortDescriptors.append(
-                .familyName(ascending: true)
-            )
-            query.sortDescriptors.append(
-                .givenName(ascending: true)
-            ) */
-            return query
-        }
+	static func query() -> OCKContactQuery {
+		let query = OCKContactQuery(for: Date())
+		return query
+	}
 }
 
 struct ContactView_Previews: PreviewProvider {
