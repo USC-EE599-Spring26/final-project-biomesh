@@ -165,14 +165,14 @@ final class AddTaskViewModel: ObservableObject {
         do {
             switch taskKind {
             case .regular:
-                let task = buildRegularTask()
+                let task = try await buildRegularTask()
                 guard let store = AppDelegateKey.defaultValue?.store else {
                     throw AppError.couldntBeUnwrapped
                 }
                 _ = try await store.addTask(task)
 
             case .healthKit:
-                let task = try buildHealthKitTask()
+                let task = try await buildHealthKitTask()
                 guard let hkStore = AppDelegateKey.defaultValue?.healthKitStore else {
                     throw AppError.couldntBeUnwrapped
                 }
@@ -213,12 +213,13 @@ final class AddTaskViewModel: ObservableObject {
         return OCKSchedule(composing: [element])
     }
 
-    private func buildRegularTask() -> OCKTask {
+    private func buildRegularTask() async throws -> OCKTask {
         let id = "user.\(slug(title)).\(UUID().uuidString.prefix(6))"
+        let carePlanUUID = try await defaultCarePlanUUIDForRegularTask()
         var task = OCKTask(
             id: id,
             title: title.trimmingCharacters(in: .whitespacesAndNewlines),
-            carePlanUUID: nil,
+            carePlanUUID: carePlanUUID,
             schedule: buildSchedule()
         )
         task.instructions = instructions.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -228,9 +229,10 @@ final class AddTaskViewModel: ObservableObject {
         return task
     }
 
-    private func buildHealthKitTask() throws -> OCKHealthKitTask {
+    private func buildHealthKitTask() async throws -> OCKHealthKitTask {
         let id = "user.hk.\(slug(title)).\(UUID().uuidString.prefix(6))"
         let schedule = buildSchedule()
+        let carePlanUUID = try await defaultCarePlanUUIDForHealthKitTask()
 
         switch healthKitMetric {
         case .steps:
@@ -249,7 +251,7 @@ final class AddTaskViewModel: ObservableObject {
             var task = OCKHealthKitTask(
                 id: id,
                 title: title.trimmingCharacters(in: .whitespacesAndNewlines),
-                carePlanUUID: nil,
+                carePlanUUID: carePlanUUID,
                 schedule: scheduleWithGoal,
                 healthKitLinkage: OCKHealthKitLinkage(
                     quantityIdentifier: .stepCount,
@@ -268,7 +270,7 @@ final class AddTaskViewModel: ObservableObject {
             var task = OCKHealthKitTask(
                 id: id,
                 title: title.trimmingCharacters(in: .whitespacesAndNewlines),
-                carePlanUUID: nil,
+                carePlanUUID: carePlanUUID,
                 schedule: schedule,
                 healthKitLinkage: OCKHealthKitLinkage(
                     quantityIdentifier: .heartRate,
@@ -282,6 +284,27 @@ final class AddTaskViewModel: ObservableObject {
             applyAsset(to: &task)
             return task
         }
+    }
+
+    private func defaultCarePlanUUIDForRegularTask() async throws -> UUID? {
+        let carePlanUUIDs = try await OCKStore.getCarePlanUUIDs()
+        let normalizedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let normalizedInstructions = instructions.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let combinedText = normalizedTitle + " " + normalizedInstructions
+
+        let sleepKeywords = ["sleep", "bed", "night", "wind-down", "wind down", "rest"]
+        let shouldUseSleepWellness = sleepKeywords.contains { combinedText.contains($0) }
+
+        if shouldUseSleepWellness {
+            return carePlanUUIDs[.sleepWellness] ?? carePlanUUIDs[.dailyTracking]
+        }
+
+        return carePlanUUIDs[.dailyTracking] ?? carePlanUUIDs[.sleepWellness]
+    }
+
+    private func defaultCarePlanUUIDForHealthKitTask() async throws -> UUID? {
+        let carePlanUUIDs = try await OCKStore.getCarePlanUUIDs()
+        return carePlanUUIDs[.dailyTracking] ?? carePlanUUIDs[.sleepWellness]
     }
 
     private func applyAsset(to task: inout OCKTask) {
