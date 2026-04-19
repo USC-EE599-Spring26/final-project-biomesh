@@ -49,4 +49,5 @@ enum Constants {
     static let card = "card"
     static let priority = "priority"
     static let uiKitSurvey = "uiKitSurvey"
+    static let linkURL = "linkURL"
 }

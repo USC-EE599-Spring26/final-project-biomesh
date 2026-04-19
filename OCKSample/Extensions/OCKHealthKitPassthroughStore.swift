@@ -87,6 +87,88 @@ extension OCKHealthKitPassthroughStore {
         sleep.card = .labeledValue
         sleep.priority = 5
 
-        _ = try await addTasksIfNotPresent([steps, sleep])
+        var sleepTags = sleep.tags ?? []
+        if let patientUUID {
+            sleepTags.append("patient:\(patientUUID.uuidString)")
+        }
+        if let sleepWellnessUUID {
+            sleepTags.append("carePlan:\(sleepWellnessUUID.uuidString)")
+        }
+        sleep.tags = sleepTags
+
+        // Average Heart Rate
+        let beatsPerMinute = HKUnit.count().unitDivided(by: .minute())
+        let heartRateSchedule = OCKSchedule.dailyAtTime(
+            hour: 13,
+            minutes: 0,
+            start: startDate,
+            end: nil,
+            text: nil,
+            duration: .allDay,
+            targetValues: []
+        )
+
+        var heartRate = OCKHealthKitTask(
+            id: TaskID.heartRate,
+            title: "Heart Rate Trend",
+            carePlanUUID: dailyTrackingUUID,
+            schedule: heartRateSchedule,
+            healthKitLinkage: OCKHealthKitLinkage(
+                quantityIdentifier: .heartRate,
+                quantityType: .discrete,
+                unit: beatsPerMinute
+            )
+        )
+        heartRate.instructions = "Review your HealthKit heart rate trend to see whether high-caffeine days also feel more physically activating."
+        heartRate.asset = "heart.fill"
+        heartRate.card = .labeledValue
+        heartRate.priority = 0
+
+        var heartRateTags = heartRate.tags ?? []
+        if let patientUUID {
+            heartRateTags.append("patient:\(patientUUID.uuidString)")
+        }
+        if let dailyTrackingUUID {
+            heartRateTags.append("carePlan:\(dailyTrackingUUID.uuidString)")
+        }
+        heartRate.tags = heartRateTags
+
+        // Resting Heart Rate
+        let restingHeartRateSchedule = OCKSchedule.dailyAtTime(
+            hour: 8,
+            minutes: 30,
+            start: startDate,
+            end: nil,
+            text: nil,
+            duration: .allDay,
+            targetValues: []
+        )
+
+        var restingHeartRate = OCKHealthKitTask(
+            id: TaskID.restingHeartRate,
+            title: "Resting Heart Rate",
+            carePlanUUID: dailyTrackingUUID,
+            schedule: restingHeartRateSchedule,
+            healthKitLinkage: OCKHealthKitLinkage(
+                quantityIdentifier: .restingHeartRate,
+                quantityType: .discrete,
+                unit: beatsPerMinute
+            )
+        )
+        restingHeartRate.instructions = "Use resting heart rate as a recovery signal alongside caffeine, hydration, and stress habits."
+        restingHeartRate.asset = "waveform.path.ecg"
+        restingHeartRate.card = .labeledValue
+        restingHeartRate.priority = 1
+
+        var restingHeartRateTags = restingHeartRate.tags ?? []
+        if let patientUUID {
+            restingHeartRateTags.append("patient:\(patientUUID.uuidString)")
+        }
+        if let dailyTrackingUUID {
+            restingHeartRateTags.append("carePlan:\(dailyTrackingUUID.uuidString)")
+        }
+        restingHeartRate.tags = restingHeartRateTags
+
+        _ = try await addTasksIfNotPresent([steps, sleep, heartRate, restingHeartRate])
     }
 }

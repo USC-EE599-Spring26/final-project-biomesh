@@ -58,7 +58,7 @@ extension Onboard {
         )
 
         let sleepBodyItem = ORKBodyItem(
-            text: "Share your sleep and step data from HealthKit to measure recovery.",
+            text: "Share your steps, sleep, heart rate, and resting heart rate from HealthKit.",
             detailText: nil,
             image: UIImage(systemName: "moon.zzz.fill"),
             learnMoreItem: nil,
@@ -96,7 +96,8 @@ extension Onboard {
         let healthKitTypesToRead: Set<HKObjectType> = [
             .quantityType(forIdentifier: .stepCount)!,
             .categoryType(forIdentifier: .sleepAnalysis)!,
-            .quantityType(forIdentifier: .heartRate)!
+            .quantityType(forIdentifier: .heartRate)!,
+            .quantityType(forIdentifier: .restingHeartRate)!
         ]
 
         let healthKitPermissionType = ORKHealthKitPermissionType(
@@ -120,7 +121,7 @@ extension Onboard {
         )
         requestPermissionsStep.title = "Health Data Request"
         // swiftlint:disable:next line_length
-        requestPermissionsStep.text = "BioMesh uses your step count, sleep, and heart rate data to understand how caffeine affects your body. Please enable sharing below."
+        requestPermissionsStep.text = "BioMesh uses your step count, sleep, heart rate, and resting heart rate data to understand how caffeine and recovery habits affect your body."
 
         // MARK: Completion Step
         let completionStep = ORKCompletionStep(
@@ -128,7 +129,7 @@ extension Onboard {
         )
         completionStep.title = "You're All Set!"
         // swiftlint:disable:next line_length
-        completionStep.text = "Welcome to BioMesh! Start by logging your first caffeinated drink. Your data will help us understand the caffeine-anxiety connection."
+        completionStep.text = "Welcome to BioMesh! Start by logging today's caffeine and hydration tasks, then check tonight's wind-down routine."
 
         let surveyTask = ORKOrderedTask(
             identifier: identifier(),

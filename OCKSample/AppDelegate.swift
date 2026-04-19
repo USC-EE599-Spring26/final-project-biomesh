@@ -183,4 +183,19 @@ final class AppDelegate: UIResponder, ObservableObject {
             throw error
         }
     }
+
+    func populateSampleData(
+        patientUUID: UUID? = nil,
+        startDate: Date = Date()
+    ) async throws {
+        try await store.populateDefaultCarePlansTasksContacts(
+            patientUUID,
+            startDate: startDate
+        )
+
+        try await healthKitStore.populateDefaultHealthKitTasks(
+            patientUUID,
+            startDate: startDate
+        )
+    }
 }

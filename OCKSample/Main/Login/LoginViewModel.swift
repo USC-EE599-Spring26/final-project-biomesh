@@ -132,44 +132,68 @@ class LoginViewModel: ObservableObject {
         newPatient.userType = type
         let savedPatient = try await appDelegate.store.addPatient(newPatient)
 
-        // Create a contact for the signed-up user so "My Contact" has data.
-        // This won't show in the Contacts tab because CustomContactViewController
-        // filters out contacts matching the logged-in user's UUID.
+        // Added code to create a contact for the respective signed up user
         var newContact = OCKContact(
             id: remoteUUID.uuidString,
             name: newPatient.name,
             carePlanUUID: nil
         )
-        newContact.title = type.rawValue.capitalized
-        newContact.role = "BioMesh participant"
-        if let email = try? await User.current().email, !email.isEmpty {
-            newContact.emailAddresses = [OCKLabeledValue(label: "email", value: email)]
+
+        newContact.title = "\(firstName) \(lastName)"
+        newContact.role = "Patient"
+
+        if let currentUser = try? await User.current(),
+           let email = currentUser.email,
+           !email.isEmpty {
+            newContact.emailAddresses = [
+                OCKLabeledValue(label: "email", value: email)
+            ]
         }
+
+        // This is new contact that has never been saved before
         _ = try await appDelegate.store.addAnyContact(newContact)
 
-		let currentDate = Date()
-		let startDate = daysInThePastToGenerateSampleData < 0 ? Calendar.current.date(
-			byAdding: .day,
-			value: daysInThePastToGenerateSampleData,
-			to: currentDate
-		)! : currentDate
-        try await appDelegate.store.populateDefaultCarePlansTasksContacts(
-            savedPatient.uuid,
+        let currentDate = Date()
+        let startDate = daysInThePastToGenerateSampleData < 0
+            ? Calendar.current.date(
+                byAdding: .day,
+                value: daysInThePastToGenerateSampleData,
+                to: currentDate
+            )!
+            : currentDate
+
+        // Create the default care plans, tasks, and contacts first.
+        try await appDelegate.populateSampleData(
+            patientUUID: savedPatient.uuid,
             startDate: startDate
         )
-        try await appDelegate.healthKitStore.populateDefaultHealthKitTasks(
-            savedPatient.uuid,
-            startDate: startDate
-        )
-		if startDate < currentDate {
-			try await appDelegate.store.populateSampleOutcomes(
-				startDate: startDate
-			)
-		}
+
+        // Tie the newly created patient to all care plans.
+        let carePlanQuery = OCKCarePlanQuery(for: startDate)
+        let carePlans = try await appDelegate.store.fetchCarePlans(query: carePlanQuery)
+
+        for carePlan in carePlans {
+            if carePlan.patientUUID == savedPatient.uuid {
+                continue
+            }
+
+            var updatedCarePlan = carePlan
+            updatedCarePlan.patientUUID = savedPatient.uuid
+            _ = try await appDelegate.store.updateCarePlan(updatedCarePlan)
+        }
+
+        if startDate < currentDate {
+            try await appDelegate.store.populateSampleOutcomes(
+                startDate: startDate
+            )
+        }
+
         appDelegate.parseRemote.automaticallySynchronizes = true
 
         // Post notification to sync
-        NotificationCenter.default.post(.init(name: Notification.Name(rawValue: Constants.requestSync)))
+        NotificationCenter.default.post(
+            .init(name: Notification.Name(rawValue: Constants.requestSync))
+        )
         Logger.login.info("Successfully added a new Patient")
         return savedPatient
     }
