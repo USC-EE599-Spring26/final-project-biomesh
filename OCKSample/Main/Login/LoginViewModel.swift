@@ -106,10 +106,10 @@ class LoginViewModel: ObservableObject {
     }
 
     private func savePatientAfterSignUp(
-        _ type: UserType,
-        firstName: String,
-        lastName: String
-    ) async throws -> OCKPatient {
+		_ type: UserType,
+		firstName: String,
+		lastName: String
+	) async throws -> OCKPatient {
 
         let remoteUUID = UUID()
         do {
@@ -124,89 +124,52 @@ class LoginViewModel: ObservableObject {
         try await appDelegate.setupRemotes(uuid: remoteUUID)
 
         var newPatient = OCKPatient(
-            remoteUUID: remoteUUID,
-            id: remoteUUID.uuidString,
-            givenName: firstName,
-            familyName: lastName
-        )
+			remoteUUID: remoteUUID,
+			id: remoteUUID.uuidString,
+			givenName: firstName,
+			familyName: lastName
+		)
         newPatient.userType = type
         let savedPatient = try await appDelegate.store.addPatient(newPatient)
 
-        // Added code to create a contact for the respective signed up user
+        // Create a contact for the signed-up user so "My Contact" has data.
+        // This won't show in the Contacts tab because CustomContactViewController
+        // filters out contacts matching the logged-in user's UUID.
         var newContact = OCKContact(
             id: remoteUUID.uuidString,
             name: newPatient.name,
             carePlanUUID: nil
         )
-
-        newContact.title = "\(firstName) \(lastName)"
-        newContact.role = "Patient"
-
-        if let currentUser = try? await User.current(),
-           let email = currentUser.email,
-           !email.isEmpty {
-            newContact.emailAddresses = [
-                OCKLabeledValue(label: "email", value: email)
-            ]
+        newContact.title = type.rawValue.capitalized
+        newContact.role = "BioMesh participant"
+        if let email = try? await User.current().email, !email.isEmpty {
+            newContact.emailAddresses = [OCKLabeledValue(label: "email", value: email)]
         }
-
-        // This is new contact that has never been saved before
         _ = try await appDelegate.store.addAnyContact(newContact)
 
-        let currentDate = Date()
-        let startDate = daysInThePastToGenerateSampleData < 0
-            ? Calendar.current.date(
-                byAdding: .day,
-                value: daysInThePastToGenerateSampleData,
-                to: currentDate
-            )!
-            : currentDate
-
-        // Create the default care plans, tasks, and contacts first.
+		let currentDate = Date()
+		let startDate = daysInThePastToGenerateSampleData < 0 ? Calendar.current.date(
+			byAdding: .day,
+			value: daysInThePastToGenerateSampleData,
+			to: currentDate
+		)! : currentDate
         try await appDelegate.store.populateDefaultCarePlansTasksContacts(
+            savedPatient.uuid,
             startDate: startDate
         )
-
-        // Tie the newly created patient to all care plans.
-        let carePlanQuery = OCKCarePlanQuery(for: startDate)
-        let carePlans = try await appDelegate.store.fetchCarePlans(query: carePlanQuery)
-
-        for carePlan in carePlans {
-            if carePlan.patientUUID == savedPatient.uuid {
-                continue
-            }
-
-            var updatedCarePlan = carePlan
-            updatedCarePlan.patientUUID = savedPatient.uuid
-            _ = try await appDelegate.store.updateCarePlan(updatedCarePlan)
-        }
-
-        let allCarePlans = try await appDelegate.store.fetchCarePlans(query: carePlanQuery)
-
-        guard let dailyTrackingUUID = allCarePlans.first(where: {
-            $0.id == CarePlanID.dailyTracking.rawValue
-        })?.uuid else {
-            throw AppError.couldntBeUnwrapped
-        }
-
         try await appDelegate.healthKitStore.populateDefaultHealthKitTasks(
             savedPatient.uuid,
-            carePlanUUID: dailyTrackingUUID,
             startDate: startDate
         )
-
-        if startDate < currentDate {
-            try await appDelegate.store.populateSampleOutcomes(
-                startDate: startDate
-            )
-        }
-
+		if startDate < currentDate {
+			try await appDelegate.store.populateSampleOutcomes(
+				startDate: startDate
+			)
+		}
         appDelegate.parseRemote.automaticallySynchronizes = true
 
         // Post notification to sync
-        NotificationCenter.default.post(
-            .init(name: Notification.Name(rawValue: Constants.requestSync))
-        )
+        NotificationCenter.default.post(.init(name: Notification.Name(rawValue: Constants.requestSync)))
         Logger.login.info("Successfully added a new Patient")
         return savedPatient
     }
@@ -229,6 +192,7 @@ class LoginViewModel: ObservableObject {
 		firstName: String,
 		lastName: String
 	) async {
+        self.loginError = nil
         do {
             guard try await PCKUtility.isServerAvailable() else {
                 Logger.login.error("Server health is not \"ok\"")
@@ -273,6 +237,7 @@ class LoginViewModel: ObservableObject {
 		username: String,
 		password: String
 	) async {
+        self.loginError = nil
         do {
             guard try await PCKUtility.isServerAvailable() else {
                 Logger.login.error("Server health is not \"ok\"")
@@ -303,6 +268,7 @@ class LoginViewModel: ObservableObject {
      Logs in the user anonymously *asynchronously*.
     */
     func loginAnonymously() async {
+        self.loginError = nil
         do {
             guard try await PCKUtility.isServerAvailable() else {
                 Logger.login.error("Server health is not \"ok\"")
@@ -331,6 +297,7 @@ class LoginViewModel: ObservableObject {
     */
     func logout() async {
 		await Utility.logoutAndResetAppState()
+        self.loginError = nil
         await self.checkStatus()
     }
 }

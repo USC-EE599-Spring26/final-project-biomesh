@@ -41,9 +41,9 @@ extension User {
             updated.userTypeUUIDs = object.userTypeUUIDs
         }
         if updated.shouldRestoreKey(\.profilePicture,
-                                             original: object) {
-                    updated.profilePicture = object.profilePicture
-                }
+                                     original: object) {
+            updated.profilePicture = object.profilePicture
+        }
         return updated
     }
 }

@@ -102,10 +102,13 @@ extension OCKStore {
 
     // swiftlint:disable:next function_body_length
     /// Seeds the store with BioMesh default tasks and contacts on first sign-up.
-    func populateDefaultCarePlansTasksContacts(startDate: Date = Date()) async throws {
+    func populateDefaultCarePlansTasksContacts(
+        _ patientUUID: UUID? = nil,
+        startDate: Date = Date()
+    ) async throws {
 
         #if os(iOS)
-        try await populateCarePlans()
+        try await populateCarePlans(patientUUID: patientUUID)
         let carePlanUUIDs = try await Self.getCarePlanUUIDs()
         let dailyTrackingUUID = carePlanUUIDs[.dailyTracking]
         let sleepWellnessUUID = carePlanUUIDs[.sleepWellness]

@@ -6,17 +6,9 @@
 //  Copyright © 2020 Network Reconnaissance Lab. All rights reserved.
 //
 
-//
-//  ProfileView.swift
-//  OCKSample
-//
-//  Created by Corey Baker on 11/24/20.
-//  Copyright © 2020 Network Reconnaissance Lab. All rights reserved.
-//
-
-import CareKitUI
-import CareKitStore
 import CareKit
+import CareKitStore
+import CareKitUI
 import os.log
 import SwiftUI
 
@@ -27,11 +19,14 @@ struct ProfileView: View {
     @StateObject private var viewModel = ProfileViewModel()
     @ObservedObject var loginViewModel: LoginViewModel
 
-    // MARK: Navigation
-    @State var isPresentingAddTask = false
-    @State var isShowingSaveAlert = false
-    @State var isPresentingContact = false
-    @State var isPresentingImagePicker = false
+    private enum ActiveSheet: Identifiable {
+        case addTask
+        case manageTasks
+
+        var id: Int { hashValue }
+    }
+
+    @State private var activeSheet: ActiveSheet?
 
     var body: some View {
         NavigationView {
@@ -40,145 +35,137 @@ struct ProfileView: View {
                     ProfileImageView(viewModel: viewModel)
                     Form {
                         Section(header: Text("About")) {
-                            TextField("First Name", text: $viewModel.firstName)
-
-                            TextField("Last Name", text: $viewModel.lastName)
-
-                            TextField("Note", text: $viewModel.note)
-
-                            DatePicker(
-                                "Birthday",
-                                selection: $viewModel.birthday,
-                                displayedComponents: [.date]
-                            )
-
-                            Picker(
-                                "Sex",
-                                selection: Binding<String>(
-                                    get: {
-                                        switch viewModel.sex {
-                                        case .male:
-                                            return "male"
-                                        case .female:
-                                            return "female"
-                                        case .other:
-                                            return "other"
-                                        @unknown default:
-                                            return "other"
-                                        }
-                                    },
-                                    set: { (newValue: String) in
-                                        switch newValue {
-                                        case "male":
-                                            viewModel.sex = .male
-                                        case "female":
-                                            viewModel.sex = .female
-                                        default:
-                                            viewModel.sex = .other(viewModel.sexOtherField)
-                                        }
-                                    }
-                                )
-                            ) {
-                                Text("Male").tag("male")
-                                Text("Female").tag("female")
-                                Text("Other").tag("other")
+                            TextField("First Name",
+                                      text: $viewModel.firstName)
+                            TextField("Last Name",
+                                      text: $viewModel.lastName)
+                            TextField("Note",
+                                      text: $viewModel.note)
+                            DatePicker("Birthday",
+                                       selection: $viewModel.birthday,
+                                       displayedComponents: [DatePickerComponents.date])
+                            Picker("Sex", selection: $viewModel.sex) {
+                                Text("Female").tag(OCKBiologicalSex.female)
+                                Text("Male").tag(OCKBiologicalSex.male)
+                                Text("Other").tag(OCKBiologicalSex.other("other"))
                             }
-
-                            if case .other = viewModel.sex {
-                                TextField("Specify sex", text: $viewModel.sexOtherField)
-                                    .onChange(of: viewModel.sexOtherField) { newValue in
-                                        viewModel.sex = .other(newValue.isEmpty ? "other" : newValue)
-                                    }
-                            }
-
-                            TextField("Allergies", text: $viewModel.allergies)
-                            }
+                            TextField("Allergies",
+                                      text: $viewModel.allergies)
+                        }
 
                         Section(header: Text("Contact")) {
                             TextField("Street", text: $viewModel.street)
                             TextField("City", text: $viewModel.city)
                             TextField("State", text: $viewModel.state)
                             TextField("Postal code", text: $viewModel.zipcode)
-                            TextField("Email", text: $viewModel.email)
+                            TextField("Email", text: $viewModel.emailAddress)
                             TextField("Messaging Number", text: $viewModel.messagingNumber)
                             TextField("Phone Number", text: $viewModel.phoneNumber)
-                            TextField("Other Contact Info", text: $viewModel.otherContactInfo)
+                            TextField("Other Info", text: $viewModel.otherContactInfo)
                         }
                     }
                 }
 
-                Button(action: {
-                    Task {
-                        await viewModel.saveProfile()
-                    }
-                }, label: {
-                    Text("Save Profile")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(width: 300, height: 50)
-                })
-                .background(Color(.green))
-                .cornerRadius(15)
-
-                // Notice that "action" is a closure (which is essentially
-                // a function as argument like we discussed in class)
-                Button(action: {
-                    Task {
-                        await loginViewModel.logout()
-                    }
-                }, label: {
-                    Text("Log Out")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(width: 300, height: 50)
-                })
-                .background(Color(.red))
-                .cornerRadius(15)
+                saveProfileButton
+                logoutButton
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("My Contact") {
-                        viewModel.isPresentingContact = true
-                    }
-                    .sheet(isPresented: $viewModel.isPresentingContact) {
-                        MyContactView()
-                    }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Add Task") {
-                        isPresentingAddTask = true
-                    }
-                    .sheet(isPresented: $isPresentingAddTask) {
-                        CareKitTaskView()
-                    }
-                }
+            .navigationTitle("Profile")
+            .toolbar { toolbarContent }
+            .sheet(item: $activeSheet) { sheet in
+                sheetView(for: sheet)
             }
             .sheet(isPresented: $viewModel.isPresentingImagePicker) {
                 ImagePicker(image: $viewModel.profileUIImage)
             }
             .alert(isPresented: $viewModel.isShowingSaveAlert) {
-                return Alert(title: Text("Update"),
-                             message: Text(viewModel.alertMessage),
-                             dismissButton: .default(Text("Ok"), action: {
-                                viewModel.isShowingSaveAlert = false
-                             }))
+                Alert(title: Text("Update"),
+                      message: Text(viewModel.alertMessage),
+                      dismissButton: .default(Text("Ok"), action: {
+                          viewModel.isShowingSaveAlert = false
+                      }))
             }
-        }
-        .onReceive(patients.publisher) { publishedPatient in
-            viewModel.updatePatient(publishedPatient.result)
-        }
-        .onReceive(contacts.publisher) { publishedContact in
-            viewModel.updateContact(publishedContact.result)
+            .onReceive(patients.publisher) { publishedPatient in
+                viewModel.updatePatient(publishedPatient.result)
+            }
+            .onReceive(contacts.publisher) { publishedContact in
+                viewModel.updateContact(publishedContact.result)
+            }
         }
     }
 }
 
+// MARK: - Subviews
+
+private extension ProfileView {
+
+    var saveProfileButton: some View {
+        Button {
+            Task {
+                await viewModel.saveProfile()
+            }
+        } label: {
+            Text("Save Profile")
+                .font(.headline)
+                .foregroundColor(.white)
+                .padding()
+                .frame(width: 300, height: 50)
+        }
+        .background(Color(.green))
+        .cornerRadius(15)
+    }
+
+    var logoutButton: some View {
+        Button {
+            Task { await loginViewModel.logout() }
+        } label: {
+            Text("Log Out")
+                .font(.headline)
+                .foregroundColor(.white)
+                .padding()
+                .frame(width: 300, height: 50)
+        }
+        .background(Color(.red))
+        .cornerRadius(15)
+    }
+
+    @ToolbarContentBuilder
+    var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarLeading) {
+            Button("My Contact") {
+                viewModel.isPresentingContact = true
+            }
+            .sheet(isPresented: $viewModel.isPresentingContact) {
+                MyContactView()
+            }
+        }
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+            Button { activeSheet = .addTask } label: {
+                Image(systemName: "plus.circle.fill")
+            }
+
+            Button { activeSheet = .manageTasks } label: {
+                Image(systemName: "trash.circle.fill")
+                    .foregroundColor(.red)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func sheetView(for sheet: ActiveSheet) -> some View {
+        switch sheet {
+        case .addTask:
+            AddTaskView()
+        case .manageTasks:
+            ManageTasksView()
+        }
+    }
+}
+
+// MARK: - Previews
+
 struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
         ProfileView(loginViewModel: .init())
-            .accentColor(Color.accentColor)
             .environment(\.careStore, Utility.createPreviewStore())
     }
 }
