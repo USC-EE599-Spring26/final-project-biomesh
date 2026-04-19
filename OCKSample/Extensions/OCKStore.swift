@@ -106,19 +106,19 @@ extension OCKStore {
         _ patientUUID: UUID? = nil,
         startDate: Date = Date()
     ) async throws {
-
-        #if os(iOS)
+        
+#if os(iOS)
         try await populateCarePlans(patientUUID: patientUUID)
         let carePlanUUIDs = try await Self.getCarePlanUUIDs()
         let dailyTrackingUUID = carePlanUUIDs[.dailyTracking]
         let sleepWellnessUUID = carePlanUUIDs[.sleepWellness]
         let assessmentUUID = carePlanUUIDs[.assessment]
-        #else
+#else
         let dailyTrackingUUID: UUID? = nil
         let sleepWellnessUUID: UUID? = nil
         let assessmentUUID: UUID? = nil
-        #endif
-
+#endif
+        
         let calendar  = Calendar.current
         let morning   = calendar.startOfDay(for: startDate)
         let allDay    = OCKSchedule(composing: [
@@ -189,7 +189,7 @@ extension OCKStore {
                 duration: .allDay
             )
         ])
-
+        
         // Caffeine Intake
         var caffeine = OCKTask(
             id: TaskID.caffeineIntake,
@@ -198,12 +198,12 @@ extension OCKStore {
             schedule: allDay
         )
         caffeine.instructions = "Tap Log each time you have a caffeinated drink " +
-            "(coffee, tea, energy drink). Note: >400 mg/day is linked to higher anxiety risk."
+        "(coffee, tea, energy drink). Note: >400 mg/day is linked to higher anxiety risk."
         caffeine.asset = "cup.and.saucer.fill"
         caffeine.card = .button
         caffeine.priority = 0
         caffeine.impactsAdherence = false
-
+        
         // Water Intake
         var water = OCKTask(
             id: TaskID.waterIntake,
@@ -212,12 +212,12 @@ extension OCKStore {
             schedule: hydrationSchedule
         )
         water.instructions = "Check in around late morning and late afternoon to confirm " +
-            "you had water. Hydration helps separate caffeine effects from simple dehydration."
+        "you had water. Hydration helps separate caffeine effects from simple dehydration."
         water.asset = "drop.fill"
         water.card = .button
         water.priority = 1
         water.impactsAdherence = false
-
+        
         // Anxiety Check-in
         let anxietySchedule = OCKSchedule(composing: [
             OCKScheduleElement(
@@ -229,7 +229,7 @@ extension OCKStore {
                 duration: .allDay
             )
         ])
-
+        
         var anxiety = OCKTask(
             id: TaskID.anxietyCheck,
             title: "Anxiety Check-in",
@@ -237,13 +237,13 @@ extension OCKStore {
             schedule: anxietySchedule
         )
         anxiety.instructions = "Tap Log whenever you notice an anxiety episode. " +
-            "Try to note how long ago you last had caffeine — this helps trace the " +
-            "caffeine → anxiety relationship your app is studying."
+        "Try to note how long ago you last had caffeine — this helps trace the " +
+        "caffeine → anxiety relationship your app is studying."
         anxiety.asset = "brain.head.profile"
         anxiety.card = .button
         anxiety.priority = 2
         anxiety.impactsAdherence = false
-
+        
         // Evening Wind-Down
         var windDown = OCKTask(
             id: TaskID.sleepHygiene,
@@ -252,15 +252,15 @@ extension OCKStore {
             schedule: eveningSchedule
         )
         windDown.instructions = "Complete your wind-down routine before bed:\n" +
-            "• No caffeine after 2 PM\n" +
-            "• Dim lights 30 min before sleep\n" +
-            "• Put your phone face-down\n" +
-            "Good sleep quality is the mediator between caffeine and next-day anxiety."
+        "• No caffeine after 2 PM\n" +
+        "• Dim lights 30 min before sleep\n" +
+        "• Put your phone face-down\n" +
+        "Good sleep quality is the mediator between caffeine and next-day anxiety."
         windDown.asset = "moon.zzz.fill"
         windDown.card = .custom
         windDown.priority = 3
         windDown.impactsAdherence = true
-
+        
         var hydrationGuide = OCKTask(
             id: TaskID.hydrationGuide,
             title: "Hydration Guide",
@@ -272,7 +272,7 @@ extension OCKStore {
         hydrationGuide.card = .instruction
         hydrationGuide.priority = 4
         hydrationGuide.impactsAdherence = false
-
+        
         var energySnapshot = OCKTask(
             id: TaskID.energySnapshot,
             title: "Morning Energy Snapshot",
@@ -284,7 +284,7 @@ extension OCKStore {
         energySnapshot.card = .simple
         energySnapshot.priority = 5
         energySnapshot.impactsAdherence = false
-
+        
         var stretchChecklist = OCKTask(
             id: TaskID.stretchChecklist,
             title: "Desk Stretch Break",
@@ -296,7 +296,7 @@ extension OCKStore {
         stretchChecklist.card = .checklist
         stretchChecklist.priority = 6
         stretchChecklist.impactsAdherence = true
-
+        
         var studyResource = OCKTask(
             id: TaskID.studyResource,
             title: "Caffeine Research Resource",
@@ -309,10 +309,10 @@ extension OCKStore {
         studyResource.externalURL = URL(string: "https://www.cdc.gov/sleep/about_sleep/sleep_hygiene.html")
         studyResource.priority = 7
         studyResource.impactsAdherence = false
-
+        
         let dailySurvey = createDailySymptomSurveyTask(carePlanUUID: assessmentUUID)
         let weeklyReflection = createQualityOfLifeSurveyTask(carePlanUUID: assessmentUUID)
-
+        
         _ = try await addTasksIfNotPresent([
             caffeine,
             water,
@@ -325,18 +325,18 @@ extension OCKStore {
             dailySurvey,
             weeklyReflection
         ])
-
-        #if os(iOS)
+        
+#if os(iOS)
         _ = try await addOnboardingTask(assessmentUUID)
         _ = try await addUIKitSurveyTasks(assessmentUUID)
-        #endif
-
+#endif
+        
         // Contacts
         var researcher = OCKContact(
             id: "biomesh.researcher",
             givenName: "BioMesh",
             familyName: "Research Team",
-            carePlanUUID: nil
+            carePlanUUID: assessmentUUID
         )
         researcher.title = "Study Coordinator"
         researcher.role = "Contact us with questions about your data or the study protocol."
@@ -346,23 +346,22 @@ extension OCKStore {
         researcher.phoneNumbers = [
             OCKLabeledValue(label: CNLabelWork, value: "(213) 555-0100")
         ]
-
+        
         var advisor = OCKContact(
             id: "biomesh.advisor",
             givenName: "Health",
             familyName: "Advisor",
-            carePlanUUID: nil
+            carePlanUUID: sleepWellnessUUID
         )
         advisor.title = "Wellness Advisor"
-        advisor.role = "General guidance on managing caffeine intake, sleep hygiene, " +
-            "and anxiety reduction strategies."
+        advisor.role = "General guidance on managing caffeine intake, sleep hygiene, and anxiety reduction strategies."
         advisor.emailAddresses = [
             OCKLabeledValue(label: CNLabelWork, value: "advisor@biomesh.health")
         ]
         advisor.phoneNumbers = [
             OCKLabeledValue(label: CNLabelWork, value: "(213) 555-0200")
         ]
-
+        
         _ = try await addContactsIfNotPresent([researcher, advisor])
     }
 
