@@ -5,6 +5,11 @@
 //  Created by Faye on 3/31/26.
 //
 
+//
+//  SurveyViewSynchronizer.swift
+//  OCKSample
+//
+
 #if os(iOS)
 
 import CareKit
@@ -23,29 +28,38 @@ final class SurveyViewSynchronizer: OCKSurveyTaskViewSynchronizer {
     ) {
         super.updateView(view, context: context)
 
-        if let event = context.viewModel.first?.first, event.outcome != nil {
+        guard let event = context.viewModel.first?.first,
+              event.outcome != nil else {
+            view.instructionsLabel.isHidden = true
+            return
+        }
+
+        guard let task = event.task as? OCKTask else {
+            view.instructionsLabel.isHidden = true
+            return
+        }
+
+        switch task.uiKitSurvey {
+        case .rangeOfMotion:
+            let range = event.answer(kind: #keyPath(ORKRangeOfMotionResult.range))
             view.instructionsLabel.isHidden = false
+            view.instructionsLabel.text = """
+            Range of Motion: \(Int(range))°
+            """
 
-            // TODO: Modify this so the instruction label shows correctly
-            // for each Task/Card. Hint - Each event has a task. How can you
-            // use this task to determine what instruction answers should show?
-            // Look at how CareViewController differentiates between surveys.
+        case .tappingSpeed:
+            let left = event.intAnswer(kind: "leftTapCount")
+            let right = event.intAnswer(kind: "rightTapCount")
+            let total = event.intAnswer(kind: "totalTapCount")
 
-            guard let task = event.task as? OCKTask else {
-                return
-            }
+            view.instructionsLabel.isHidden = false
+            view.instructionsLabel.text = """
+            Left taps: \(left)
+            Right taps: \(right)
+            Total taps: \(total)
+            """
 
-            switch task.uiKitSurvey {
-            case .rangeOfMotion:
-                let range = event.answer(kind: #keyPath(ORKRangeOfMotionResult.range))
-                view.instructionsLabel.text = """
-                Range of Motion: \(Int(range))°
-                """
-
-            default:
-                view.instructionsLabel.isHidden = true
-            }
-        } else {
+        default:
             view.instructionsLabel.isHidden = true
         }
     }

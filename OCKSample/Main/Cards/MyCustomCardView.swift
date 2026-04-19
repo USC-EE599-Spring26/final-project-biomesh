@@ -13,8 +13,6 @@ import CareKitUI
 import os.log
 import SwiftUI
 
-// We use `CareKitEssentialView` to help us with saving
-// new events.
 struct MyCustomCardView: CareKitEssentialView {
     @Environment(\.careStore) var store
     @Environment(\.customStyler) var style
@@ -25,6 +23,7 @@ struct MyCustomCardView: CareKitEssentialView {
     @State private var noCaffeineChecked = false
     @State private var dimLightsChecked = false
     @State private var phoneFaceDownChecked = false
+    @State private var isSaving = false
 
     private static let checklistItems = [
         "No caffeine after 2 PM",
@@ -76,7 +75,7 @@ struct MyCustomCardView: CareKitEssentialView {
                             }
                         }
                         .buttonStyle(NoHighlightStyle())
-                        .disabled(!hasCheckedItem && !isComplete)
+                        .disabled(isComplete || !hasCheckedItem || isSaving)
                     }
                 }
             }
@@ -86,7 +85,10 @@ struct MyCustomCardView: CareKitEssentialView {
         .frame(maxWidth: .infinity)
         .padding(.vertical)
         .onAppear {
-            loadExistingOutcomes()
+            syncStateFromOutcome()
+        }
+        .onChange(of: outcomeSignature) { _, _ in
+            syncStateFromOutcome()
         }
     }
 
@@ -97,32 +99,38 @@ struct MyCustomCardView: CareKitEssentialView {
         icon: String
     ) -> some View {
         Button(action: {
-            if !isComplete {
-                isChecked.wrappedValue.toggle()
-            }
+            guard !isComplete else { return }
+            isChecked.wrappedValue.toggle()
         }) {
             HStack(spacing: 12) {
                 Image(systemName: isChecked.wrappedValue ? "checkmark.circle.fill" : "circle")
                     .foregroundColor(isChecked.wrappedValue ? .accentColor : .gray)
                     .font(.title3)
+
                 Image(systemName: icon)
                     .foregroundColor(.secondary)
                     .frame(width: 24)
+
                 Text(label)
                     .foregroundColor(.primary)
+
                 Spacer()
             }
         }
         .buttonStyle(.plain)
-        .disabled(isComplete)
+        .disabled(isComplete || isSaving)
+    }
+
+    private var savedKinds: Set<String> {
+        Set((event.outcome?.values ?? []).compactMap(\.kind))
+    }
+
+    private var outcomeSignature: String {
+        savedKinds.sorted().joined(separator: "|")
     }
 
     private var isComplete: Bool {
-        event.isComplete
-    }
-
-    private var allChecked: Bool {
-        noCaffeineChecked && dimLightsChecked && phoneFaceDownChecked
+        !savedKinds.isEmpty
     }
 
     private var hasCheckedItem: Bool {
@@ -130,63 +138,44 @@ struct MyCustomCardView: CareKitEssentialView {
     }
 
     private var buttonText: LocalizedStringKey {
-        if isComplete {
-            return "COMPLETED"
-        }
-        return allChecked ? "MARK_COMPLETE" : "MARK_COMPLETE"
+        isComplete ? "COMPLETED" : "MARK_COMPLETE"
     }
 
     private var foregroundColor: Color {
         isComplete ? .accentColor : .white
     }
 
-    private func loadExistingOutcomes() {
-        guard let values = event.outcome?.values else { return }
-        for value in values {
-            if let kind = value.kind {
-                switch kind {
-                case "noCaffeine": noCaffeineChecked = true
-                case "dimLights": dimLightsChecked = true
-                case "phoneFaceDown": phoneFaceDownChecked = true
-                default: break
-                }
-            }
-        }
+    private func syncStateFromOutcome() {
+        let kinds = savedKinds
+        noCaffeineChecked = kinds.contains("noCaffeine")
+        dimLightsChecked = kinds.contains("dimLights")
+        phoneFaceDownChecked = kinds.contains("phoneFaceDown")
     }
 
     private func saveChecklist() {
-        Task {
-            do {
-                guard !isComplete else {
-                    // Clear all outcome values
-                    let updatedOutcome = try await saveOutcomeValues(
-                        [],
-                        event: event
-                    )
-                    noCaffeineChecked = false
-                    dimLightsChecked = false
-                    phoneFaceDownChecked = false
-                    Logger.myCustomCardView.info(
-                        "Cleared wind-down outcomes: \(updatedOutcome.values)"
-                    )
-                    return
-                }
+        guard !isComplete else { return }
 
-                // Save each checked item as a separate outcome value
+        Task {
+            isSaving = true
+            defer { isSaving = false }
+
+            do {
                 var outcomeValues = [OCKOutcomeValue]()
 
                 if noCaffeineChecked {
-                    var value = OCKOutcomeValue(true)
+                    var value = OCKOutcomeValue(1)
                     value.kind = "noCaffeine"
                     outcomeValues.append(value)
                 }
+
                 if dimLightsChecked {
-                    var value = OCKOutcomeValue(true)
+                    var value = OCKOutcomeValue(1)
                     value.kind = "dimLights"
                     outcomeValues.append(value)
                 }
+
                 if phoneFaceDownChecked {
-                    var value = OCKOutcomeValue(true)
+                    var value = OCKOutcomeValue(1)
                     value.kind = "phoneFaceDown"
                     outcomeValues.append(value)
                 }
@@ -195,9 +184,16 @@ struct MyCustomCardView: CareKitEssentialView {
                     outcomeValues,
                     event: event
                 )
+
                 Logger.myCustomCardView.info(
                     "Saved wind-down outcomes: \(updatedOutcome.values)"
                 )
+
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(
+                        .init(name: Notification.Name(rawValue: Constants.shouldRefreshView))
+                    )
+                }
             } catch {
                 Logger.myCustomCardView.info(
                     "Error saving wind-down values: \(error)"
@@ -208,26 +204,22 @@ struct MyCustomCardView: CareKitEssentialView {
 }
 
 #if !os(watchOS)
-
 extension MyCustomCardView: EventViewable {
-
     public init?(
         event: OCKAnyEvent,
         store: any OCKAnyStoreProtocol
     ) {
-        self.init(
-            event: event
-        )
+        self.init(event: event)
     }
 }
-
 #endif
 
 struct MyCustomCardView_Previews: PreviewProvider {
     static var store = Utility.createPreviewStore()
+
     static var query: OCKEventQuery {
         var query = OCKEventQuery(for: Date())
-        query.taskIDs = [TaskID.caffeineIntake]
+        query.taskIDs = [TaskID.sleepHygiene]
         return query
     }
 

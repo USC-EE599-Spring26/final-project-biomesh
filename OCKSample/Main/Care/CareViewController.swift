@@ -336,13 +336,11 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
                 return [card]
 
             case .survey:
-                guard let card = researchSurveyViewController(
-                    query: query,
-                    task: standardTask
-                ) else {
-                    Logger.feed.warning("Unable to create research survey view controller")
-                    return nil
-                }
+                let card = EventQueryView<AnswerSummarySurveyCardView>(
+                    query: query
+                )
+                .padding(.vertical, swiftUIPadding)
+                .formattedHostingController()
                 return [card]
 
             case .custom:

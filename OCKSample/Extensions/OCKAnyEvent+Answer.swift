@@ -15,4 +15,17 @@ extension OCKAnyEvent {
         let match = values.first(where: { $0.kind == kind })
         return match?.doubleValue ?? 0
     }
+
+    /// Returns the first `Int` outcome value whose `kind` matches the given string.
+    func intAnswer(kind: String) -> Int {
+        let values = outcome?.values ?? []
+        let match = values.first(where: { $0.kind == kind })
+        if let intValue = match?.integerValue {
+            return intValue
+        }
+        if let doubleValue = match?.doubleValue {
+            return Int(doubleValue.rounded())
+        }
+        return 0
+    }
 }
