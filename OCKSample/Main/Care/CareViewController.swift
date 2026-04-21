@@ -162,23 +162,15 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
         Task {
             #if os(iOS)
             guard await Utility.checkIfOnboardingIsComplete() else {
-                let onboardSurvey = Onboard()
                 var query = OCKEventQuery(for: Date())
                 query.taskIDs = [Onboard.identifier()]
 
-                #if canImport(ResearchKit) && canImport(ResearchKitUI)
-                let onboardCard = OCKSurveyTaskViewController(
-                    eventQuery: query,
-                    store: self.store,
-                    survey: onboardSurvey.createSurvey(),
-                    extractOutcome: { _ in
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                            self.reload()
-                        }
-                        return [OCKOutcomeValue(Date())]
-                    }
+                #if !os(watchOS) && canImport(ResearchKit) && canImport(ResearchKitUI)
+                let onboardCard = EventQueryView<ActiveSurveyTaskCardView>(
+                    query: query
                 )
-                onboardCard.surveyDelegate = self
+                .padding(.vertical, swiftUIPadding)
+                .formattedHostingController()
                 listViewController.clear()
                 listViewController.appendViewController(onboardCard, animated: false)
                 #endif
@@ -272,19 +264,15 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
 
             #if os(iOS)
             case .uiKitSurvey:
-                guard let surveyType = standardTask.uiKitSurvey else {
+                guard standardTask.uiKitSurvey != nil else {
                     return nil
                 }
-                let survey = surveyType.type()
                 #if canImport(ResearchKit) && canImport(ResearchKitUI)
-                let card = OCKSurveyTaskViewController(
-                    eventQuery: query,
-                    store: self.store,
-                    survey: survey.createSurvey(),
-                    viewSynchronizer: SurveyViewSynchronizer(),
-                    extractOutcome: survey.extractAnswers
+                let card = EventQueryView<ActiveSurveyTaskCardView>(
+                    query: query
                 )
-                card.surveyDelegate = self
+                .padding(.vertical, swiftUIPadding)
+                .formattedHostingController()
                 return [card]
                 #else
                 return nil
@@ -306,10 +294,20 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
             #endif
 
             case .featured:
-                return nil
+                let card = EventQueryView<FeaturedTaskCardView>(
+                    query: query
+                )
+                .padding(.vertical, swiftUIPadding)
+                .formattedHostingController()
+                return [card]
 
             case .grid:
-                return nil
+                let card = EventQueryView<GridTaskCardView>(
+                    query: query
+                )
+                .padding(.vertical, swiftUIPadding)
+                .formattedHostingController()
+                return [card]
 
             case .instruction:
                 let card = EventQueryView<InstructionsTaskView>(
@@ -321,6 +319,22 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
 
             case .link:
                 let card = EventQueryView<LinkView>(
+                    query: query
+                )
+                .padding(.vertical, swiftUIPadding)
+                .formattedHostingController()
+                return [card]
+
+            case .labeledValue:
+                let card = EventQueryView<StandardLabeledValueCardView>(
+                    query: query
+                )
+                .padding(.vertical, swiftUIPadding)
+                .formattedHostingController()
+                return [card]
+
+            case .numericProgress:
+                let card = EventQueryView<StandardNumericProgressCardView>(
                     query: query
                 )
                 .padding(.vertical, swiftUIPadding)
@@ -442,13 +456,6 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
 		self.isLoading = false
     }
 }
-#if canImport(ResearchKit) && canImport(ResearchKitUI)
-// MARK: - OCKSurveyTaskViewControllerDelegate
-
-extension CareViewController: OCKSurveyTaskViewControllerDelegate {
-}
-#endif
-
 private extension View {
     func formattedHostingController() -> UIHostingController<Self> {
         let viewController = UIHostingController(rootView: self)
