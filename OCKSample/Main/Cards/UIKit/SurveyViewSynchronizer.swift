@@ -10,7 +10,7 @@
 //  OCKSample
 //
 
-#if os(iOS)
+#if false
 
 import CareKit
 import CareKitStore
