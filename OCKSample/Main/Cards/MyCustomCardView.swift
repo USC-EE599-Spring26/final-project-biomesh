@@ -434,6 +434,7 @@ struct ActiveSurveyTaskCardView: CareKitEssentialView {
             }
         }
     }
+
 }
 
 extension ActiveSurveyTaskCardView: EventViewable {
