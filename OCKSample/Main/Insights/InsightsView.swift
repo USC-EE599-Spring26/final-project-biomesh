@@ -25,15 +25,21 @@ struct InsightsView: View {
 		NavigationStack {
 			dateIntervalSegmentView
 				.padding()
-			ScrollView {
-				VStack {
-					// This is for loop is useful when you want a chart for
-					// for every task which may not always be the case.
-					ForEach(orderedEvents) { event in
+            ScrollView {
+                VStack(spacing: 20) {
+                    WindDownChartCardView(
+                        events: orderedEvents.map(\.result),
+                        subtitle: subtitle
+                    )
+
+                    // This is for loop is useful when you want a chart for
+                    // for every task which may not always be the case.
+                    ForEach(orderedEvents) { event in
 						let eventResult = event.result
 						let dataStrategy = determineDataStrategy(for: eventResult.task.id)
-						if eventResult.task.id != TaskID.doxylamine
-							&& eventResult.task.id != TaskID.nausea {
+                        if eventResult.task.id != TaskID.caffeineIntake
+                            && eventResult.task.id != TaskID.anxietyCheck
+                            && eventResult.task.id != TaskID.sleepHygiene {
 
 							// dynamic gradient colors
 							let meanGradientStart = Color(TintColorFlipKey.defaultValue)
@@ -76,7 +82,7 @@ struct InsightsView: View {
 								]
 							)
 
-						} else if eventResult.task.id == TaskID.doxylamine {
+						} else if eventResult.task.id == TaskID.caffeineIntake {
 							// Example of showing nausea vs doxlymine
 
 							// dynamic gradient colors
@@ -84,7 +90,7 @@ struct InsightsView: View {
 							let nauseaGradientEnd = Color.accentColor
 
 							let nauseaConfiguration = CKEDataSeriesConfiguration(
-								taskID: TaskID.nausea,
+								taskID: TaskID.anxietyCheck,
 								dataStrategy: .sum,
 								mark: .bar,
 								legendTitle: String(localized: "NAUSEA"),
@@ -132,10 +138,10 @@ struct InsightsView: View {
 				.padding()
 			}
 			.onAppear {
-				let taskIDs = TaskID.orderedWatchOS + TaskID.orderedObjective
+                let taskIDs = TaskID.ordered
 				sortedTaskIDs = computeTaskIDOrder(taskIDs: taskIDs)
 				events.query.taskIDs = taskIDs
-				events.query.dateInterval = eventQueryInterval
+                events.query.dateInterval = insightsFetchInterval
 				setupChartPropertiesForSegmentSelection(intervalSelected)
 			}
 #if os(iOS)
@@ -199,17 +205,27 @@ struct InsightsView: View {
 	// We don't need to vary this because it's only
 	// used to find taskID's. The chartInterval will
 	// find all of the needed data for the chart.
-	private var eventQueryInterval: DateInterval {
-		let interval = Calendar.current.dateInterval(
-			of: .weekOfYear,
-			for: Date()
-		)!
-		return interval
-	}
+    private var insightsFetchInterval: DateInterval {
+        let calendar = Calendar.current
+        let now = Date()
+        let startDate = calendar.date(
+            byAdding: .year,
+            value: -1,
+            to: now
+        )!
+
+        let startOfTomorrow = calendar.date(
+            byAdding: .day,
+            value: 1,
+            to: calendar.startOfDay(for: now)
+        )!
+
+        return DateInterval(start: startDate, end: startOfTomorrow)
+    }
 
 	private func determineDataStrategy(for taskID: String) -> CKEDataSeriesConfiguration.DataStrategy {
 		switch taskID {
-		case TaskID.ovulationTestResult, TaskID.steps:
+		case TaskID.steps, TaskID.sleepDuration:
 			return .max
 		default:
 			return .mean

@@ -19,11 +19,11 @@ struct CareView: View {
 
             if loginViewModel.isLoggedIn {
 
-                InstructionsTaskView(taskID: TaskID.stretch,
+                InstructionsTaskView(taskID: TaskID.waterIntake,
                                      eventQuery: OCKEventQuery(for: Date()),
                                      storeManager: loginViewModel.storeManager)
 
-                SimpleTaskView(taskID: TaskID.kegels,
+                SimpleTaskView(taskID: TaskID.caffeineIntake,
                                eventQuery: OCKEventQuery(for: Date()),
                                storeManager: loginViewModel.storeManager) { controller in
 

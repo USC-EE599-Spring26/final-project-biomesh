@@ -9,26 +9,53 @@
 import Foundation
 
 enum TaskID {
-    static let doxylamine = "doxylamine"
-    static let nausea = "nausea"
-    static let stretch = "stretch"
-    static let kegels = "kegels"
-    static let steps = "steps"
-    static let ovulationTestResult = "ovulationTestResult"
+    // Custom OCKTask IDs counted toward the assignment
+    static let caffeineIntake   = "biomesh.caffeine"
+    static let waterIntake      = "biomesh.water"
+    static let anxietyCheck     = "biomesh.anxiety"
+    static let sleepHygiene     = "biomesh.sleep.hygiene"
+    static let weeklyReflection = "biomesh.weekly.reflection"
+    static let dailySymptomCheckIn = "biomesh.daily.symptom.checkin"
+    static let hydrationGuide   = "biomesh.hydration.guide"
+    static let energySnapshot   = "biomesh.energy.snapshot"
+    static let stretchChecklist = "biomesh.stretch.checklist"
+    static let studyResource    = "biomesh.study.resource"
 
+    // Original sample-inspired OCKHealthKitTask IDs that may still be shown
+    static let steps            = "biomesh.steps"
+    static let sleepDuration    = "biomesh.sleep.duration"
+
+    // New HealthKit-backed tasks counted toward the assignment
+    static let heartRate        = "biomesh.heart.rate"
+    static let restingHeartRate = "biomesh.resting.heart.rate"
+
+    // Ordered display lists
     static var ordered: [String] {
         orderedObjective + orderedSubjective
     }
 
+    /// HealthKit-backed tasks shown first
     static var orderedObjective: [String] {
-        [ Self.steps, Self.ovulationTestResult ]
+        [restingHeartRate, heartRate, steps, sleepDuration]
     }
 
+    /// Self-reported tasks shown after HealthKit
     static var orderedSubjective: [String] {
-        [ Self.doxylamine, Self.kegels, Self.stretch, Self.nausea]
+        [
+            caffeineIntake,
+            waterIntake,
+            anxietyCheck,
+            sleepHygiene,
+            hydrationGuide,
+            energySnapshot,
+            stretchChecklist,
+            studyResource,
+            dailySymptomCheckIn,
+            weeklyReflection
+        ]
     }
 
     static var orderedWatchOS: [String] {
-        [ Self.doxylamine, Self.kegels, Self.stretch ]
+        [caffeineIntake, waterIntake, anxietyCheck]
     }
 }

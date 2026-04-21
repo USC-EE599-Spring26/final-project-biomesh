@@ -21,7 +21,7 @@ struct CareView: View {
     var body: some View {
         ScrollView {
 			ForEach(orderedEvents) { event in
-                if event.result.task.id == TaskID.kegels {
+                if event.result.task.id == TaskID.caffeineIntake {
                     SimpleTaskView(event: event)
 				} else {
                     InstructionsTaskView(event: event)

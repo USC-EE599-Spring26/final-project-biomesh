@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-// @main
+@main
 struct OCKVisionSampleApp: App {
     var body: some Scene {
         WindowGroup {
