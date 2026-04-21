@@ -106,19 +106,19 @@ extension OCKStore {
         _ patientUUID: UUID? = nil,
         startDate: Date = Date()
     ) async throws {
-
-        #if os(iOS)
+        
+#if os(iOS)
         try await populateCarePlans(patientUUID: patientUUID)
         let carePlanUUIDs = try await Self.getCarePlanUUIDs()
         let dailyTrackingUUID = carePlanUUIDs[.dailyTracking]
         let sleepWellnessUUID = carePlanUUIDs[.sleepWellness]
         let assessmentUUID = carePlanUUIDs[.assessment]
-        #else
+#else
         let dailyTrackingUUID: UUID? = nil
         let sleepWellnessUUID: UUID? = nil
         let assessmentUUID: UUID? = nil
-        #endif
-
+#endif
+        
         let calendar  = Calendar.current
         let morning   = calendar.startOfDay(for: startDate)
         let allDay    = OCKSchedule(composing: [
@@ -189,10 +189,8 @@ extension OCKStore {
                 duration: .allDay
             )
         ])
-
+        
         // Caffeine Intake
-        // Logs each caffeinated drink throughout the day.
-        // Research note: >400 mg/day linked to significantly higher anxiety risk.
         var caffeine = OCKTask(
             id: TaskID.caffeineIntake,
             title: "Caffeine Intake",
@@ -200,14 +198,13 @@ extension OCKStore {
             schedule: allDay
         )
         caffeine.instructions = "Tap Log each time you have a caffeinated drink " +
-            "(coffee, tea, energy drink). Note: >400 mg/day is linked to higher anxiety risk."
+        "(coffee, tea, energy drink). Note: >400 mg/day is linked to higher anxiety risk."
         caffeine.asset = "cup.and.saucer.fill"
         caffeine.card = .button
         caffeine.priority = 0
         caffeine.impactsAdherence = false
-
+        
         // Water Intake
-        // Tracks hydration as a control variable.
         var water = OCKTask(
             id: TaskID.waterIntake,
             title: "Hydration Checkpoint",
@@ -215,14 +212,13 @@ extension OCKStore {
             schedule: hydrationSchedule
         )
         water.instructions = "Check in around late morning and late afternoon to confirm " +
-            "you had water. Hydration helps separate caffeine effects from simple dehydration."
+        "you had water. Hydration helps separate caffeine effects from simple dehydration."
         water.asset = "drop.fill"
         water.card = .button
         water.priority = 1
         water.impactsAdherence = false
-
+        
         // Anxiety Check-in
-        // Captures the primary outcome variable from the research model.
         let anxietySchedule = OCKSchedule(composing: [
             OCKScheduleElement(
                 start: morning,
@@ -233,7 +229,7 @@ extension OCKStore {
                 duration: .allDay
             )
         ])
-
+        
         var anxiety = OCKTask(
             id: TaskID.anxietyCheck,
             title: "Anxiety Check-in",
@@ -241,15 +237,14 @@ extension OCKStore {
             schedule: anxietySchedule
         )
         anxiety.instructions = "Tap Log whenever you notice an anxiety episode. " +
-            "Try to note how long ago you last had caffeine — this helps trace the " +
-            "caffeine → anxiety relationship your app is studying."
+        "Try to note how long ago you last had caffeine — this helps trace the " +
+        "caffeine → anxiety relationship your app is studying."
         anxiety.asset = "brain.head.profile"
         anxiety.card = .button
         anxiety.priority = 2
         anxiety.impactsAdherence = false
-
+        
         // Evening Wind-Down
-        // A checklist to support the sleep mediator variable.
         var windDown = OCKTask(
             id: TaskID.sleepHygiene,
             title: "Evening Wind-Down",
@@ -257,15 +252,15 @@ extension OCKStore {
             schedule: eveningSchedule
         )
         windDown.instructions = "Complete your wind-down routine before bed:\n" +
-            "• No caffeine after 2 PM\n" +
-            "• Dim lights 30 min before sleep\n" +
-            "• Put your phone face-down\n" +
-            "Good sleep quality is the mediator between caffeine and next-day anxiety."
+        "• No caffeine after 2 PM\n" +
+        "• Dim lights 30 min before sleep\n" +
+        "• Put your phone face-down\n" +
+        "Good sleep quality is the mediator between caffeine and next-day anxiety."
         windDown.asset = "moon.zzz.fill"
         windDown.card = .custom
         windDown.priority = 3
         windDown.impactsAdherence = true
-
+        
         var hydrationGuide = OCKTask(
             id: TaskID.hydrationGuide,
             title: "Hydration Guide",
@@ -277,7 +272,7 @@ extension OCKStore {
         hydrationGuide.card = .instruction
         hydrationGuide.priority = 4
         hydrationGuide.impactsAdherence = false
-
+        
         var energySnapshot = OCKTask(
             id: TaskID.energySnapshot,
             title: "Morning Energy Snapshot",
@@ -289,7 +284,7 @@ extension OCKStore {
         energySnapshot.card = .simple
         energySnapshot.priority = 5
         energySnapshot.impactsAdherence = false
-
+        
         var stretchChecklist = OCKTask(
             id: TaskID.stretchChecklist,
             title: "Desk Stretch Break",
@@ -301,7 +296,7 @@ extension OCKStore {
         stretchChecklist.card = .checklist
         stretchChecklist.priority = 6
         stretchChecklist.impactsAdherence = true
-
+        
         var studyResource = OCKTask(
             id: TaskID.studyResource,
             title: "Caffeine Research Resource",
@@ -314,9 +309,10 @@ extension OCKStore {
         studyResource.externalURL = URL(string: "https://www.cdc.gov/sleep/about_sleep/sleep_hygiene.html")
         studyResource.priority = 7
         studyResource.impactsAdherence = false
-
+        
+        let dailySurvey = createDailySymptomSurveyTask(carePlanUUID: assessmentUUID)
         let weeklyReflection = createQualityOfLifeSurveyTask(carePlanUUID: assessmentUUID)
-
+        
         _ = try await addTasksIfNotPresent([
             caffeine,
             water,
@@ -326,20 +322,21 @@ extension OCKStore {
             energySnapshot,
             stretchChecklist,
             studyResource,
+            dailySurvey,
             weeklyReflection
         ])
-
-        #if os(iOS)
+        
+#if os(iOS)
         _ = try await addOnboardingTask(assessmentUUID)
         _ = try await addUIKitSurveyTasks(assessmentUUID)
-        #endif
-
+#endif
+        
         // Contacts
         var researcher = OCKContact(
             id: "biomesh.researcher",
             givenName: "BioMesh",
             familyName: "Research Team",
-            carePlanUUID: nil
+            carePlanUUID: assessmentUUID
         )
         researcher.title = "Study Coordinator"
         researcher.role = "Contact us with questions about your data or the study protocol."
@@ -349,24 +346,118 @@ extension OCKStore {
         researcher.phoneNumbers = [
             OCKLabeledValue(label: CNLabelWork, value: "(213) 555-0100")
         ]
-
+        
         var advisor = OCKContact(
             id: "biomesh.advisor",
             givenName: "Health",
             familyName: "Advisor",
-            carePlanUUID: nil
+            carePlanUUID: sleepWellnessUUID
         )
         advisor.title = "Wellness Advisor"
-        advisor.role = "General guidance on managing caffeine intake, sleep hygiene, " +
-            "and anxiety reduction strategies."
+        advisor.role = "General guidance on managing caffeine intake, sleep hygiene, and anxiety reduction strategies."
         advisor.emailAddresses = [
             OCKLabeledValue(label: CNLabelWork, value: "advisor@biomesh.health")
         ]
         advisor.phoneNumbers = [
             OCKLabeledValue(label: CNLabelWork, value: "(213) 555-0200")
         ]
-
+        
         _ = try await addContactsIfNotPresent([researcher, advisor])
+    }
+
+    func createDailySymptomSurveyTask(carePlanUUID: UUID?) -> OCKTask {
+        let taskID = TaskID.dailySymptomCheckIn
+        let calendar = Calendar.current
+        let now = Date()
+
+        let evening = calendar.date(
+            bySettingHour: 20,
+            minute: 0,
+            second: 0,
+            of: now
+        ) ?? now
+
+        let schedule = OCKSchedule(composing: [
+            OCKScheduleElement(
+                start: evening,
+                end: nil,
+                interval: DateComponents(day: 1),
+                text: "Every evening",
+                targetValues: [],
+                duration: .allDay
+            )
+        ])
+
+        let caffeineLate = SurveyQuestion(
+            id: "\(taskID)-caffeine-late",
+            type: .multipleChoice,
+            required: true,
+            title: "Did you have caffeine after 2 PM today?",
+            textChoices: [
+                .init(id: "yes", choiceText: "Yes", value: "Yes"),
+                .init(id: "no", choiceText: "No", value: "No")
+            ],
+            choiceSelectionLimit: .single
+        )
+
+        let caffeineAmount = SurveyQuestion(
+            id: "\(taskID)-caffeine-amount",
+            type: .slider,
+            required: true,
+            title: "How many caffeinated drinks did you have today?",
+            detail: "Count coffee, tea, soda, or energy drinks.",
+            integerRange: 0...8,
+            sliderStepValue: 1
+        )
+
+        let anxietyLevel = SurveyQuestion(
+            id: "\(taskID)-anxiety",
+            type: .slider,
+            required: true,
+            title: "What was your highest anxiety level today?",
+            detail: "0 = none, 10 = very high",
+            integerRange: 0...10,
+            sliderStepValue: 1
+        )
+
+        let sleepReady = SurveyQuestion(
+            id: "\(taskID)-sleep",
+            type: .multipleChoice,
+            required: true,
+            title: "How ready do you feel for sleep tonight?",
+            textChoices: [
+                .init(id: "1", choiceText: "Very restless", value: "Very restless"),
+                .init(id: "2", choiceText: "A little restless", value: "A little restless"),
+                .init(id: "3", choiceText: "Neutral", value: "Neutral"),
+                .init(id: "4", choiceText: "Calm", value: "Calm"),
+                .init(id: "5", choiceText: "Very calm", value: "Very calm")
+            ],
+            choiceSelectionLimit: .single
+        )
+
+        let step = SurveyStep(
+            id: "\(taskID)-step",
+            questions: [caffeineLate, caffeineAmount, anxietyLevel, sleepReady],
+            asset: "list.clipboard",
+            title: "Daily Symptom Check-In",
+            subtitle: "Answer based on today."
+        )
+
+        var task = OCKTask(
+            id: taskID,
+            title: "Daily Symptom Check-In",
+            carePlanUUID: carePlanUUID,
+            schedule: schedule
+        )
+
+        task.instructions = "Track caffeine timing, anxiety level, and sleep readiness each day."
+        task.impactsAdherence = true
+        task.asset = "list.clipboard"
+        task.card = .survey
+        task.surveySteps = [step]
+        task.priority = 3
+
+        return task
     }
 
     func createQualityOfLifeSurveyTask(carePlanUUID: UUID?) -> OCKTask {
@@ -412,6 +503,7 @@ extension OCKStore {
             integerRange: 0...10,
             sliderStepValue: 1
         )
+
         let questions = [questionOne, questionTwo]
         let taskAsset = "calendar.badge.clock"
         let taskTitle = "Weekly Pattern Reflection"
@@ -469,7 +561,7 @@ extension OCKStore {
         )!
         let nextMonth = Calendar.current.date(
             byAdding: .month, value: 1, to: thisMorning
-        )
+        )!
 
         let dailyElement = OCKScheduleElement(
             start: thisMorning, end: nextWeek,
@@ -481,6 +573,7 @@ extension OCKStore {
             interval: DateComponents(weekOfYear: 1),
             text: nil, targetValues: [], duration: .allDay
         )
+
         let rangeOfMotionCheckSchedule = OCKSchedule(
             composing: [dailyElement, weeklyElement]
         )
@@ -496,7 +589,32 @@ extension OCKStore {
         rangeOfMotionTask.card = .uiKitSurvey
         rangeOfMotionTask.uiKitSurvey = .rangeOfMotion
 
-        return try await addTasksIfNotPresent([rangeOfMotionTask])
+        let tappingElement = OCKScheduleElement(
+            start: thisMorning,
+            end: nil,
+            interval: DateComponents(day: 1),
+            text: "Afternoon focus check",
+            targetValues: [],
+            duration: .allDay
+        )
+
+        let tappingSchedule = OCKSchedule(composing: [tappingElement])
+
+        var tappingTask = OCKTask(
+            id: TappingSpeed.identifier(),
+            title: "Tapping Speed",
+            carePlanUUID: carePlanUUID,
+            schedule: tappingSchedule
+        )
+        tappingTask.instructions = """
+        Complete this quick finger-tapping task to measure alertness and motor speed after your daytime caffeine routine.
+        """
+        tappingTask.priority = 3
+        tappingTask.asset = "hand.tap.fill"
+        tappingTask.card = .uiKitSurvey
+        tappingTask.uiKitSurvey = .tappingSpeed
+
+        return try await addTasksIfNotPresent([rangeOfMotionTask, tappingTask])
     }
     #endif
 }

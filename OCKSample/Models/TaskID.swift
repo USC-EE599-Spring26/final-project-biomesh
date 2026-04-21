@@ -15,6 +15,7 @@ enum TaskID {
     static let anxietyCheck     = "biomesh.anxiety"
     static let sleepHygiene     = "biomesh.sleep.hygiene"
     static let weeklyReflection = "biomesh.weekly.reflection"
+    static let dailySymptomCheckIn = "biomesh.daily.symptom.checkin"
     static let hydrationGuide   = "biomesh.hydration.guide"
     static let energySnapshot   = "biomesh.energy.snapshot"
     static let stretchChecklist = "biomesh.stretch.checklist"
@@ -49,6 +50,7 @@ enum TaskID {
             energySnapshot,
             stretchChecklist,
             studyResource,
+            dailySymptomCheckIn,
             weeklyReflection
         ]
     }
