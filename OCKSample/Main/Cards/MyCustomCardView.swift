@@ -29,6 +29,7 @@ struct MyCustomCardView: CareKitEssentialView {
     @State private var dimLightsChecked = false
     @State private var phoneFaceDownChecked = false
     @State private var isSaving = false
+    @State private var locallySavedKinds = Set<String>()
 
     private static let checklistItems = [
         "No caffeine after 2 PM",
@@ -128,6 +129,7 @@ struct MyCustomCardView: CareKitEssentialView {
 
     private var savedKinds: Set<String> {
         Set((event.outcome?.values ?? []).compactMap(\.kind))
+            .union(locallySavedKinds)
     }
 
     private var outcomeSignature: String {
@@ -194,11 +196,7 @@ struct MyCustomCardView: CareKitEssentialView {
                     "Saved wind-down outcomes: \(updatedOutcome.values)"
                 )
 
-                DispatchQueue.main.async {
-                    NotificationCenter.default.post(
-                        .init(name: Notification.Name(rawValue: Constants.shouldRefreshView))
-                    )
-                }
+                locallySavedKinds = Set(outcomeValues.compactMap(\.kind))
             } catch {
                 Logger.myCustomCardView.info(
                     "Error saving wind-down values: \(error)"
@@ -226,6 +224,7 @@ struct FeaturedTaskCardView: CareKitEssentialView {
 
     let event: OCKAnyEvent
     @State private var isSaving = false
+    @State private var didSaveCompletion = false
 
     private var assetName: String {
         (event.task as? OCKTask)?.asset ?? "star.fill"
@@ -236,7 +235,7 @@ struct FeaturedTaskCardView: CareKitEssentialView {
     }
 
     private var isComplete: Bool {
-        !(event.outcome?.values.isEmpty ?? true)
+        didSaveCompletion || !(event.outcome?.values.isEmpty ?? true)
     }
 
     var body: some View {
@@ -302,11 +301,7 @@ struct FeaturedTaskCardView: CareKitEssentialView {
                 value.kind = "featuredComplete"
                 _ = try await saveOutcomeValues([value], event: event)
 
-                DispatchQueue.main.async {
-                    NotificationCenter.default.post(
-                        .init(name: Notification.Name(rawValue: Constants.shouldRefreshView))
-                    )
-                }
+                didSaveCompletion = true
             } catch {
                 Logger.myCustomCardView.info("Error saving featured task: \(error)")
             }
@@ -334,6 +329,7 @@ struct ActiveSurveyTaskCardView: CareKitEssentialView {
     let event: OCKAnyEvent
     @State private var isPresentingSurvey = false
     @State private var isSaving = false
+    @State private var savedSurveyValues: [OCKOutcomeValue]?
 
     private var task: OCKTask? {
         event.task as? OCKTask
@@ -344,7 +340,11 @@ struct ActiveSurveyTaskCardView: CareKitEssentialView {
     }
 
     private var isComplete: Bool {
-        !(event.outcome?.values.isEmpty ?? true)
+        !displayedOutcomeValues.isEmpty
+    }
+
+    private var displayedOutcomeValues: [OCKOutcomeValue] {
+        savedSurveyValues ?? event.outcome?.values ?? []
     }
 
     var body: some View {
@@ -397,11 +397,7 @@ struct ActiveSurveyTaskCardView: CareKitEssentialView {
     }
 
     private var summaryText: String? {
-        guard let outcome = event.outcome else {
-            return task?.instructions
-        }
-
-        let values = outcome.values
+        let values = displayedOutcomeValues
         guard !values.isEmpty else {
             return task?.instructions
         }
@@ -424,11 +420,7 @@ struct ActiveSurveyTaskCardView: CareKitEssentialView {
 
             do {
                 _ = try await saveOutcomeValues(values, event: event)
-                DispatchQueue.main.async {
-                    NotificationCenter.default.post(
-                        .init(name: Notification.Name(rawValue: Constants.shouldRefreshView))
-                    )
-                }
+                savedSurveyValues = values
             } catch {
                 Logger.myCustomCardView.info("Error saving active survey task: \(error)")
             }
@@ -500,6 +492,7 @@ struct GridTaskCardView: CareKitEssentialView {
 
     let event: OCKAnyEvent
     @State private var isSaving = false
+    @State private var savedSelection: Int?
 
     private let options = [
         ("Low", "1.circle.fill", 1),
@@ -509,7 +502,7 @@ struct GridTaskCardView: CareKitEssentialView {
     ]
 
     private var selectedValue: Int? {
-        event.outcome?.values.compactMap(\.integerValue).first
+        savedSelection ?? event.outcome?.values.compactMap(\.integerValue).first
     }
 
     var body: some View {
@@ -576,6 +569,9 @@ struct GridTaskCardView: CareKitEssentialView {
         .careKitStyle(style)
         .frame(maxWidth: .infinity)
         .padding(.vertical)
+        .onAppear {
+            savedSelection = event.outcome?.values.compactMap(\.integerValue).first
+        }
     }
 
     private func saveSelection(_ score: Int) {
@@ -589,12 +585,7 @@ struct GridTaskCardView: CareKitEssentialView {
                 var value = OCKOutcomeValue(score)
                 value.kind = "gridSelection"
                 _ = try await saveOutcomeValues([value], event: event)
-
-                DispatchQueue.main.async {
-                    NotificationCenter.default.post(
-                        .init(name: Notification.Name(rawValue: Constants.shouldRefreshView))
-                    )
-                }
+                savedSelection = score
             } catch {
                 Logger.myCustomCardView.info("Error saving grid task: \(error)")
             }
@@ -620,9 +611,10 @@ struct StandardNumericProgressCardView: CareKitEssentialView {
 
     let event: OCKAnyEvent
     @State private var isSaving = false
+    @State private var savedProgress: Int?
 
     private var progress: Int {
-        event.outcome?.values.compactMap(\.integerValue).first ?? 0
+        savedProgress ?? event.outcome?.values.compactMap(\.integerValue).first ?? 0
     }
 
     private var isComplete: Bool {
@@ -694,12 +686,7 @@ struct StandardNumericProgressCardView: CareKitEssentialView {
                 var value = OCKOutcomeValue(1)
                 value.kind = "progress"
                 _ = try await saveOutcomeValues([value], event: event)
-
-                DispatchQueue.main.async {
-                    NotificationCenter.default.post(
-                        .init(name: Notification.Name(rawValue: Constants.shouldRefreshView))
-                    )
-                }
+                savedProgress = 1
             } catch {
                 Logger.myCustomCardView.info("Error saving numeric progress task: \(error)")
             }
