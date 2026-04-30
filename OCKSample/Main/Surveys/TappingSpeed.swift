@@ -39,11 +39,16 @@ extension TappingSpeed {
             options: [.excludeConclusion]
         )
 
+        let reviewStep = ORKReviewStep.embeddedReviewStep(withIdentifier: "\(identifier()).review")
+        reviewStep.title = "Review Your Results"
+        reviewStep.text = "Check your tapping speed results before submitting."
+        reviewStep.excludeInstructionSteps = true
+
         let completionStep = ORKCompletionStep(identifier: "\(identifier()).completion")
         completionStep.title = "Nice work!"
         completionStep.detailText = "Your tapping results were recorded."
 
-        task.addSteps(from: [completionStep])
+        task.addSteps(from: [reviewStep, completionStep])
         return task
     }
 

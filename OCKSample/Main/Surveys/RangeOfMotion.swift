@@ -29,11 +29,16 @@ extension RangeOfMotion {
             options: [.excludeConclusion]
         )
 
+        let reviewStep = ORKReviewStep.embeddedReviewStep(withIdentifier: "\(identifier()).review")
+        reviewStep.title = "Review Your Results"
+        reviewStep.text = "Check your range of motion results before submitting."
+        reviewStep.excludeInstructionSteps = true
+
         let completionStep = ORKCompletionStep(identifier: "\(identifier()).completion")
         completionStep.title = "All done!"
         completionStep.detailText = "We know the road to recovery can be tough. Keep up the good work!"
 
-        rangeOfMotionOrderedTask.addSteps(from: [completionStep])
+        rangeOfMotionOrderedTask.addSteps(from: [reviewStep, completionStep])
 
         return rangeOfMotionOrderedTask
     }
