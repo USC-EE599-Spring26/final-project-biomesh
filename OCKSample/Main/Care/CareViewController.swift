@@ -192,14 +192,14 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
             let isCurrentDay = isSameDay(as: date)
             if isCurrentDay {
                 if Calendar.current.isDate(date, inSameDayAs: Date()) {
-                    let tipTitle = "Caffeine & Your Health"
-                    let tipText = "High caffeine intake (>400 mg/day) is linked to increased anxiety"
-                    let tipView = TipView()
-                    tipView.headerView.titleLabel.text = tipTitle
-                    tipView.headerView.detailLabel.text = tipText
-                    tipView.imageView.image = UIImage(named: "exercise.jpg")
-                    tipView.customStyle = CustomStylerKey.defaultValue
-                    listViewController.appendView(tipView, animated: false)
+                    let featuredView = CustomFeaturedContentView(
+                        url: "https://www.cdc.gov/sleep/"
+                    )
+                    featuredView.label.text = "Caffeine & Your Health"
+                    featuredView.label.textColor = .white
+                    featuredView.imageView.image = UIImage(named: "exercise.jpg")
+                    featuredView.customStyle = CustomStylerKey.defaultValue
+                    listViewController.appendView(featuredView, animated: false)
                 }
             }
             #endif

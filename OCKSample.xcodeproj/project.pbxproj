@@ -198,6 +198,7 @@
 		E72B2C0A226939E3009A9438 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E72B2C09226939E3009A9438 /* AppDelegate.swift */; };
 		E72B2C14226939E4009A9438 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E72B2C12226939E4009A9438 /* LaunchScreen.storyboard */; };
 		E7C37849228F887800E982D8 /* TipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7C37848228F887800E982D8 /* TipView.swift */; };
+		EEB9E5502FA25A0100658286 /* CustomFeaturedContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E54F2FA25A0100658286 /* CustomFeaturedContentView.swift */; };
 		E7C4CA0B22809AD500ECC3D7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E7C4CA0A22809AD500ECC3D7 /* Assets.xcassets */; };
 		EEB9E53C2F94C90200658286 /* AnswerSummarySurveyCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E5342F94C8FF00658286 /* AnswerSummarySurveyCardView.swift */; };
 		EEB9E53E2F94D19F00658286 /* TappingSpeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E53D2F94D19D00658286 /* TappingSpeed.swift */; };
@@ -437,6 +438,7 @@
 		E72B2C13226939E4009A9438 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E72B2C15226939E4009A9438 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E7C37848228F887800E982D8 /* TipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipView.swift; sourceTree = "<group>"; };
+		EEB9E54F2FA25A0100658286 /* CustomFeaturedContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFeaturedContentView.swift; sourceTree = "<group>"; };
 		E7C4CA0A22809AD500ECC3D7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EEB9E5342F94C8FF00658286 /* AnswerSummarySurveyCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnswerSummarySurveyCardView.swift; sourceTree = "<group>"; };
 		EEB9E53D2F94D19D00658286 /* TappingSpeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TappingSpeed.swift; sourceTree = "<group>"; };
@@ -578,6 +580,7 @@
 			isa = PBXGroup;
 			children = (
 				EEB9E5342F94C8FF00658286 /* AnswerSummarySurveyCardView.swift */,
+				EEB9E54F2FA25A0100658286 /* CustomFeaturedContentView.swift */,
 				E7C37848228F887800E982D8 /* TipView.swift */,
 				3F73F9612F7CE1D4007D4222 /* SurveyViewSynchronizer.swift */,
 			);
@@ -1408,6 +1411,7 @@
 				FE38C3402F560F45000864F1 /* OCKDimensionStyle.swift in Sources */,
 				707CC718254DA91900116728 /* OCKLocalization.swift in Sources */,
 				E7C37849228F887800E982D8 /* TipView.swift in Sources */,
+				EEB9E5502FA25A0100658286 /* CustomFeaturedContentView.swift in Sources */,
 				3F3C42432F712B9E00A0FEAB /* CareKitCard.swift in Sources */,
 				3F4A12192F54F70800068C65 /* OCKAnimationStyle.swift in Sources */,
 				3F4A121A2F54F70800068C65 /* OCKAppearanceStyle.swift in Sources */,

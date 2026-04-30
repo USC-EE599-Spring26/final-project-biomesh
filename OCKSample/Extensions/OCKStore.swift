@@ -306,7 +306,7 @@ extension OCKStore {
         studyResource.instructions = "Open this resource for a short explainer on caffeine timing, hydration, and recovery habits."
         studyResource.asset = "link.circle.fill"
         studyResource.card = .link
-        studyResource.externalURL = URL(string: "https://www.cdc.gov/sleep/about_sleep/sleep_hygiene.html")
+        studyResource.externalURL = URL(string: "https://www.cdc.gov/sleep/about/index.html")
         studyResource.priority = 7
         studyResource.impactsAdherence = false
         
