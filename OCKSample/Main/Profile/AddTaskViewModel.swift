@@ -269,7 +269,7 @@ final class AddTaskViewModel: ObservableObject {
             }
 
         case .link:
-            task.externalURL = URL(string: "https://www.cdc.gov/sleep/about_sleep/sleep_hygiene.html")
+            task.externalURL = URL(string: "https://www.cdc.gov/sleep/about/index.html")
 
         default:
             break
