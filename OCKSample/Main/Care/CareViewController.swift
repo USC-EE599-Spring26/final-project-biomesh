@@ -46,7 +46,12 @@ import UIKit
 final class CareViewController: OCKDailyPageViewController, @unchecked Sendable {
 	private var isSyncing = false
 	private var isLoading = false
+    private var didAutoPresentOnboarding = false
 	private let swiftUIPadding: CGFloat = 15
+
+    #if !os(watchOS) && canImport(ResearchKit) && canImport(ResearchKitUI)
+    private var onboardingSurveyDelegate: OnboardingSurveyDelegate?
+    #endif
 
     private var style: Styler {
         CustomStylerKey.defaultValue
@@ -161,26 +166,19 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
 
         Task {
             #if os(iOS)
-            guard await Utility.checkIfOnboardingIsComplete() else {
-                let onboardSurvey = Onboard()
+            if await shouldShowOnboarding() {
                 var query = OCKEventQuery(for: Date())
                 query.taskIDs = [Onboard.identifier()]
 
-                #if canImport(ResearchKit) && canImport(ResearchKitUI)
-                let onboardCard = OCKSurveyTaskViewController(
-                    eventQuery: query,
-                    store: self.store,
-                    survey: onboardSurvey.createSurvey(),
-                    extractOutcome: { _ in
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                            self.reload()
-                        }
-                        return [OCKOutcomeValue(Date())]
-                    }
+                #if !os(watchOS) && canImport(ResearchKit) && canImport(ResearchKitUI)
+                let onboardCard = EventQueryView<ActiveSurveyTaskCardView>(
+                    query: query
                 )
-                onboardCard.surveyDelegate = self
+                .padding(.vertical, swiftUIPadding)
+                .formattedHostingController()
                 listViewController.clear()
                 listViewController.appendViewController(onboardCard, animated: false)
+                presentOnboardingSurveyIfNeeded()
                 #endif
 
                 self.isLoading = false
@@ -272,19 +270,15 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
 
             #if os(iOS)
             case .uiKitSurvey:
-                guard let surveyType = standardTask.uiKitSurvey else {
+                guard standardTask.uiKitSurvey != nil else {
                     return nil
                 }
-                let survey = surveyType.type()
                 #if canImport(ResearchKit) && canImport(ResearchKitUI)
-                let card = OCKSurveyTaskViewController(
-                    eventQuery: query,
-                    store: self.store,
-                    survey: survey.createSurvey(),
-                    viewSynchronizer: SurveyViewSynchronizer(),
-                    extractOutcome: survey.extractAnswers
+                let card = EventQueryView<ActiveSurveyTaskCardView>(
+                    query: query
                 )
-                card.surveyDelegate = self
+                .padding(.vertical, swiftUIPadding)
+                .formattedHostingController()
                 return [card]
                 #else
                 return nil
@@ -306,10 +300,20 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
             #endif
 
             case .featured:
-                return nil
+                let card = EventQueryView<FeaturedTaskCardView>(
+                    query: query
+                )
+                .padding(.vertical, swiftUIPadding)
+                .formattedHostingController()
+                return [card]
 
             case .grid:
-                return nil
+                let card = EventQueryView<GridTaskCardView>(
+                    query: query
+                )
+                .padding(.vertical, swiftUIPadding)
+                .formattedHostingController()
+                return [card]
 
             case .instruction:
                 let card = EventQueryView<InstructionsTaskView>(
@@ -321,6 +325,22 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
 
             case .link:
                 let card = EventQueryView<LinkView>(
+                    query: query
+                )
+                .padding(.vertical, swiftUIPadding)
+                .formattedHostingController()
+                return [card]
+
+            case .labeledValue:
+                let card = EventQueryView<StandardLabeledValueCardView>(
+                    query: query
+                )
+                .padding(.vertical, swiftUIPadding)
+                .formattedHostingController()
+                return [card]
+
+            case .numericProgress:
+                let card = EventQueryView<StandardNumericProgressCardView>(
                     query: query
                 )
                 .padding(.vertical, swiftUIPadding)
@@ -414,6 +434,90 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
         return surveyViewController
     }
 
+    #if !os(watchOS) && canImport(ResearchKit) && canImport(ResearchKitUI)
+    private func shouldShowOnboarding() async -> Bool {
+        guard let user = try? await User.current(),
+              user.needsOnboarding == true else {
+            return false
+        }
+
+        return await !Utility.checkIfOnboardingIsComplete()
+    }
+
+    private func presentOnboardingSurveyIfNeeded() {
+        guard !didAutoPresentOnboarding,
+              presentedViewController == nil else {
+            return
+        }
+
+        didAutoPresentOnboarding = true
+        let onboarding = Onboard()
+        let surveyController = ORKTaskViewController(
+            task: onboarding.createSurvey(),
+            taskRun: nil
+        )
+        let delegate = OnboardingSurveyDelegate { [weak self] result in
+            guard let self else { return }
+            let values = onboarding.extractAnswers(result) ?? [OCKOutcomeValue(Date())]
+            Task {
+                await self.saveOnboardingOutcome(values)
+            }
+        }
+
+        onboardingSurveyDelegate = delegate
+        surveyController.delegate = delegate
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self,
+                  self.presentedViewController == nil else {
+                return
+            }
+            self.present(surveyController, animated: true)
+        }
+    }
+
+    private func saveOnboardingOutcome(_ values: [OCKOutcomeValue]) async {
+        guard !values.isEmpty else { return }
+
+        do {
+            var query = OCKEventQuery(for: Date())
+            query.taskIDs = [Onboard.identifier()]
+
+            guard let event = try await store.fetchAnyEvents(query: query).first else {
+                Logger.feed.error("Could not fetch onboarding event to save outcome")
+                return
+            }
+
+            if var outcome = event.outcome {
+                outcome.values = values
+                _ = try await store.updateAnyOutcome(outcome)
+            } else {
+                let outcome = OCKOutcome(
+                    taskUUID: event.task.uuid,
+                    taskOccurrenceIndex: event.scheduleEvent.occurrence,
+                    values: values
+                )
+                _ = try await store.addAnyOutcome(outcome)
+            }
+
+            reloadView()
+            await markOnboardingComplete()
+        } catch {
+            Logger.feed.error("Could not save onboarding outcome: \(error, privacy: .public)")
+        }
+    }
+
+    private func markOnboardingComplete() async {
+        do {
+            var user = try await User.current()
+            user.needsOnboarding = false
+            _ = try await user.save()
+        } catch {
+            Logger.feed.error("Could not update onboarding flag: \(error, privacy: .public)")
+        }
+    }
+    #endif
+
     private func appendTasks(
         _ tasks: [any OCKAnyTask],
         to listViewController: OCKListViewController,
@@ -442,10 +546,25 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
 		self.isLoading = false
     }
 }
-#if canImport(ResearchKit) && canImport(ResearchKitUI)
-// MARK: - OCKSurveyTaskViewControllerDelegate
 
-extension CareViewController: OCKSurveyTaskViewControllerDelegate {
+#if !os(watchOS) && canImport(ResearchKit) && canImport(ResearchKitUI)
+private final class OnboardingSurveyDelegate: NSObject, @MainActor ORKTaskViewControllerDelegate {
+    let onComplete: (ORKTaskResult) -> Void
+
+    init(onComplete: @escaping (ORKTaskResult) -> Void) {
+        self.onComplete = onComplete
+    }
+
+    func taskViewController(
+        _ taskViewController: ORKTaskViewController,
+        didFinishWith reason: ORKTaskFinishReason,
+        error: (any Error)?
+    ) {
+        if reason == .completed {
+            onComplete(taskViewController.result)
+        }
+        taskViewController.dismiss(animated: true)
+    }
 }
 #endif
 

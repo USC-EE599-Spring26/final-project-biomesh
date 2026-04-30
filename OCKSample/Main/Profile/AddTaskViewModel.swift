@@ -6,9 +6,11 @@
 //
 
 import Foundation
+import CareKitEssentials
 import CareKitStore
 import HealthKit
 import os.log
+import ResearchKitSwiftUI
 import UIKit
 
 @MainActor
@@ -34,6 +36,9 @@ final class AddTaskViewModel: ObservableObject {
         case grid            = "Grid"
         case link            = "Link"
         case featuredContent = "Featured Content"
+        case survey          = "Survey"
+        case activeSurvey    = "Active Survey"
+        case custom          = "Custom"
         var id: String { rawValue }
 
         /// The tag value written into task.tags
@@ -48,6 +53,9 @@ final class AddTaskViewModel: ObservableObject {
             case .grid:            return "grid"
             case .link:            return "linkView"
             case .featuredContent: return "featuredContent"
+            case .survey:          return "survey"
+            case .activeSurvey:    return "uiKitSurvey"
+            case .custom:          return "custom"
             }
         }
 
@@ -71,6 +79,12 @@ final class AddTaskViewModel: ObservableObject {
                 return .link
             case .featuredContent:
                 return .featured
+            case .survey:
+                return .survey
+            case .activeSurvey:
+                return .uiKitSurvey
+            case .custom:
+                return .custom
             }
         }
     }
@@ -224,9 +238,71 @@ final class AddTaskViewModel: ObservableObject {
         )
         task.instructions = instructions.trimmingCharacters(in: .whitespacesAndNewlines)
         task.card = cardType.careKitCard
+        configureCardSpecificFields(for: &task)
         task.priority = 50
         applyAsset(to: &task)
         return task
+    }
+
+    private func configureCardSpecificFields(for task: inout OCKTask) {
+        switch cardType {
+        case .survey:
+            task.surveySteps = [makeDefaultSurveyStep(taskID: task.id)]
+
+        case .activeSurvey:
+            #if os(iOS)
+            task.uiKitSurvey = .tappingSpeed
+            #endif
+            if (task.instructions ?? "").isEmpty {
+                task.instructions = "Complete this active ResearchKit task to record an outcome for this custom task."
+            }
+            if (task.asset ?? assetName).trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                task.asset = "hand.tap.fill"
+            }
+
+        case .custom:
+            if (task.instructions ?? "").isEmpty {
+                task.instructions = "Complete at least one item from this checklist and mark the task as complete."
+            }
+            if (task.asset ?? assetName).trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                task.asset = "checklist"
+            }
+
+        case .link:
+            task.externalURL = URL(string: "https://www.cdc.gov/sleep/about_sleep/sleep_hygiene.html")
+
+        default:
+            break
+        }
+    }
+
+    private func makeDefaultSurveyStep(taskID: String) -> SurveyStep {
+        let titleText = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let instructionText = instructions.trimmingCharacters(in: .whitespacesAndNewlines)
+        let taskTitle = titleText.isEmpty ? "Custom Survey" : titleText
+        let detail = instructionText.isEmpty
+            ? "Answer this question for your custom task."
+            : instructionText
+
+        let question = SurveyQuestion(
+            id: "\(taskID)-rating",
+            type: .slider,
+            required: true,
+            title: "How would you rate \(taskTitle.lowercased()) today?",
+            detail: detail,
+            integerRange: 0...10,
+            sliderStepValue: 1
+        )
+
+        return SurveyStep(
+            id: "\(taskID)-step",
+            questions: [question],
+            asset: assetName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                ? "list.clipboard"
+                : assetName.trimmingCharacters(in: .whitespacesAndNewlines),
+            title: taskTitle,
+            subtitle: detail
+        )
     }
 
     private func buildHealthKitTask() async throws -> OCKHealthKitTask {

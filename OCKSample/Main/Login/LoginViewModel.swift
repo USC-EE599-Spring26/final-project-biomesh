@@ -86,6 +86,7 @@ class LoginViewModel: ObservableObject {
             } else {
                 user.userTypeUUIDs = [userType.rawValue: remoteUUID]
             }
+            user.needsOnboarding = true
             do {
                 _ = try await user.save()
             } catch {
