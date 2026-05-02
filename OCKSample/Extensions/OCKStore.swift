@@ -169,16 +169,6 @@ extension OCKStore {
                 duration: .allDay
             )
         ])
-        let middaySchedule = OCKSchedule(composing: [
-            OCKScheduleElement(
-                start: calendar.date(bySettingHour: 12, minute: 30, second: 0, of: morning) ?? morning,
-                end: nil,
-                interval: DateComponents(day: 1),
-                text: "Midday",
-                targetValues: [],
-                duration: .allDay
-            )
-        ])
         let afternoonSchedule = OCKSchedule(composing: [
             OCKScheduleElement(
                 start: calendar.date(bySettingHour: 15, minute: 30, second: 0, of: morning) ?? morning,
@@ -197,25 +187,25 @@ extension OCKStore {
             carePlanUUID: dailyTrackingUUID,
             schedule: allDay
         )
-        caffeine.instructions = "Tap Log each time you have a caffeinated drink " +
-        "(coffee, tea, energy drink). Note: >400 mg/day is linked to higher anxiety risk."
+        caffeine.instructions = "Log each caffeinated drink with the amount in mg. " +
+        "Note: >400 mg/day is linked to higher anxiety risk."
         caffeine.asset = "cup.and.saucer.fill"
-        caffeine.card = .button
-        caffeine.priority = 0
+        caffeine.card = .sliderLog
+        caffeine.priority = 1
         caffeine.impactsAdherence = false
         
         // Water Intake
         var water = OCKTask(
             id: TaskID.waterIntake,
-            title: "Hydration Checkpoint",
+            title: "Water Intake",
             carePlanUUID: dailyTrackingUUID,
             schedule: hydrationSchedule
         )
-        water.instructions = "Check in around late morning and late afternoon to confirm " +
-        "you had water. Hydration helps separate caffeine effects from simple dehydration."
+        water.instructions = "Log each glass of water with the amount in fl oz. " +
+        "Hydration helps separate caffeine effects from simple dehydration."
         water.asset = "drop.fill"
-        water.card = .button
-        water.priority = 1
+        water.card = .sliderLog
+        water.priority = 2
         water.impactsAdherence = false
         
         // Anxiety Check-in
@@ -241,7 +231,7 @@ extension OCKStore {
         "caffeine → anxiety relationship your app is studying."
         anxiety.asset = "brain.head.profile"
         anxiety.card = .button
-        anxiety.priority = 2
+        anxiety.priority = 3
         anxiety.impactsAdherence = false
         
         // Evening Wind-Down
@@ -258,7 +248,7 @@ extension OCKStore {
         "Good sleep quality is the mediator between caffeine and next-day anxiety."
         windDown.asset = "moon.zzz.fill"
         windDown.card = .custom
-        windDown.priority = 3
+        windDown.priority = 5
         windDown.impactsAdherence = true
         
         var hydrationGuide = OCKTask(
@@ -270,7 +260,7 @@ extension OCKStore {
         hydrationGuide.instructions = "Read a quick reminder about why hydration matters before your first caffeinated drink."
         hydrationGuide.asset = "drop.circle.fill"
         hydrationGuide.card = .instruction
-        hydrationGuide.priority = 4
+        hydrationGuide.priority = 7
         hydrationGuide.impactsAdherence = false
         
         var energySnapshot = OCKTask(
@@ -282,7 +272,7 @@ extension OCKStore {
         energySnapshot.instructions = "Give yourself one quick tap to note whether you feel ready for the day before reaching for caffeine."
         energySnapshot.asset = "sun.max.fill"
         energySnapshot.card = .simple
-        energySnapshot.priority = 5
+        energySnapshot.priority = 0
         energySnapshot.impactsAdherence = false
         
         var stretchChecklist = OCKTask(
@@ -294,14 +284,14 @@ extension OCKStore {
         stretchChecklist.instructions = "Use this checklist to pause, reset posture, and reduce tension during the afternoon."
         stretchChecklist.asset = "figure.cooldown"
         stretchChecklist.card = .checklist
-        stretchChecklist.priority = 6
+        stretchChecklist.priority = 4
         stretchChecklist.impactsAdherence = true
         
         var studyResource = OCKTask(
             id: TaskID.studyResource,
             title: "Caffeine Research Resource",
             carePlanUUID: assessmentUUID,
-            schedule: middaySchedule
+            schedule: afternoonSchedule
         )
         studyResource.instructions = "Open this resource for a short explainer on caffeine timing, hydration, and recovery habits."
         studyResource.asset = "link.circle.fill"
@@ -309,7 +299,7 @@ extension OCKStore {
         studyResource.externalURL = URL(string: "https://www.cdc.gov/sleep/about/index.html")
         studyResource.priority = 7
         studyResource.impactsAdherence = false
-        
+
         let dailySurvey = createDailySymptomSurveyTask(carePlanUUID: assessmentUUID)
         let weeklyReflection = createQualityOfLifeSurveyTask(carePlanUUID: assessmentUUID)
         
@@ -455,7 +445,7 @@ extension OCKStore {
         task.asset = "list.clipboard"
         task.card = .survey
         task.surveySteps = [step]
-        task.priority = 3
+        task.priority = 6
 
         return task
     }
@@ -526,7 +516,7 @@ extension OCKStore {
         qualityOfLife.asset = "list.clipboard"
         qualityOfLife.card = CareKitCard.survey
         qualityOfLife.surveySteps = [stepOne]
-        qualityOfLife.priority = 4
+        qualityOfLife.priority = 8
 
         return qualityOfLife
     }

@@ -4,7 +4,7 @@
 //
 //  Created by Faye.
 //
-
+#if os(iOS)
 import SwiftUI
 import CareKitStore
 
@@ -268,3 +268,4 @@ struct AddTaskView: View {
     AddTaskView()
         .environment(\.careStore, Utility.createPreviewStore())
 }
+#endif

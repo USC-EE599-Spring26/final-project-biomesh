@@ -56,6 +56,17 @@ enum TaskID {
     }
 
     static var orderedWatchOS: [String] {
-        [caffeineIntake, waterIntake, anxietyCheck]
+        [
+            caffeineIntake,
+            waterIntake,
+            anxietyCheck,
+            sleepHygiene,
+            hydrationGuide,
+            energySnapshot,
+            stretchChecklist,
+            studyResource,
+            dailySymptomCheckIn,
+            weeklyReflection
+        ]
     }
 }

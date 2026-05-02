@@ -54,17 +54,31 @@ struct MainTabView: View {
 				}
 				.tag(2)
 
-			ProfileView(loginViewModel: loginViewModel)
-				.tabItem {
-					if selectedTab == 3 {
-						Image(systemName: "person.circle.fill")
-							.renderingMode(.template)
-					} else {
-						Image(systemName: "person.circle")
-							.renderingMode(.template)
-					}
-				}
-				.tag(3)
+            #if os(watchOS)
+            WatchProfileView(loginViewModel: loginViewModel)
+                .tabItem {
+                    if selectedTab == 3 {
+                        Image(systemName: "person.circle.fill")
+                            .renderingMode(.template)
+                    } else {
+                        Image(systemName: "person.circle")
+                            .renderingMode(.template)
+                    }
+                }
+                .tag(3)
+            #else
+            ProfileView(loginViewModel: loginViewModel)
+                .tabItem {
+                    if selectedTab == 3 {
+                        Image(systemName: "person.circle.fill")
+                            .renderingMode(.template)
+                    } else {
+                        Image(systemName: "person.circle")
+                            .renderingMode(.template)
+                    }
+                }
+                .tag(3)
+            #endif
 
             BioMeshAssistantView()
                 .tabItem {
