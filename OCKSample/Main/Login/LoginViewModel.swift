@@ -183,11 +183,12 @@ class LoginViewModel: ObservableObject {
             _ = try await appDelegate.store.updateCarePlan(updatedCarePlan)
         }
 
-        if startDate < currentDate {
-            try await appDelegate.store.populateSampleOutcomes(
-                startDate: startDate
-            )
-        }
+        // Sample outcomes disabled — past dates show tasks without fake completions
+        // if startDate < currentDate {
+        //     try await appDelegate.store.populateSampleOutcomes(
+        //         startDate: startDate
+        //     )
+        // }
 
         appDelegate.parseRemote.automaticallySynchronizes = true
 

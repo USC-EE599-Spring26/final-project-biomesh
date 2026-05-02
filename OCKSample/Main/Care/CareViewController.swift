@@ -48,6 +48,7 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
 	private var isLoading = false
     private var didAutoPresentOnboarding = false
 	private let swiftUIPadding: CGFloat = 15
+    private var selectedSegment = 0
 
     #if !os(watchOS) && canImport(ResearchKit) && canImport(ResearchKitUI)
     private var onboardingSurveyDelegate: OnboardingSurveyDelegate?
@@ -196,7 +197,9 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
                         url: "https://www.cdc.gov/sleep/"
                     )
                     featuredView.label.text = "Caffeine & Your Health"
-                    featuredView.label.textColor = .white
+                    featuredView.label.textColor = .black
+                    featuredView.label.shadowColor = UIColor.white.withAlphaComponent(0.7)
+                    featuredView.label.shadowOffset = CGSize(width: 0, height: 1)
                     featuredView.imageView.image = UIImage(named: "exercise.jpg")
                     featuredView.customStyle = CustomStylerKey.defaultValue
                     listViewController.appendView(featuredView, animated: false)
@@ -371,6 +374,14 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
                 .formattedHostingController()
                 return [card]
 
+            case .sliderLog:
+                let card = EventQueryView<SliderLogCardView>(
+                    query: query
+                )
+                .padding(.vertical, swiftUIPadding)
+                .formattedHostingController()
+                return [card]
+
             default:
                 return nil
             }
@@ -518,17 +529,84 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
     }
     #endif
 
+    private static let healthKitTaskIDs: Set<String> = [
+        TaskID.steps, TaskID.heartRate, TaskID.restingHeartRate, TaskID.sleepDuration
+    ]
+
+    private static let surveyTaskIDs: Set<String> = [
+        TaskID.dailySymptomCheckIn, TaskID.weeklyReflection
+    ]
+
     private func appendTasks(
         _ tasks: [any OCKAnyTask],
         to listViewController: OCKListViewController,
         date: Date
     ) {
         let isCurrentDay = isSameDay(as: date)
+
+        var logTasks = [any OCKAnyTask]()
+        var surveyTasks = [any OCKAnyTask]()
+        var healthTasks = [any OCKAnyTask]()
+
+        for task in tasks {
+            if task is OCKHealthKitTask || Self.healthKitTaskIDs.contains(task.id) {
+                healthTasks.append(task)
+            } else if Self.surveyTaskIDs.contains(task.id) ||
+                        (task as? OCKTask)?.card == .survey ||
+                        (task as? OCKTask)?.card == .uiKitSurvey {
+                surveyTasks.append(task)
+            } else {
+                logTasks.append(task)
+            }
+        }
+
+        appendSegmentedControl(to: listViewController)
+
+        let activeTasks: [any OCKAnyTask]
+        switch selectedSegment {
+        case 0: activeTasks = logTasks
+        case 1: activeTasks = surveyTasks
+        case 2: activeTasks = healthTasks
+        default: activeTasks = logTasks
+        }
+
+        appendTaskCards(activeTasks, to: listViewController, date: date, isCurrentDay: isCurrentDay)
+        self.isLoading = false
+    }
+
+    private func appendSegmentedControl(to listViewController: OCKListViewController) {
+        let segmented = UISegmentedControl(items: ["Daily Logs", "Surveys", "Health Data"])
+        segmented.selectedSegmentIndex = selectedSegment
+        segmented.addTarget(self, action: #selector(segmentChanged(_:)), for: .valueChanged)
+
+        let container = UIView()
+        container.backgroundColor = .clear
+        segmented.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(segmented)
+
+        NSLayoutConstraint.activate([
+            segmented.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
+            segmented.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
+            segmented.topAnchor.constraint(equalTo: container.topAnchor, constant: 12),
+            segmented.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -8)
+        ])
+
+        listViewController.appendView(container, animated: false)
+    }
+
+    @objc private func segmentChanged(_ sender: UISegmentedControl) {
+        selectedSegment = sender.selectedSegmentIndex
+        reloadView()
+    }
+
+    private func appendTaskCards(
+        _ tasks: [any OCKAnyTask],
+        to listViewController: OCKListViewController,
+        date: Date,
+        isCurrentDay: Bool
+    ) {
         tasks.compactMap {
-            let cards = self.taskViewControllers(
-                $0,
-                on: date
-            )
+            let cards = self.taskViewControllers($0, on: date)
             cards?.forEach {
                 if let carekitView = $0.view as? OCKView {
                     carekitView.customStyle = style
@@ -539,11 +617,9 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
             return cards
         }.forEach { (cards: [UIViewController]) in
             cards.forEach {
-                let card = $0
-				listViewController.appendViewController(card, animated: true)
+                listViewController.appendViewController($0, animated: true)
             }
         }
-		self.isLoading = false
     }
 }
 

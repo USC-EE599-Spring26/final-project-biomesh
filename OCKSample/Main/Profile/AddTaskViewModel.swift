@@ -39,6 +39,7 @@ final class AddTaskViewModel: ObservableObject {
         case survey          = "Survey"
         case activeSurvey    = "Active Survey"
         case custom          = "Custom"
+        case sliderLog       = "Slider Log"
         var id: String { rawValue }
 
         /// The tag value written into task.tags
@@ -56,6 +57,7 @@ final class AddTaskViewModel: ObservableObject {
             case .survey:          return "survey"
             case .activeSurvey:    return "uiKitSurvey"
             case .custom:          return "custom"
+            case .sliderLog:       return "sliderLog"
             }
         }
 
@@ -85,6 +87,8 @@ final class AddTaskViewModel: ObservableObject {
                 return .uiKitSurvey
             case .custom:
                 return .custom
+            case .sliderLog:
+                return .sliderLog
             }
         }
     }

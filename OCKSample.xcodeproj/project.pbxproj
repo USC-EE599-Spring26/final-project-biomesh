@@ -206,6 +206,15 @@
 		EEB9E5412F956EDD00658286 /* WindDownChartCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E5402F956EDA00658286 /* WindDownChartCardView.swift */; };
 		EEB9E5422F956EDD00658286 /* WindDownChartCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E5402F956EDA00658286 /* WindDownChartCardView.swift */; };
 		EEB9E5432F956EDD00658286 /* WindDownChartCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E5402F956EDA00658286 /* WindDownChartCardView.swift */; };
+		EEB9E5602FA35A0100658286 /* WeeklySummaryCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E55F2FA35A0100658286 /* WeeklySummaryCardView.swift */; };
+		EEB9E5612FA35A0100658286 /* WeeklySummaryCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E55F2FA35A0100658286 /* WeeklySummaryCardView.swift */; };
+		EEB9E5622FA35A0100658286 /* WeeklySummaryCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E55F2FA35A0100658286 /* WeeklySummaryCardView.swift */; };
+		EEB9E5632FA35B0100658286 /* CaffeineIntakeChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E5642FA35B0100658286 /* CaffeineIntakeChartView.swift */; };
+		EEB9E5652FA35B0100658286 /* CaffeineIntakeChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E5642FA35B0100658286 /* CaffeineIntakeChartView.swift */; };
+		EEB9E5662FA35B0100658286 /* CaffeineIntakeChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E5642FA35B0100658286 /* CaffeineIntakeChartView.swift */; };
+		EEB9E5672FA35C0100658286 /* CaffeineAnxietyChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E5682FA35C0100658286 /* CaffeineAnxietyChartView.swift */; };
+		EEB9E5692FA35C0100658286 /* CaffeineAnxietyChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E5682FA35C0100658286 /* CaffeineAnxietyChartView.swift */; };
+		EEB9E56A2FA35C0100658286 /* CaffeineAnxietyChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E5682FA35C0100658286 /* CaffeineAnxietyChartView.swift */; };
 		FE38C33C2F560B34000864F1 /* ColorStyler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE38C33B2F560B34000864F1 /* ColorStyler.swift */; };
 		FE38C33D2F560B34000864F1 /* ColorStyler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE38C33B2F560B34000864F1 /* ColorStyler.swift */; };
 		FE38C33E2F560B34000864F1 /* ColorStyler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE38C33B2F560B34000864F1 /* ColorStyler.swift */; };
@@ -443,6 +452,9 @@
 		EEB9E5342F94C8FF00658286 /* AnswerSummarySurveyCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnswerSummarySurveyCardView.swift; sourceTree = "<group>"; };
 		EEB9E53D2F94D19D00658286 /* TappingSpeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TappingSpeed.swift; sourceTree = "<group>"; };
 		EEB9E5402F956EDA00658286 /* WindDownChartCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindDownChartCardView.swift; sourceTree = "<group>"; };
+		EEB9E55F2FA35A0100658286 /* WeeklySummaryCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklySummaryCardView.swift; sourceTree = "<group>"; };
+		EEB9E5642FA35B0100658286 /* CaffeineIntakeChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaffeineIntakeChartView.swift; sourceTree = "<group>"; };
+		EEB9E5682FA35C0100658286 /* CaffeineAnxietyChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaffeineAnxietyChartView.swift; sourceTree = "<group>"; };
 		FE38C33B2F560B34000864F1 /* ColorStyler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorStyler.swift; sourceTree = "<group>"; };
 		FE38C33F2F560F19000864F1 /* OCKDimensionStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCKDimensionStyle.swift; sourceTree = "<group>"; };
 		FEC7B5A12F8616DE00689E63 /* CustomContactViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomContactViewController.swift; sourceTree = "<group>"; };
@@ -688,6 +700,9 @@
 			children = (
 				EEB9E5402F956EDA00658286 /* WindDownChartCardView.swift */,
 				7055723E2DC1E63A008E5B0A /* InsightsView.swift */,
+				EEB9E55F2FA35A0100658286 /* WeeklySummaryCardView.swift */,
+				EEB9E5642FA35B0100658286 /* CaffeineIntakeChartView.swift */,
+				EEB9E5682FA35C0100658286 /* CaffeineAnxietyChartView.swift */,
 			);
 			path = Insights;
 			sourceTree = "<group>";
@@ -1246,6 +1261,9 @@
 				3F73F9962F7E3E7F007D4222 /* RangeOfMotion.swift in Sources */,
 				707D29712DCBE6A000980253 /* OCKLocalization.swift in Sources */,
 				EEB9E5422F956EDD00658286 /* WindDownChartCardView.swift in Sources */,
+				EEB9E5612FA35A0100658286 /* WeeklySummaryCardView.swift in Sources */,
+				EEB9E5652FA35B0100658286 /* CaffeineIntakeChartView.swift in Sources */,
+				EEB9E5692FA35C0100658286 /* CaffeineAnxietyChartView.swift in Sources */,
 				707D294C2DCBE68500980253 /* StoreCoordinatorKey.swift in Sources */,
 				707D294D2DCBE68500980253 /* InsightsView.swift in Sources */,
 				707D294E2DCBE68500980253 /* OCKHealthKitPassthroughStore.swift in Sources */,
@@ -1332,6 +1350,9 @@
 				3F3C42442F712B9E00A0FEAB /* CareKitCard.swift in Sources */,
 				70221F3828D8C0CB00971195 /* AppDelegateKey.swift in Sources */,
 				EEB9E5432F956EDD00658286 /* WindDownChartCardView.swift in Sources */,
+				EEB9E5622FA35A0100658286 /* WeeklySummaryCardView.swift in Sources */,
+				EEB9E5662FA35B0100658286 /* CaffeineIntakeChartView.swift in Sources */,
+				EEB9E56A2FA35C0100658286 /* CaffeineAnxietyChartView.swift in Sources */,
 				9103AA5227B8C913002C921E /* FontColorKey.swift in Sources */,
 				707CC719254DA91900116728 /* OCKLocalization.swift in Sources */,
 				7007759B252229C900EC0EDA /* User.swift in Sources */,
@@ -1386,6 +1407,9 @@
 				9169381B271B64E100A634ED /* Styler.swift in Sources */,
 				70F921A827CA9A3A00368CEC /* CustomStylerKey.swift in Sources */,
 				EEB9E5412F956EDD00658286 /* WindDownChartCardView.swift in Sources */,
+				EEB9E5602FA35A0100658286 /* WeeklySummaryCardView.swift in Sources */,
+				EEB9E5632FA35B0100658286 /* CaffeineIntakeChartView.swift in Sources */,
+				EEB9E5672FA35C0100658286 /* CaffeineAnxietyChartView.swift in Sources */,
 				70221F3428D8ABBE00971195 /* AppDelegate+UIApplicationDelegate.swift in Sources */,
 				E72B2C0A226939E3009A9438 /* AppDelegate.swift in Sources */,
 				7036E4C4256E0A48006E9A3C /* CareView.swift in Sources */,

@@ -773,6 +773,183 @@ extension StandardLabeledValueCardView: EventViewable {
 }
 #endif
 
+struct SliderLogCardView: CareKitEssentialView {
+    @Environment(\.careStore) var store
+    @Environment(\.customStyler) var style
+    @Environment(\.isCardEnabled) private var isCardEnabled
+
+    let event: OCKAnyEvent
+    @State private var sliderValue: Double = 0
+    @State private var isSaving = false
+    @State private var localLogCount: Int?
+
+    private var unit: String {
+        event.task.id == TaskID.caffeineIntake ? "mg" : "fl oz"
+    }
+
+    private var sliderRange: ClosedRange<Double> {
+        event.task.id == TaskID.caffeineIntake ? 0...500 : 0...32
+    }
+
+    private var step: Double {
+        event.task.id == TaskID.caffeineIntake ? 25 : 4
+    }
+
+    private var defaultValue: Double {
+        event.task.id == TaskID.caffeineIntake ? 95 : 8
+    }
+
+    private var logCount: Int {
+        localLogCount ?? event.outcome?.values.count ?? 0
+    }
+
+    private var totalAmount: Double {
+        event.outcome?.values.compactMap(\.doubleValue).reduce(0, +) ?? 0
+    }
+
+    var body: some View {
+        CardView {
+            VStack(alignment: .leading, spacing: 12) {
+                InformationHeaderView(
+                    title: Text(event.title),
+                    information: event.detailText,
+                    event: event
+                )
+
+                Divider()
+
+                if logCount > 0 {
+                    HStack {
+                        Label("\(logCount) logged", systemImage: "checkmark.circle.fill")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.green)
+                        Spacer()
+                        Text("Total: \(Int(totalAmount)) \(unit)")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
+
+                VStack(spacing: 6) {
+                    HStack {
+                        Text("Amount")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text("\(Int(sliderValue)) \(unit)")
+                            .font(.subheadline.weight(.bold))
+                            .foregroundStyle(.primary)
+                            .monospacedDigit()
+                    }
+
+                    Slider(
+                        value: $sliderValue,
+                        in: sliderRange,
+                        step: step
+                    )
+                    .tint(.accentColor)
+
+                    if event.task.id == TaskID.caffeineIntake {
+                        HStack(spacing: 8) {
+                            presetButton("Tea", value: 47)
+                            presetButton("Coffee", value: 95)
+                            presetButton("Double", value: 190)
+                            presetButton("Energy", value: 80)
+                        }
+                    } else {
+                        HStack(spacing: 8) {
+                            presetButton("Small", value: 8)
+                            presetButton("Medium", value: 16)
+                            presetButton("Large", value: 24)
+                            presetButton("Bottle", value: 32)
+                        }
+                    }
+                }
+
+                Button(action: logAmount) {
+                    HStack {
+                        Image(systemName: "plus.circle.fill")
+                        Text("Log \(Int(sliderValue)) \(unit)")
+                    }
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(sliderValue > 0 ? Color.accentColor : Color.gray)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .disabled(sliderValue == 0 || isSaving)
+            }
+            .padding(isCardEnabled ? [.all] : [])
+        }
+        .careKitStyle(style)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical)
+        .onAppear { sliderValue = defaultValue }
+    }
+
+    private func presetButton(_ label: String, value: Double) -> some View {
+        Button {
+            sliderValue = value
+        } label: {
+            Text(label)
+                .font(.caption2.weight(.semibold))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .frame(maxWidth: .infinity)
+                .background(
+                    sliderValue == value
+                        ? Color.accentColor.opacity(0.15)
+                        : Color(.systemGray6)
+                )
+                .foregroundStyle(
+                    sliderValue == value ? Color.accentColor : .secondary
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func logAmount() {
+        guard sliderValue > 0 else { return }
+
+        Task {
+            isSaving = true
+            defer { isSaving = false }
+
+            do {
+                var value = OCKOutcomeValue(sliderValue)
+                value.kind = unit
+                value.createdDate = Date()
+                _ = try await saveOutcomeValues(
+                    (event.outcome?.values ?? []) + [value],
+                    event: event
+                )
+                localLogCount = logCount + 1
+                Logger.myCustomCardView.info(
+                    "Logged \(Int(sliderValue)) \(unit) for \(event.task.id)"
+                )
+            } catch {
+                Logger.myCustomCardView.error(
+                    "Error logging amount: \(error)"
+                )
+            }
+        }
+    }
+}
+
+#if !os(watchOS)
+extension SliderLogCardView: EventViewable {
+    public init?(
+        event: OCKAnyEvent,
+        store: any OCKAnyStoreProtocol
+    ) {
+        self.init(event: event)
+    }
+}
+#endif
+
 struct MyCustomCardView_Previews: PreviewProvider {
     static var store = Utility.createPreviewStore()
 
