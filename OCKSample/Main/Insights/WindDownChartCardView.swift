@@ -12,6 +12,7 @@ import SwiftUI
 
 struct WindDownChartCardView: View {
     let events: [OCKAnyEvent]
+    let dateInterval: DateInterval
     let subtitle: String
 
     private struct DataPoint: Identifiable {
@@ -21,13 +22,11 @@ struct WindDownChartCardView: View {
     }
 
     private var windDownEvents: [OCKAnyEvent] {
-        let filtered = events.filter { event in
+        events.filter { event in
             event.task.id == TaskID.sleepHygiene
+                && dateInterval.contains(event.scheduleEvent.start)
         }
-
-        return filtered.sorted { left, right in
-            left.scheduleEvent.start < right.scheduleEvent.start
-        }
+        .sorted { $0.scheduleEvent.start < $1.scheduleEvent.start }
     }
 
     private var chartData: [DataPoint] {
@@ -62,8 +61,12 @@ struct WindDownChartCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Evening Wind-Down")
-                    .font(.title3.weight(.semibold))
+                HStack {
+                    Image(systemName: "moon.zzz.fill")
+                        .foregroundStyle(.indigo)
+                    Text("Evening Wind-Down")
+                        .font(.title3.weight(.semibold))
+                }
 
                 Text(subtitle)
                     .font(.subheadline)
@@ -86,6 +89,8 @@ struct WindDownChartCardView: View {
                         x: .value("Date", item.date, unit: .day),
                         y: .value("Completed Habits", item.completedHabits)
                     )
+                    .foregroundStyle(.indigo.gradient)
+                    .cornerRadius(4)
 
                     RuleMark(y: .value("Goal", 3))
                         .lineStyle(StrokeStyle(lineWidth: 1, dash: [4]))
