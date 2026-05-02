@@ -287,6 +287,19 @@ extension OCKStore {
         stretchChecklist.priority = 4
         stretchChecklist.impactsAdherence = true
         
+        var studyResource = OCKTask(
+            id: TaskID.studyResource,
+            title: "Caffeine Research Resource",
+            carePlanUUID: assessmentUUID,
+            schedule: afternoonSchedule
+        )
+        studyResource.instructions = "Open this resource for a short explainer on caffeine timing, hydration, and recovery habits."
+        studyResource.asset = "link.circle.fill"
+        studyResource.card = .link
+        studyResource.externalURL = URL(string: "https://www.cdc.gov/sleep/about/index.html")
+        studyResource.priority = 7
+        studyResource.impactsAdherence = false
+
         let dailySurvey = createDailySymptomSurveyTask(carePlanUUID: assessmentUUID)
         let weeklyReflection = createQualityOfLifeSurveyTask(carePlanUUID: assessmentUUID)
         
@@ -298,6 +311,7 @@ extension OCKStore {
             hydrationGuide,
             energySnapshot,
             stretchChecklist,
+            studyResource,
             dailySurvey,
             weeklyReflection
         ])
