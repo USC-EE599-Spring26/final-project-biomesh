@@ -198,7 +198,6 @@
 		E72B2C0A226939E3009A9438 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E72B2C09226939E3009A9438 /* AppDelegate.swift */; };
 		E72B2C14226939E4009A9438 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E72B2C12226939E4009A9438 /* LaunchScreen.storyboard */; };
 		E7C37849228F887800E982D8 /* TipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7C37848228F887800E982D8 /* TipView.swift */; };
-		EEB9E5502FA25A0100658286 /* CustomFeaturedContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E54F2FA25A0100658286 /* CustomFeaturedContentView.swift */; };
 		E7C4CA0B22809AD500ECC3D7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E7C4CA0A22809AD500ECC3D7 /* Assets.xcassets */; };
 		EEB9E53C2F94C90200658286 /* AnswerSummarySurveyCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E5342F94C8FF00658286 /* AnswerSummarySurveyCardView.swift */; };
 		EEB9E53E2F94D19F00658286 /* TappingSpeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E53D2F94D19D00658286 /* TappingSpeed.swift */; };
@@ -206,6 +205,7 @@
 		EEB9E5412F956EDD00658286 /* WindDownChartCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E5402F956EDA00658286 /* WindDownChartCardView.swift */; };
 		EEB9E5422F956EDD00658286 /* WindDownChartCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E5402F956EDA00658286 /* WindDownChartCardView.swift */; };
 		EEB9E5432F956EDD00658286 /* WindDownChartCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E5402F956EDA00658286 /* WindDownChartCardView.swift */; };
+		EEB9E5502FA25A0100658286 /* CustomFeaturedContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E54F2FA25A0100658286 /* CustomFeaturedContentView.swift */; };
 		EEB9E5602FA35A0100658286 /* WeeklySummaryCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E55F2FA35A0100658286 /* WeeklySummaryCardView.swift */; };
 		EEB9E5612FA35A0100658286 /* WeeklySummaryCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E55F2FA35A0100658286 /* WeeklySummaryCardView.swift */; };
 		EEB9E5622FA35A0100658286 /* WeeklySummaryCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E55F2FA35A0100658286 /* WeeklySummaryCardView.swift */; };
@@ -215,6 +215,10 @@
 		EEB9E5672FA35C0100658286 /* CaffeineAnxietyChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E5682FA35C0100658286 /* CaffeineAnxietyChartView.swift */; };
 		EEB9E5692FA35C0100658286 /* CaffeineAnxietyChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E5682FA35C0100658286 /* CaffeineAnxietyChartView.swift */; };
 		EEB9E56A2FA35C0100658286 /* CaffeineAnxietyChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB9E5682FA35C0100658286 /* CaffeineAnxietyChartView.swift */; };
+		EEF30DE82FA676B700323EA2 /* WatchProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEF30DE02FA676B400323EA2 /* WatchProfileView.swift */; };
+		EEF30E122FA6840B00323EA2 /* WatchMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEF30E0A2FA6840900323EA2 /* WatchMainView.swift */; };
+		EEF30E142FA6842E00323EA2 /* WatchCareListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEF30E132FA6842B00323EA2 /* WatchCareListView.swift */; };
+		EEF30E162FA6844500323EA2 /* WatchProfileLiteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEF30E152FA6844300323EA2 /* WatchProfileLiteView.swift */; };
 		FE38C33C2F560B34000864F1 /* ColorStyler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE38C33B2F560B34000864F1 /* ColorStyler.swift */; };
 		FE38C33D2F560B34000864F1 /* ColorStyler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE38C33B2F560B34000864F1 /* ColorStyler.swift */; };
 		FE38C33E2F560B34000864F1 /* ColorStyler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE38C33B2F560B34000864F1 /* ColorStyler.swift */; };
@@ -447,14 +451,18 @@
 		E72B2C13226939E4009A9438 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E72B2C15226939E4009A9438 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E7C37848228F887800E982D8 /* TipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipView.swift; sourceTree = "<group>"; };
-		EEB9E54F2FA25A0100658286 /* CustomFeaturedContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFeaturedContentView.swift; sourceTree = "<group>"; };
 		E7C4CA0A22809AD500ECC3D7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EEB9E5342F94C8FF00658286 /* AnswerSummarySurveyCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnswerSummarySurveyCardView.swift; sourceTree = "<group>"; };
 		EEB9E53D2F94D19D00658286 /* TappingSpeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TappingSpeed.swift; sourceTree = "<group>"; };
 		EEB9E5402F956EDA00658286 /* WindDownChartCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindDownChartCardView.swift; sourceTree = "<group>"; };
+		EEB9E54F2FA25A0100658286 /* CustomFeaturedContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFeaturedContentView.swift; sourceTree = "<group>"; };
 		EEB9E55F2FA35A0100658286 /* WeeklySummaryCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklySummaryCardView.swift; sourceTree = "<group>"; };
 		EEB9E5642FA35B0100658286 /* CaffeineIntakeChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaffeineIntakeChartView.swift; sourceTree = "<group>"; };
 		EEB9E5682FA35C0100658286 /* CaffeineAnxietyChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaffeineAnxietyChartView.swift; sourceTree = "<group>"; };
+		EEF30DE02FA676B400323EA2 /* WatchProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchProfileView.swift; sourceTree = "<group>"; };
+		EEF30E0A2FA6840900323EA2 /* WatchMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchMainView.swift; sourceTree = "<group>"; };
+		EEF30E132FA6842B00323EA2 /* WatchCareListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchCareListView.swift; sourceTree = "<group>"; };
+		EEF30E152FA6844300323EA2 /* WatchProfileLiteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchProfileLiteView.swift; sourceTree = "<group>"; };
 		FE38C33B2F560B34000864F1 /* ColorStyler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorStyler.swift; sourceTree = "<group>"; };
 		FE38C33F2F560F19000864F1 /* OCKDimensionStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCKDimensionStyle.swift; sourceTree = "<group>"; };
 		FEC7B5A12F8616DE00689E63 /* CustomContactViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomContactViewController.swift; sourceTree = "<group>"; };
@@ -666,6 +674,7 @@
 		7030887C258272E700FFABB6 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
+				EEF30DE02FA676B400323EA2 /* WatchProfileView.swift */,
 				3F4A120A2F54F6EA00068C65 /* AddTaskView.swift */,
 				3F4A120B2F54F6EA00068C65 /* AddTaskViewModel.swift */,
 				FEC7B5AB2F8619DE00689E63 /* ImagePicker.swift */,
@@ -882,6 +891,9 @@
 		91AD923724A4C42D00925D4D /* OCKWatchSample Extension */ = {
 			isa = PBXGroup;
 			children = (
+				EEF30E152FA6844300323EA2 /* WatchProfileLiteView.swift */,
+				EEF30E132FA6842B00323EA2 /* WatchCareListView.swift */,
+				EEF30E0A2FA6840900323EA2 /* WatchMainView.swift */,
 				705B22BE25E2C1A700C472AC /* OCKWatchSample Extension.entitlements */,
 				91AD924724A4C42E00925D4D /* Info.plist */,
 				91AD923C24A4C42D00925D4D /* AppDelegate.swift */,
@@ -1357,15 +1369,18 @@
 				707CC719254DA91900116728 /* OCKLocalization.swift in Sources */,
 				7007759B252229C900EC0EDA /* User.swift in Sources */,
 				7099D20929E98E200037CD8E /* UserType.swift in Sources */,
+				EEF30E142FA6842E00323EA2 /* WatchCareListView.swift in Sources */,
 				918FDEB9271B493A0045A0EF /* Installation.swift in Sources */,
 				91AD923F24A4C42D00925D4D /* NotificationController.swift in Sources */,
 				70CF66E528E1E74C00FAE977 /* TintColorFlipKey.swift in Sources */,
 				3F3C42392F7129CF00A0FEAB /* OCKTask+CardTask.swift in Sources */,
+				EEF30E162FA6844500323EA2 /* WatchProfileLiteView.swift in Sources */,
 				3F3C42042F7127B400A0FEAB /* CareTask.swift in Sources */,
 				70F03A9C27860A2000E5AFB4 /* OCKStore.swift in Sources */,
 				3F4A12172F54F70800068C65 /* OCKAnimationStyle.swift in Sources */,
 				FE38C33D2F560B34000864F1 /* ColorStyler.swift in Sources */,
 				3F4A12182F54F70800068C65 /* OCKAppearanceStyle.swift in Sources */,
+				EEF30E122FA6840B00323EA2 /* WatchMainView.swift in Sources */,
 				70C0D474279BA492003DA141 /* Utility.swift in Sources */,
 				91AD923D24A4C42D00925D4D /* AppDelegate.swift in Sources */,
 				91AD924124A4C42D00925D4D /* NotificationView.swift in Sources */,
@@ -1435,6 +1450,7 @@
 				FE38C3402F560F45000864F1 /* OCKDimensionStyle.swift in Sources */,
 				707CC718254DA91900116728 /* OCKLocalization.swift in Sources */,
 				E7C37849228F887800E982D8 /* TipView.swift in Sources */,
+				EEF30DE82FA676B700323EA2 /* WatchProfileView.swift in Sources */,
 				EEB9E5502FA25A0100658286 /* CustomFeaturedContentView.swift in Sources */,
 				3F3C42432F712B9E00A0FEAB /* CareKitCard.swift in Sources */,
 				3F4A12192F54F70800068C65 /* OCKAnimationStyle.swift in Sources */,

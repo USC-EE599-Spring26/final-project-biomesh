@@ -4,7 +4,7 @@
 //
 //  Created by Faye.
 //
-
+#if os(iOS)
 import Foundation
 import CareKitEssentials
 import CareKitStore
@@ -408,3 +408,4 @@ final class AddTaskViewModel: ObservableObject {
         return cleaned.isEmpty ? "task" : cleaned
     }
 }
+#endif

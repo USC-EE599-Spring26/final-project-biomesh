@@ -5,7 +5,7 @@
 //  Created by Corey Baker on 4/2/26.
 //  Copyright © 2026 Network Reconnaissance Lab. All rights reserved.
 //
-
+#if os(iOS)
 import SwiftUI
 import UIKit
 import CareKit
@@ -42,3 +42,4 @@ struct MyContactView_Previews: PreviewProvider {
 			.accentColor(Color.accentColor)
 	}
 }
+#endif

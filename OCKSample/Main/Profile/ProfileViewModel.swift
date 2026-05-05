@@ -13,6 +13,10 @@ import ParseSwift
 import SwiftUI
 import os.log
 
+#if os(iOS)
+import UIKit
+#endif
+
 @MainActor
 class ProfileViewModel: ObservableObject {
 
@@ -37,33 +41,35 @@ class ProfileViewModel: ObservableObject {
     @Published var isShowingSaveAlert = false
     @Published var isPresentingContact = false
     @Published var isPresentingImagePicker = false
-    @Published var profileUIImage = UIImage(systemName: "person.fill") {
-        willSet {
-            guard self.profileUIImage != newValue,
-                  let inputImage = newValue else {
-                return
-            }
+#if os(iOS)
+@Published var profileUIImage = UIImage(systemName: "person.fill") {
+    willSet {
+        guard self.profileUIImage != newValue,
+              let inputImage = newValue else {
+            return
+        }
 
-            if !isSettingProfilePictureForFirstTime {
-                Task {
-                    guard var currentUser = (try? await User.current()),
-                          let image = inputImage.jpegData(compressionQuality: 0.25) else {
-                        Logger.profile.error("User is not logged in or could not compress image")
-                        return
-                    }
+        if !isSettingProfilePictureForFirstTime {
+            Task {
+                guard var currentUser = (try? await User.current()),
+                      let image = inputImage.jpegData(compressionQuality: 0.25) else {
+                    Logger.profile.error("User is not logged in or could not compress image")
+                    return
+                }
 
-                    let newProfilePicture = ParseFile(name: "profile.jpg", data: image)
-                    currentUser = currentUser.set(\.profilePicture, to: newProfilePicture)
-                    do {
-                        _ = try await currentUser.save()
-                        Logger.profile.info("Saved updated profile picture successfully.")
-                    } catch {
-                        Logger.profile.error("Could not save profile picture: \(error.localizedDescription)")
-                    }
+                let newProfilePicture = ParseFile(name: "profile.jpg", data: image)
+                currentUser = currentUser.set(\.profilePicture, to: newProfilePicture)
+                do {
+                    _ = try await currentUser.save()
+                    Logger.profile.info("Saved updated profile picture successfully.")
+                } catch {
+                    Logger.profile.error("Could not save profile picture: \(error.localizedDescription)")
                 }
             }
         }
     }
+}
+#endif
 
     @Published private(set) var error: Error?
     private(set) var alertMessage = "All changes saved successfully!"
@@ -129,6 +135,7 @@ class ProfileViewModel: ObservableObject {
         }
         self.patient = patient
 
+        #if os(iOS)
         Task {
             do {
                 try await fetchProfilePicture()
@@ -136,6 +143,7 @@ class ProfileViewModel: ObservableObject {
                 Logger.profile.error("Failed to fetch profile picture: \(error.localizedDescription)")
             }
         }
+        #endif
     }
 
     func updateContact(_ contact: OCKAnyContact) {
@@ -160,27 +168,29 @@ class ProfileViewModel: ObservableObject {
         otherContactInfo = contact.otherContactInfo?.first?.value ?? ""
     }
 
-    @MainActor
-    private func fetchProfilePicture() async throws {
-        guard let currentUser = (try? await User.current().fetch()) else {
-            Logger.profile.error("User is not logged in")
-            return
-        }
-
-        if let pictureFile = currentUser.profilePicture {
-            do {
-                let profilePicture = try await pictureFile.fetch()
-                guard let path = profilePicture.localURL?.relativePath else {
-                    Logger.profile.error("Could not find relative path for profile picture.")
-                    return
-                }
-                self.profileUIImage = UIImage(contentsOfFile: path)
-            } catch {
-                Logger.profile.error("Could not fetch profile picture: \(error.localizedDescription).")
-            }
-        }
-        self.isSettingProfilePictureForFirstTime = false
+#if os(iOS)
+@MainActor
+private func fetchProfilePicture() async throws {
+    guard let currentUser = (try? await User.current().fetch()) else {
+        Logger.profile.error("User is not logged in")
+        return
     }
+
+    if let pictureFile = currentUser.profilePicture {
+        do {
+            let profilePicture = try await pictureFile.fetch()
+            guard let path = profilePicture.localURL?.relativePath else {
+                Logger.profile.error("Could not find relative path for profile picture.")
+                return
+            }
+            self.profileUIImage = UIImage(contentsOfFile: path)
+        } catch {
+            Logger.profile.error("Could not fetch profile picture: \(error.localizedDescription).")
+        }
+    }
+    self.isSettingProfilePictureForFirstTime = false
+}
+#endif
 
     // MARK: User intentional behavior
 
