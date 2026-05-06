@@ -85,7 +85,9 @@ final class WatchPhoneSessionLoginViewModel: NSObject, ObservableObject {
             return
         }
 
-        WCSession.default.delegate = self
+        if WCSession.default.delegate == nil {
+            WCSession.default.delegate = self
+        }
 
         if WCSession.default.activationState != .activated {
             WCSession.default.activate()
@@ -129,30 +131,31 @@ final class WatchPhoneSessionLoginViewModel: NSObject, ObservableObject {
         retryCount = 0
         statusText = "Requesting iPhone login..."
 
+        let viewModel = self
         WCSession.default.sendMessage(
             [Constants.parseUserSessionTokenKey: "request"],
-            replyHandler: { reply in
+            replyHandler: { @Sendable reply in
                 let token = reply[Constants.parseUserSessionTokenKey] as? String
 
                 Task { @MainActor in
-                    self.isRequestingLogin = false
+                    viewModel.isRequestingLogin = false
 
                     guard let token else {
-                        self.statusText = "No login from iPhone"
-                        self.isLoggedIn = false
+                        viewModel.statusText = "No login from iPhone"
+                        viewModel.isLoggedIn = false
                         return
                     }
 
-                    await self.signInWithPhoneSessionToken(token)
+                    await viewModel.signInWithPhoneSessionToken(token)
                 }
             },
-            errorHandler: { error in
+            errorHandler: { @Sendable error in
                 let errorText = error.localizedDescription
 
                 Task { @MainActor in
-                    self.isRequestingLogin = false
-                    self.statusText = "Could not reach iPhone"
-                    self.isLoggedIn = false
+                    viewModel.isRequestingLogin = false
+                    viewModel.statusText = "Could not reach iPhone"
+                    viewModel.isLoggedIn = false
                     print("Watch login request failed: \(errorText)")
                 }
             }
@@ -202,7 +205,14 @@ final class WatchPhoneSessionLoginViewModel: NSObject, ObservableObject {
 
         appDelegate.parseRemote.automaticallySynchronizes = true
 
-        try? await appDelegate.store.synchronize()
+        let store = appDelegate.store
+        await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .utility).async {
+                store?.synchronize { _ in
+                    continuation.resume()
+                }
+            }
+        }
     }
 
     func logout() async {

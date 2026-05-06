@@ -17,8 +17,9 @@ extension AppDelegate: ParseRemoteDelegate {
 	nonisolated func didRequestSynchronization(
 		_ remote: OCKRemoteSynchronizable
 	) {
-		state.withLock {
-			$0.store?.synchronize { error in
+		let storeRef = state.withLock { $0.store }
+		DispatchQueue.global(qos: .utility).async {
+			storeRef?.synchronize { error in
 				let errorString = error?.localizedDescription ?? "Successful sync with remote!"
 				Logger.appDelegate.info("\(errorString)")
 			}

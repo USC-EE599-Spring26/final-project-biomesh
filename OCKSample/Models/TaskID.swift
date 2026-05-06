@@ -60,13 +60,9 @@ enum TaskID {
             caffeineIntake,
             waterIntake,
             anxietyCheck,
-            sleepHygiene,
-            hydrationGuide,
             energySnapshot,
             stretchChecklist,
-            studyResource,
-            dailySymptomCheckIn,
-            weeklyReflection
+            sleepHygiene
         ]
     }
 }

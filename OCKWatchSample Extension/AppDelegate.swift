@@ -22,10 +22,6 @@ final class AppDelegate: NSObject, WKApplicationDelegate, ObservableObject {
     @Published private(set) var store: OCKStore! {
 		didSet {
 			state.withLock { $0.store = store }
-			store.synchronize { error in
-				let errorString = error?.localizedDescription ?? "Successful sync with remote!"
-				Logger.appDelegate.info("\(errorString)")
-			}
 		}
     }
 	@Published private(set) var storeCoordinator: OCKStoreCoordinator = .init() {

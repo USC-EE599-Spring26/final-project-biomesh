@@ -100,13 +100,16 @@ final class RemoteSessionDelegate: NSObject, SessionDelegate, Sendable {
 #elseif os(watchOS)
 		if (message[Constants.parseUserSessionTokenKey] as? String) != nil {
 			let sendableMessage = Utility.convertNonSendableDictionaryToSendable(message)
-			Task {
+			Task { @MainActor in
 				await LoginViewModel.loginFromiPhoneMessage(sendableMessage)
 			}
 		} else if (message[Constants.requestSync] as? String) != nil {
-			store.value()?.synchronize { error in
-				let errorString = error?.localizedDescription ?? "Successful sync with remote!"
-				Logger.remoteSessionDelegate.info("\(errorString)")
+			let storeRef = store.value()
+			DispatchQueue.global(qos: .utility).async {
+				storeRef?.synchronize { error in
+					let errorString = error?.localizedDescription ?? "Successful sync with remote!"
+					Logger.remoteSessionDelegate.info("\(errorString)")
+				}
 			}
 		}
 #endif

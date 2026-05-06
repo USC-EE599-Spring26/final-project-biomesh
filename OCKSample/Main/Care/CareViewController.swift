@@ -194,7 +194,7 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
             if isCurrentDay {
                 if Calendar.current.isDate(date, inSameDayAs: Date()) {
                     let featuredView = CustomFeaturedContentView(
-                        url: "https://www.cdc.gov/sleep/"
+                        url: "https://www.fda.gov/consumers/consumer-updates/spilling-beans-how-much-caffeine-too-much"
                     )
                     featuredView.label.text = "Caffeine & Your Health"
                     featuredView.label.textColor = .black
