@@ -96,18 +96,20 @@ struct WatchCareListView: View {
                 return
             }
 
-            try? await store.synchronize()
+            await synchronizeOnBackground(store)
 
             var query = OCKEventQuery(for: Date())
             query.taskIDs = TaskID.orderedWatchOS
 
             let fetchedEvents = try await store.fetchAnyEvents(query: query)
 
+            var seenTaskIDs = Set<String>()
             events = fetchedEvents
                 .filter { TaskID.orderedWatchOS.contains($0.task.id) }
                 .sorted {
                     taskPriority($0.task.id) < taskPriority($1.task.id)
                 }
+                .filter { seenTaskIDs.insert($0.task.id).inserted }
 
             statusText = events.isEmpty ? "No daily logs for today" : ""
 
@@ -149,7 +151,7 @@ struct WatchCareListView: View {
                 _ = try await store.addAnyOutcome(outcome)
             }
 
-            try? await store.synchronize()
+            await synchronizeOnBackground(store)
             await loadTodayTasks()
 
         } catch {
@@ -189,7 +191,7 @@ struct WatchCareListView: View {
                 _ = try await store.addAnyOutcome(outcome)
             }
 
-            try? await store.synchronize()
+            await synchronizeOnBackground(store)
             await loadTodayTasks()
 
         } catch {
@@ -213,13 +215,23 @@ struct WatchCareListView: View {
         }
 
         appDelegate.parseRemote?.automaticallySynchronizes = true
-        try? await store.synchronize()
+        await synchronizeOnBackground(store)
 
         return store
     }
 
     private func taskPriority(_ taskID: String) -> Int {
         TaskID.orderedWatchOS.firstIndex(of: taskID) ?? Int.max
+    }
+
+    private func synchronizeOnBackground(_ store: OCKStore) async {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .utility).async {
+                store.synchronize { _ in
+                    continuation.resume()
+                }
+            }
+        }
     }
 
     private func valueKind(for taskID: String) -> String {
@@ -406,25 +418,32 @@ private struct WatchDailyLogCard: View {
     @ViewBuilder
     private var quickAmountButtons: some View {
         if event.task.id == TaskID.caffeineIntake {
-            HStack {
-                quickButton("Tea", 40)
-                quickButton("Coffee", 95)
-                quickButton("Energy", 160)
+            HStack(spacing: 6) {
+                quickButton("\u{1F375}", "47", 47)
+                quickButton("\u{2615}", "95", 95)
+                quickButton("\u{2615}\u{2615}", "190", 190)
+                quickButton("\u{26A1}", "80", 80)
             }
         } else if event.task.id == TaskID.waterIntake {
-            HStack {
-                quickButton("Small", 4)
-                quickButton("Med", 8)
-                quickButton("Bottle", 16)
+            HStack(spacing: 6) {
+                quickButton("\u{1F95B}", "8", 8)
+                quickButton("\u{1F4A7}", "16", 16)
+                quickButton("\u{1FAD7}", "24", 24)
             }
         }
     }
 
-    private func quickButton(_ title: String, _ value: Double) -> some View {
-        Button(title) {
+    private func quickButton(_ icon: String, _ label: String, _ value: Double) -> some View {
+        Button {
             amount = value
+        } label: {
+            VStack(spacing: 2) {
+                Text(icon)
+                    .font(.body)
+                Text(label)
+                    .font(.system(size: 10))
+            }
         }
-        .font(.caption2)
         .buttonStyle(.bordered)
     }
 

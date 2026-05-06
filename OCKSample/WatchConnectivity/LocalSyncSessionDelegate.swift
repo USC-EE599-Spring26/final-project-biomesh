@@ -46,10 +46,13 @@ final class LocalSessionDelegate: NSObject, SessionDelegate, Sendable {
         Logger.localSessionDelegate.info("New session state: \(activationState.rawValue)")
         if activationState == .activated {
             #if os(watchOS)
-			store.value()?.synchronize { error in
-                let errorString = error?.localizedDescription ?? "Successful sync with iPhone!"
-                Logger.localSessionDelegate.info("\(errorString)")
-            }
+			let storeRef = store.value()
+			DispatchQueue.global(qos: .utility).async {
+				storeRef?.synchronize { error in
+					let errorString = error?.localizedDescription ?? "Successful sync with iPhone!"
+					Logger.localSessionDelegate.info("\(errorString)")
+				}
+			}
             #else
 			DispatchQueue.main.async {
 				NotificationCenter.default.post(

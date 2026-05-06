@@ -257,9 +257,10 @@ extension OCKStore {
             carePlanUUID: sleepWellnessUUID,
             schedule: morningReflectionSchedule
         )
-        hydrationGuide.instructions = "Read a quick reminder about why hydration matters before your first caffeinated drink."
+        hydrationGuide.instructions = "Learn how much water you should drink daily and why it matters."
         hydrationGuide.asset = "drop.circle.fill"
-        hydrationGuide.card = .instruction
+        hydrationGuide.card = .link
+        hydrationGuide.externalURL = URL(string: "https://www.mayoclinic.org/healthy-lifestyle/nutrition-and-healthy-eating/in-depth/water/art-20044256")
         hydrationGuide.priority = 7
         hydrationGuide.impactsAdherence = false
         
@@ -293,10 +294,10 @@ extension OCKStore {
             carePlanUUID: assessmentUUID,
             schedule: afternoonSchedule
         )
-        studyResource.instructions = "Open this resource for a short explainer on caffeine timing, hydration, and recovery habits."
+        studyResource.instructions = "Learn how much caffeine is safe and how it affects your body."
         studyResource.asset = "link.circle.fill"
         studyResource.card = .link
-        studyResource.externalURL = URL(string: "https://www.cdc.gov/sleep/about/index.html")
+        studyResource.externalURL = URL(string: "https://www.fda.gov/consumers/consumer-updates/spilling-beans-how-much-caffeine-too-much")
         studyResource.priority = 7
         studyResource.impactsAdherence = false
 
@@ -445,7 +446,7 @@ extension OCKStore {
         task.asset = "list.clipboard"
         task.card = .survey
         task.surveySteps = [step]
-        task.priority = 6
+        task.priority = 1
 
         return task
     }
@@ -574,7 +575,7 @@ extension OCKStore {
             carePlanUUID: carePlanUUID,
             schedule: rangeOfMotionCheckSchedule
         )
-        rangeOfMotionTask.priority = 2
+        rangeOfMotionTask.priority = 3
         rangeOfMotionTask.asset = "figure.walk.motion"
         rangeOfMotionTask.card = .uiKitSurvey
         rangeOfMotionTask.uiKitSurvey = .rangeOfMotion
@@ -599,7 +600,7 @@ extension OCKStore {
         tappingTask.instructions = """
         Complete this quick finger-tapping task to measure alertness and motor speed after your daytime caffeine routine.
         """
-        tappingTask.priority = 3
+        tappingTask.priority = 2
         tappingTask.asset = "hand.tap.fill"
         tappingTask.card = .uiKitSurvey
         tappingTask.uiKitSurvey = .tappingSpeed

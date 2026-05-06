@@ -27,36 +27,71 @@ struct LinkView: View {
         return nil
     }
 
+    private var iconName: String {
+        event.task.asset ?? "link.circle.fill"
+    }
+
+    private var iconColor: Color {
+        switch event.task.id {
+        case TaskID.hydrationGuide:
+            return .cyan
+        case TaskID.studyResource:
+            return .brown
+        default:
+            return .accentColor
+        }
+    }
+
+    private var sourceName: String {
+        guard let host = destinationURL?.host() else { return "" }
+        return host
+            .replacingOccurrences(of: "www.", with: "")
+    }
+
     var body: some View {
         CardView {
             VStack(alignment: .leading, spacing: 12) {
-                InformationHeaderView(
-                    title: Text(event.title),
-                    information: event.detailText,
-                    event: event
-                )
+                HStack(spacing: 12) {
+                    Image(systemName: iconName)
+                        .font(.title2)
+                        .foregroundStyle(iconColor)
+                        .frame(width: 40, height: 40)
+                        .background(iconColor.opacity(0.12))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(event.title)
+                            .font(.headline)
+                        if let instructions = event.task.instructions {
+                            Text(instructions)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
 
                 Divider()
 
                 if let destinationURL {
                     Link(destination: destinationURL) {
                         HStack(spacing: 10) {
-                            Image(systemName: "safari")
-                            Text("Open Resource")
+                            Image(systemName: "safari.fill")
+                            Text("Read Article")
                                 .fontWeight(.semibold)
                             Spacer()
+                            Image(systemName: "arrow.up.right")
+                                .font(.caption)
                         }
                         .padding()
                         .frame(maxWidth: .infinity)
-                        .background(Color.accentColor)
+                        .background(iconColor.gradient)
                         .foregroundStyle(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
 
-                    Text(destinationURL.absoluteString)
-                        .font(.footnote)
+                    Label(sourceName, systemImage: "globe")
+                        .font(.caption)
                         .foregroundStyle(.secondary)
-                        .lineLimit(2)
                 } else {
                     Text("No link configured for this resource.")
                         .foregroundStyle(.secondary)
