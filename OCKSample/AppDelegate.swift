@@ -40,11 +40,7 @@ import WatchConnectivity
 @MainActor
 final class AppDelegate: UIResponder, ObservableObject {
 
-    // MARK: Public read/write properties
-
     @Published var isFirstTimeLogin = false
-
-    // MARK: Public read private write properties
 
     @Published private(set) var storeCoordinator: OCKStoreCoordinator = .init() {
         willSet {
@@ -52,65 +48,54 @@ final class AppDelegate: UIResponder, ObservableObject {
             self.objectWillChange.send()
         }
     }
-	@Published private(set) var store: OCKStore! = OCKStore(
-		name: Constants.noCareStoreName,
-		type: .inMemory
-	)
+
+    @Published private(set) var store: OCKStore! = OCKStore(
+        name: Constants.noCareStoreName,
+        type: .inMemory
+    )
+
     private(set) var healthKitStore: OCKHealthKitPassthroughStore! {
-		get {
-			return state.withLock { $0.healthKitStore }
-		}
-		set {
-			state.withLock { $0.healthKitStore = newValue }
-		}
-	}
+        get { state.withLock { $0.healthKitStore } }
+        set { state.withLock { $0.healthKitStore = newValue } }
+    }
+
     private(set) var parseRemote: ParseRemote! {
-		get {
-			return state.withLock { $0.parseRemote }
-		}
-		set {
-			state.withLock { $0.parseRemote = newValue }
-		}
-	}
+        get { state.withLock { $0.parseRemote } }
+        set { state.withLock { $0.parseRemote = newValue } }
+    }
 
-    // MARK: Private read/write properties
+    fileprivate var watchRemote: OCKWatchConnectivityPeer {
+        get { state.withLock { $0.watchRemote } }
+        set { state.withLock { $0.watchRemote = newValue } }
+    }
 
-	fileprivate var watchRemote: OCKWatchConnectivityPeer {
-		get {
-			return state.withLock { $0.watchRemote }
-		}
-		set {
-			state.withLock { $0.watchRemote = newValue }
-		}
-	}
+    fileprivate var _sessionDelegate: SessionDelegate!
 
-	fileprivate var _sessionDelegate: SessionDelegate!
-	fileprivate var sessionDelegate: SessionDelegate! {
-		get {
-			sessionDelegateLock.lock()
-			defer { sessionDelegateLock.unlock() }
-			return _sessionDelegate
-		}
-		set {
-			sessionDelegateLock.lock()
-			defer { sessionDelegateLock.unlock() }
-			_sessionDelegate = newValue
-		}
-	}
+    fileprivate var sessionDelegate: SessionDelegate! {
+        get {
+            sessionDelegateLock.lock()
+            defer { sessionDelegateLock.unlock() }
+            return _sessionDelegate
+        }
+        set {
+            sessionDelegateLock.lock()
+            defer { sessionDelegateLock.unlock() }
+            _sessionDelegate = newValue
+        }
+    }
 
-	private struct State {
-		var healthKitStore: OCKHealthKitPassthroughStore!
-		var parseRemote: ParseRemote!
-		lazy var watchRemote = OCKWatchConnectivityPeer()
-	}
-	private let state = Mutex<State>(.init())
-	fileprivate let sessionDelegateLock = NSLock()
+    private struct State {
+        var healthKitStore: OCKHealthKitPassthroughStore!
+        var parseRemote: ParseRemote!
+        lazy var watchRemote = OCKWatchConnectivityPeer()
+    }
 
-    // MARK: Helpers
+    private let state = Mutex<State>(.init())
+    fileprivate let sessionDelegateLock = NSLock()
 
-	func setFirstTimeLogin(_ isFirstTimeLogin: Bool) {
-		self.isFirstTimeLogin = isFirstTimeLogin
-	}
+    func setFirstTimeLogin(_ isFirstTimeLogin: Bool) {
+        self.isFirstTimeLogin = isFirstTimeLogin
+    }
 
     func resetAppToInitialState() {
         do {
@@ -130,10 +115,11 @@ final class AppDelegate: UIResponder, ObservableObject {
         parseRemote = nil
 
         let store = OCKStore(
-			name: Constants.noCareStoreName,
-			type: .inMemory
-		)
-		sessionDelegate?.store.setValue(store)
+            name: Constants.noCareStoreName,
+            type: .inMemory
+        )
+
+        sessionDelegate?.store.setValue(store)
         self.store = store
         PCKUtility.removeCache()
     }
@@ -141,46 +127,143 @@ final class AppDelegate: UIResponder, ObservableObject {
     func setupRemotes(uuid: UUID? = nil) async throws {
         do {
             if isSyncingWithRemote {
-                guard let uuid = uuid else {
+                guard let uuid else {
                     Logger.appDelegate.error("Could not setupRemotes, uuid is nil")
                     return
                 }
+
                 let parseRemote = try await ParseRemote(
-					uuid: uuid,
-					auto: false,
-					subscribeToRemoteUpdates: true,
-					defaultACL: PCKUtility.getDefaultACL()
-				)
+                    uuid: uuid,
+                    auto: false,
+                    subscribeToRemoteUpdates: true,
+                    defaultACL: PCKUtility.getDefaultACL()
+                )
+
                 parseRemote.parseRemoteDelegate = self
-				self.parseRemote = parseRemote
-				let store = OCKStore(
-					name: Constants.iOSParseCareStoreName,
-					type: .onDisk(),
-					remote: parseRemote
-				)
+                self.parseRemote = parseRemote
+
+                let store = OCKStore(
+                    name: Constants.iOSParseCareStoreName,
+                    type: .onDisk(),
+                    remote: parseRemote
+                )
+
                 sessionDelegate = RemoteSessionDelegate(store: store)
                 self.store = store
             } else {
-                let store = OCKStore(name: Constants.iOSLocalCareStoreName,
-                                     type: .onDisk(),
-                                     remote: watchRemote)
+                let store = OCKStore(
+                    name: Constants.iOSLocalCareStoreName,
+                    type: .onDisk(),
+                    remote: watchRemote
+                )
+
                 watchRemote.delegate = self
-                sessionDelegate = LocalSessionDelegate(remote: watchRemote, store: store)
+                sessionDelegate = LocalSessionDelegate(
+                    remote: watchRemote,
+                    store: store
+                )
                 self.store = store
             }
 
-            // Setup communication with watch
-            WCSession.default.delegate = sessionDelegate
-			WCSession.default.activate()
+            setupWatchConnectivity()
 
             healthKitStore = OCKHealthKitPassthroughStore(store: store)
+
             let storeCoordinator = OCKStoreCoordinator()
             storeCoordinator.attach(store: store)
             storeCoordinator.attach(eventStore: healthKitStore)
             self.storeCoordinator = storeCoordinator
+
         } catch {
             Logger.appDelegate.error("Could not setup remote: \(error)")
             throw error
+        }
+    }
+
+    private func setupWatchConnectivity() {
+        guard WCSession.isSupported() else {
+            Logger.appDelegate.info("WCSession is not supported")
+            return
+        }
+
+        WCSession.default.delegate = self
+        WCSession.default.activate()
+    }
+
+    func populateSampleData(
+        patientUUID: UUID? = nil,
+        startDate: Date = Date()
+    ) async throws {
+        try await store.populateDefaultCarePlansTasksContacts(
+            patientUUID,
+            startDate: startDate
+        )
+
+        try await healthKitStore.populateDefaultHealthKitTasks(
+            patientUUID,
+            startDate: startDate
+        )
+    }
+}
+
+// MARK: - WCSessionDelegate
+
+extension AppDelegate: WCSessionDelegate {
+
+    nonisolated func session(
+        _ session: WCSession,
+        activationDidCompleteWith activationState: WCSessionActivationState,
+        error: Error?
+    ) {
+        if let error {
+            Logger.remoteSessionDelegate.error(
+                "WCSession activation failed: \(error.localizedDescription)"
+            )
+        }
+    }
+
+    nonisolated func sessionDidBecomeInactive(_ session: WCSession) {}
+
+    nonisolated func sessionDidDeactivate(_ session: WCSession) {
+        WCSession.default.activate()
+    }
+
+    nonisolated func sessionWatchStateDidChange(_ session: WCSession) {
+        Logger.remoteSessionDelegate.info("Watch state changed")
+    }
+
+    nonisolated func session(
+        _ session: WCSession,
+        didReceiveMessage message: [String: Any]
+    ) {
+        // The Watch should use the replyHandler version below.
+    }
+
+    nonisolated func session(
+        _ session: WCSession,
+        didReceiveMessage message: [String: Any],
+        replyHandler: @escaping ([String: Any]) -> Void
+    ) {
+        let wantsParseSessionToken =
+            message[Constants.parseUserSessionTokenKey] != nil
+
+        guard wantsParseSessionToken else {
+            replyHandler([:])
+            return
+        }
+
+        nonisolated(unsafe) let unsafeReplyHandler = replyHandler
+
+        Task { @MainActor in
+            do {
+                let reply = try await Utility.getUserSessionForWatch()
+                unsafeReplyHandler(reply)
+            } catch {
+                Logger.remoteSessionDelegate.error(
+                    "Could not send session token to Watch: \(error.localizedDescription)"
+                )
+                unsafeReplyHandler([:])
+            }
         }
     }
 }

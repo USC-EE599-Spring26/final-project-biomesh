@@ -25,6 +25,8 @@ struct User: ParseUser {
     // Custom properties
     var lastTypeSelected: String?
     var userTypeUUIDs: [String: UUID]?
+    var profilePicture: ParseFile?
+    var needsOnboarding: Bool?
 }
 
 // MARK: Default Implementation
@@ -38,6 +40,14 @@ extension User {
         if updated.shouldRestoreKey(\.userTypeUUIDs,
                                      original: object) {
             updated.userTypeUUIDs = object.userTypeUUIDs
+        }
+        if updated.shouldRestoreKey(\.profilePicture,
+                                     original: object) {
+            updated.profilePicture = object.profilePicture
+        }
+        if updated.shouldRestoreKey(\.needsOnboarding,
+                                     original: object) {
+            updated.needsOnboarding = object.needsOnboarding
         }
         return updated
     }

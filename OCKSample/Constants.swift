@@ -29,7 +29,7 @@ let isSendingPushUpdatesToWatch = true
  set this value to a negative number. This is used for demo purposes if you want populate
  the InsightsView charts with data.
  */
-let daysInThePastToGenerateSampleData: Int = 0 // Should be a negative number, for example -30, for the past 30 days.
+let daysInThePastToGenerateSampleData: Int = -4 // Should be a negative number, for example -30, for the past 30 days.
 
 enum Constants {
     static let parseConfigFileName = "ParseCareKit"
@@ -46,4 +46,8 @@ enum Constants {
     static let userLoggedIn = "userLoggedIn"
     static let userTypeKey = "userType"
     static let appName = "ParseCareKitSample"
+    static let card = "card"
+    static let priority = "priority"
+    static let uiKitSurvey = "uiKitSurvey"
+    static let linkURL = "linkURL"
 }
