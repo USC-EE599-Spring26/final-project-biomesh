@@ -7,7 +7,7 @@ BioMesh is a mobile health application built on [CareKit](https://github.com/car
 ### Demo Video
 To learn more about this application, watch the video below:
 
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=REPLACE_WITH_VIDEO_ID" target="_blank"><img src="http://img.youtube.com/vi/REPLACE_WITH_VIDEO_ID/0.jpg" alt="BioMesh Demo Video" width="240" height="180" border="10" /></a>
+<a href="https://youtu.be/x6iUxYLI5Os" target="_blank"><img src="http://img.youtube.com/vi/x6iUxYLI5Os/0.jpg" alt="BioMesh Demo Video" width="240" height="180" border="10" /></a>
 
 ### Designed for the following users
 BioMesh is designed for college students, remote workers, and young professionals aged 18-35 who consume caffeine daily and have concerns about its effect on their sleep quality or stress levels. This demographic typically consumes caffeine at high frequency in uncontrolled real-world settings -- exactly the scenario that existing laboratory studies fail to capture. The app benefits users by providing daily visibility into their stimulant habits, personalized feedback on the relationship between caffeine timing and self-reported anxiety episodes, and a historical log that can be shared with a healthcare provider.
