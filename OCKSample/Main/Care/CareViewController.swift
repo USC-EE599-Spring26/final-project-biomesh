@@ -145,7 +145,11 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
                     // Re-run the daily page query so tasks/outcomes that were
                     // just pulled from parse (e.g. after re-login) appear in
                     // the Care tab without requiring the user to navigate away.
-                    self.reloadView()
+                    // Delay slightly to let the store coordinator finish processing.
+                    self.isLoading = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
+                        self?.reloadView()
+                    }
                 }
                 self.isSyncing = false
             }
@@ -237,14 +241,22 @@ final class CareViewController: OCKDailyPageViewController, @unchecked Sendable 
         var query = OCKTaskQuery(for: date)
         query.excludesTasksWithNoEvents = true
         do {
-            let tasks = try await store.fetchAnyTasks(query: query)
+            var tasks = try await store.fetchAnyTasks(query: query)
+            Logger.feed.info("Fetched \(tasks.count) tasks for \(date)")
+
+            if tasks.isEmpty {
+                Logger.feed.info("No tasks found, retrying without event filter")
+                var fallbackQuery = OCKTaskQuery(for: date)
+                fallbackQuery.excludesTasksWithNoEvents = false
+                tasks = try await store.fetchAnyTasks(query: fallbackQuery)
+                Logger.feed.info("Fallback fetched \(tasks.count) tasks")
+            }
 
             guard let tasksWithPriority = tasks as? [CareTask] else {
                 Logger.feed.warning("Could not cast all tasks to \"CareTask\"")
                 return tasks
             }
             let orderedPriorityTasks = tasksWithPriority.sortedByPriority()
-            // Remove the onboarding task so it doesn't show after onboarding
             var filteredTasks = orderedPriorityTasks.compactMap { orderedPriorityTask in
                 tasks.first(where: { $0.id == orderedPriorityTask.id })
             }

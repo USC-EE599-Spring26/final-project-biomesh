@@ -101,6 +101,10 @@ struct CaffeineAnxietyChartView: View {
                     Text("Log caffeine and anxiety to see their correlation over time.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
+                } else if chartData.count == 1 {
+                    Text("Log more days to see correlation trends.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
                 } else {
                     Text("Both metrics normalized to their peak value (100%)")
                         .font(.footnote)

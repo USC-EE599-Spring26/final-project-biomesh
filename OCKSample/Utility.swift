@@ -65,7 +65,15 @@ class Utility {
         }
         try await appDelegate.setupRemotes(uuid: remoteUUID)
         appDelegate.parseRemote.automaticallySynchronizes = true
-        return
+
+        #if os(iOS) || os(visionOS)
+        let taskQuery = OCKTaskQuery(for: Date())
+        let existingTasks = try await appDelegate.store.fetchAnyTasks(query: taskQuery)
+        if existingTasks.isEmpty {
+            Logger.utility.info("No tasks found after login, re-seeding default data")
+            try await appDelegate.populateSampleData()
+        }
+        #endif
     }
 
     static func updateInstallationWithDeviceToken(_ deviceToken: Data? = nil) async {

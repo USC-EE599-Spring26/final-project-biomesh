@@ -150,7 +150,7 @@ struct InsightsView: View {
 			period = .day
 			chartInterval = DateInterval(start: startOfDay, end: now)
 		case 1:
-			let startDate = calendar.date(byAdding: .weekday, value: -7, to: now)!
+			let startDate = calendar.date(byAdding: .day, value: -7, to: now)!
 			period = .week
 			chartInterval = DateInterval(start: startDate, end: now)
 		case 2:
@@ -162,7 +162,7 @@ struct InsightsView: View {
 			period = .month
 			chartInterval = DateInterval(start: startDate, end: now)
 		default:
-			let startDate = calendar.date(byAdding: .weekday, value: -7, to: now)!
+			let startDate = calendar.date(byAdding: .day, value: -7, to: now)!
 			period = .week
 			chartInterval = DateInterval(start: startDate, end: now)
 		}
@@ -176,7 +176,27 @@ struct InsightsView: View {
 	}
 
 	static func query() -> OCKEventQuery {
-		let query = OCKEventQuery(dateInterval: .init())
+		let calendar = Calendar.current
+		let now = Date()
+		let startDate = calendar.date(byAdding: .year, value: -1, to: now)!
+		let endDate = calendar.date(
+			byAdding: .day,
+			value: 1,
+			to: calendar.startOfDay(for: now)
+		)!
+		var query = OCKEventQuery(dateInterval: DateInterval(start: startDate, end: endDate))
+		query.taskIDs = [
+			TaskID.caffeineIntake,
+			TaskID.anxietyCheck,
+			TaskID.sleepHygiene,
+			TaskID.waterIntake,
+			TaskID.heartRate,
+			TaskID.restingHeartRate,
+			TaskID.steps,
+			TaskID.sleepDuration,
+			TaskID.energySnapshot,
+			TaskID.stretchChecklist
+		]
 		return query
 	}
 }
